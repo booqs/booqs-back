@@ -1,14 +1,8 @@
-import { typedModel } from '../utils';
+import { typedModel, TypeFromSchema } from '../utils';
 
 const schema = {
-    title: {
-        type: String,
-        index: true,
-    },
-    author: {
-        type: String,
-        index: true,
-    },
+    title: String,
+    author: String,
     assetId: {
         type: String,
         required: true,
@@ -16,7 +10,10 @@ const schema = {
     index: {
         type: Number,
         required: true,
+        index: true,
     },
+    meta: Object,
 } as const;
 
-export const docs = typedModel('pg-cards', schema);
+export type PgCard = TypeFromSchema<typeof schema>;
+export const pgCards = typedModel('pg-cards', schema);
