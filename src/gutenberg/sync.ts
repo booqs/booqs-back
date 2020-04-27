@@ -9,12 +9,16 @@ import { pgCards, PgCard } from './db';
 const bucket = 'pg-epub';
 
 export async function syncWithS3() {
+    log('PG: Syncing with S3');
+
     const batches = makeBatches(listEpubObjects(), 50);
     for await (const batch of batches) {
         await Promise.all(
             batch.map(processAsset),
         );
     }
+
+    log('PG: done syncing with S3');
 }
 
 async function processAsset(asset: Asset) {
