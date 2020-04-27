@@ -1,9 +1,14 @@
-import { Schema } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
+
+export function typedModel<T extends SchemaDefinition>(name: string, schema: T) {
+    return model<DocumentType<T>>(name, new Schema(schema));
+}
 
 export function taggedObject<T>(): TaggedObject<T> {
     return Object;
 }
 
+export type DocumentType<T extends SchemaDefinition> = Document & TypeFromSchema<T>;
 export type TypeFromSchema<T extends SchemaDefinition> =
     & { [P in Extract<keyof T, RequiredProperties<T>>]: FieldType<T[P]>; }
     & { [P in Exclude<keyof T, RequiredProperties<T>>]?: FieldType<T[P]>; }

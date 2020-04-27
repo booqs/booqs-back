@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { typedModel } from '../utils';
 
 const schema = {
     title: {
@@ -19,4 +19,4 @@ const schema = {
     },
 } as const;
 
-export const docs = model('pg-cards', new Schema(schema));
+export const docs = typedModel('pg-cards', schema);
