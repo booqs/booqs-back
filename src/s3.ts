@@ -4,6 +4,20 @@ import { ContinuationToken } from 'aws-sdk/clients/kinesisvideomedia';
 
 const service = new S3();
 
+export type Asset = S3.Object;
+export type AssetBody = S3.Body;
+export async function downloadAsset(bucket: string, assetId: string): Promise<AssetBody | undefined> {
+    try {
+        const result = await service.getObject({
+            Bucket: bucket,
+            Key: assetId,
+        }).promise();
+        return result.Body;
+    } catch (e) {
+        return undefined;
+    }
+}
+
 export async function* listObjects(bucket: string) {
     for await (const batch of listObjectBatches(bucket)) {
         yield* batch;
