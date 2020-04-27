@@ -4,8 +4,5 @@ node_modules
 # ignore build output
 dist/**/*
 
-# ignore epub examples
-examples/**/*
-
 # ignore secrets
 .env
