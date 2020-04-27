@@ -38,9 +38,11 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "apollo-server": "^2.12.0",
     "aws-sdk": "^2.664.0",
     "booqs-core": "^0.2.0",
     "booqs-parser": "^0.2.1",
+    "graphql": "^15.0.0",
     "mongoose": "^5.9.10"
   }
 }
