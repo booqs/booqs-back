@@ -1,0 +1,26 @@
+{
+    "files.exclude": {
+        "**/dist/**": true,
+        "**/.DS_Store": true,
+        "**/node_modules/**": true
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+    },
+    "editor.formatOnSave": true,
+    "cSpell.words": [
+        "Booq",
+        "Shakirzianov",
+        "Srcs",
+        "Whitespaces",
+        "booqs",
+        "coverpage",
+        "epub",
+        "epubs",
+        "hacky",
+        "promisify",
+        "readonly",
+        "rgrove",
+        "xmls"
+    ]
+}
