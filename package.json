@@ -37,6 +37,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "booqs-core": "^0.2.0"
+    "booqs-core": "^0.2.0",
+    "mongoose": "^5.9.10"
   }
 }
