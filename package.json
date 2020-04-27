@@ -46,6 +46,7 @@
     "aws-sdk": "^2.664.0",
     "booqs-core": "^0.2.0",
     "booqs-parser": "^0.2.1",
+    "dotenv": "^8.2.0",
     "graphql": "^15.0.0",
     "mongoose": "^5.9.10"
   }
