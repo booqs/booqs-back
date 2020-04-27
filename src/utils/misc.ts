@@ -8,3 +8,18 @@ export function uuid() {
         return v.toString(16);
     });
 }
+
+export async function* makeBatches<T>(generator: AsyncGenerator<T>, size: number) {
+    let batch: T[] = [];
+    for await (const item of generator) {
+        if (batch.length < size) {
+            batch.push(item);
+        } else {
+            yield batch;
+            batch = [item];
+        }
+    }
+    if (batch.length > 0) {
+        yield batch;
+    }
+}
