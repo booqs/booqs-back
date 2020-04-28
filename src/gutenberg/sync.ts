@@ -84,7 +84,7 @@ async function insertRecord({ metadata, cover }: ExtractedMetadata, assetId: str
         ...coverData,
     };
     const [inserted] = await pgCards.insertMany([doc]);
-    report('inserted', doc);
+    report('inserted', inserted);
     return inserted;
 }
 
