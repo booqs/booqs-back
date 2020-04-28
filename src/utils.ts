@@ -1,3 +1,7 @@
+import { promisify } from 'util';
+import { writeFile, exists, mkdir } from 'fs';
+import { join } from 'path';
+
 // TODO: move to 'core' ?
 export function uuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, ch => {
@@ -22,4 +26,18 @@ export async function* makeBatches<T>(generator: AsyncGenerator<T>, size: number
     if (batch.length > 0) {
         yield batch;
     }
+}
+
+export async function writeTempFile(body: any) {
+    const filePath = await tempPath();
+    await promisify(writeFile)(filePath, body);
+    return filePath;
+}
+
+export async function tempPath() {
+    const temp = 'tmp';
+    if (!await promisify(exists)(temp)) {
+        await promisify(mkdir)(temp, { recursive: true });
+    }
+    return join(temp, uuid());
 }

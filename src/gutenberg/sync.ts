@@ -1,10 +1,8 @@
-import { writeFile, mkdir, exists } from 'fs';
-import { join } from 'path';
-import { promisify, inspect } from 'util';
+import { inspect } from 'util';
 import { parseMetadata } from 'booqs-parser';
 import { BooqMeta } from 'booqs-core';
-import { uuid, makeBatches } from '../utils';
-import { listObjects, AssetBody, downloadAsset, Asset } from '../s3';
+import { makeBatches, writeTempFile } from '../utils';
+import { listObjects, downloadAsset, Asset } from '../s3';
 import { pgCards, PgCard } from './db';
 
 const bucket = 'pg-epub';
@@ -109,20 +107,6 @@ function indexFromAssetId(assetId: string) {
     } else {
         return undefined;
     }
-}
-
-async function writeTempFile(body: AssetBody) {
-    const filePath = await tempPath();
-    await promisify(writeFile)(filePath, body);
-    return filePath;
-}
-
-async function tempPath() {
-    const temp = 'tmp';
-    if (!await promisify(exists)(temp)) {
-        await promisify(mkdir)(temp, { recursive: true });
-    }
-    return join(temp, uuid());
 }
 
 function report(label: string, data?: any) {
