@@ -47,7 +47,7 @@
     "apollo-server": "^2.12.0",
     "aws-sdk": "^2.664.0",
     "booqs-core": "^0.2.0",
-    "booqs-parser": "^0.2.1",
+    "booqs-parser": "^0.2.2",
     "dotenv": "^8.2.0",
     "graphql": "^15.0.0",
     "lodash": "^4.17.15",
