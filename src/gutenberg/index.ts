@@ -1,2 +1,7 @@
+import { search } from './search';
+
 export * from './sync';
-export * from './search';
+
+export const pgLib = {
+    search,
+};
