@@ -32,6 +32,7 @@ async function processAsset(asset: Asset) {
 }
 
 async function recordExists(assetId: string) {
+    // return assetId && false;
     return pgCards.exists({ assetId });
 }
 
@@ -79,7 +80,7 @@ async function insertRecord(meta: BooqMeta, assetId: string) {
         meta: rest,
     };
     const [inserted] = await pgCards.insertMany([doc]);
-    report(`inserted: ${inspect(doc)}`);
+    report('inserted', doc);
     return inserted;
 }
 
@@ -110,8 +111,8 @@ function indexFromAssetId(assetId: string) {
 }
 
 function report(label: string, data?: any) {
-    console.log('PG:', inspect(label, true, 3, true));
+    console.log('PG: \x1b[32m%s\x1b[0m', label);
     if (data) {
-        console.log(inspect(data, true, 3, true));
+        console.log(inspect(data, false, 3, true));
     }
 }
