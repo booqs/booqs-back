@@ -18,6 +18,14 @@ export async function downloadAsset(bucket: string, assetId: string): Promise<As
     }
 }
 
+export async function uploadAsset(bucket: string, assetId: string, body: AssetBody) {
+    return service.putObject({
+        Bucket: bucket,
+        Key: assetId,
+        Body: body,
+    }).promise();
+}
+
 export async function* listObjects(bucket: string) {
     for await (const batch of listObjectBatches(bucket)) {
         yield* batch;

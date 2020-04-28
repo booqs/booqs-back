@@ -17,6 +17,8 @@ const schema = {
     description: String,
     subjects: [String],
     meta: Object,
+    cover: String,
+    coverSizes: Object,
 } as const;
 
 export type PgCard = TypeFromSchema<typeof schema>;
