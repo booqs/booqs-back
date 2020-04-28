@@ -1,8 +1,6 @@
 import { typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
-    title: String,
-    author: String,
     assetId: {
         type: String,
         required: true,
@@ -12,6 +10,11 @@ const schema = {
         required: true,
         index: true,
     },
+    title: String,
+    author: String,
+    language: String,
+    description: String,
+    subjects: [String],
     meta: Object,
 } as const;
 

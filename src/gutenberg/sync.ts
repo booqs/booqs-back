@@ -66,18 +66,38 @@ async function insertRecord(meta: BooqMeta, assetId: string) {
         log(`PG: Invalid asset ig: ${assetId}`);
         return undefined;
     }
+    const {
+        title, creator: author, subject, language, description,
+        ...rest
+    } = meta;
     const doc: PgCard = {
-        title: typeof meta.title === 'string'
-            ? meta.title : undefined,
-        author: typeof meta.author === 'string'
-            ? meta.author : undefined,
         assetId,
-        meta,
         index,
+        title: parseString(title),
+        author: parseString(author),
+        language: parseString(language),
+        description: parseString(description),
+        subjects: parseSubject(subject),
+        meta: rest,
     };
     const [inserted] = await pgCards.insertMany([doc]);
     log(`PG: inserted: ${inspect(doc)}`);
     return inserted;
+}
+
+function parseString(field: unknown) {
+    return typeof field === 'string'
+        ? field : undefined;
+}
+
+function parseSubject(subject: unknown) {
+    if (Array.isArray(subject)) {
+        return subject;
+    } else if (typeof subject === 'string') {
+        return [subject];
+    } else {
+        return undefined;
+    }
 }
 
 function indexFromAssetId(assetId: string) {
