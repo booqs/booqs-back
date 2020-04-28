@@ -3,14 +3,14 @@ import { join } from 'path';
 import { promisify, inspect } from 'util';
 import { parseMetadata } from 'booqs-parser';
 import { BooqMeta } from 'booqs-core';
-import { log, uuid, makeBatches } from '../utils';
+import { uuid, makeBatches } from '../utils';
 import { listObjects, AssetBody, downloadAsset, Asset } from '../s3';
 import { pgCards, PgCard } from './db';
 
 const bucket = 'pg-epub';
 
 export async function syncWithS3() {
-    log('PG: Syncing with S3');
+    report('Syncing with S3');
 
     const batches = makeBatches(listEpubObjects(), 50);
     for await (const batch of batches) {
@@ -19,15 +19,15 @@ export async function syncWithS3() {
         );
     }
 
-    log('PG: done syncing with S3');
+    report('done syncing with S3');
 }
 
 async function processAsset(asset: Asset) {
     if (!asset.Key) {
-        log('PG: bad asset', asset);
+        report('bad asset', asset);
         return;
     } else if (await recordExists(asset.Key)) {
-        log(`PG: Skipping ${asset.Key}`);
+        report(`Skipping ${asset.Key}`);
         return;
     }
     return downloadAndInsert(asset.Key);
@@ -42,19 +42,19 @@ async function* listEpubObjects() {
 }
 
 async function downloadAndInsert(assetId: string) {
-    log(`PG: Processing ${assetId}`);
+    report(`Processing ${assetId}`);
     const asset = await downloadAsset(bucket, assetId);
     if (!asset) {
-        log(`PG: Couldn't load pg asset: ${asset}`);
+        report(`Couldn't load pg asset: ${asset}`);
         return;
     }
     const fileName = await writeTempFile(asset);
     const { value: meta, diags } = await parseMetadata(fileName);
     if (diags.length > 0) {
-        log(`PG: Diagnostics while parsing ${assetId}`, diags);
+        report(`Diagnostics while parsing ${assetId}`, diags);
     }
     if (!meta) {
-        log(`PG: Couldn't parse metadata: ${assetId}`);
+        report(`Couldn't parse metadata: ${assetId}`);
         return;
     }
     return insertRecord(meta, assetId);
@@ -63,7 +63,7 @@ async function downloadAndInsert(assetId: string) {
 async function insertRecord(meta: BooqMeta, assetId: string) {
     const index = indexFromAssetId(assetId);
     if (index === undefined) {
-        log(`PG: Invalid asset ig: ${assetId}`);
+        report(`Invalid asset ig: ${assetId}`);
         return undefined;
     }
     const {
@@ -81,7 +81,7 @@ async function insertRecord(meta: BooqMeta, assetId: string) {
         meta: rest,
     };
     const [inserted] = await pgCards.insertMany([doc]);
-    log(`PG: inserted: ${inspect(doc)}`);
+    report(`inserted: ${inspect(doc)}`);
     return inserted;
 }
 
@@ -123,4 +123,11 @@ async function tempPath() {
         await promisify(mkdir)(temp, { recursive: true });
     }
     return join(temp, uuid());
+}
+
+function report(label: string, data?: any) {
+    console.log('PG:', inspect(label, true, 3, true));
+    if (data) {
+        console.log(inspect(data, true, 3, true));
+    }
 }
