@@ -1,4 +1,4 @@
-import { typedModel, TypeFromSchema } from '../utils';
+import { typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
     title: String,

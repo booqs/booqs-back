@@ -1,8 +1,9 @@
 import { ApolloServer } from 'apollo-server';
 import { config as configEnv } from 'dotenv';
 import { typeDefs, resolvers } from './graphql';
-import { log, connectDb } from './utils';
+import { log } from './utils';
 import { syncWithS3 } from './gutenberg';
+import { connectDb } from './mongoose';
 
 configEnv();
 startup();
