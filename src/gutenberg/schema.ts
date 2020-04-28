@@ -21,5 +21,5 @@ const schema = {
     coverSizes: Object,
 } as const;
 
-export type PgCard = TypeFromSchema<typeof schema>;
-export const pgCards = typedModel('pg-cards', schema);
+export type Card = TypeFromSchema<typeof schema>;
+export const cards = typedModel('pg-cards', schema);

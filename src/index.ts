@@ -22,5 +22,8 @@ async function startup() {
 }
 
 async function runWorkers() {
-    syncWithS3();
+    // eslint-disable-next-line no-constant-condition
+    if (false) {
+        syncWithS3();
+    }
 }
