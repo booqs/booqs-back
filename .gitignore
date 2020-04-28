@@ -1,8 +1,11 @@
-# ignore node modules
+# node modules
 node_modules
 
-# ignore build output
+# build output
 dist/**/*
 
-# ignore secrets
+# secrets
 .env
+
+# temp files
+tmp/**/*

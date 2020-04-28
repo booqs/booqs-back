@@ -1,5 +1,6 @@
-import { writeFile } from 'fs';
-import { promisify } from 'util';
+import { writeFile, mkdir, exists } from 'fs';
+import { join } from 'path';
+import { promisify, inspect } from 'util';
 import { parseMetadata } from 'booqs-parser';
 import { BooqMeta } from 'booqs-core';
 import { log, uuid, makeBatches } from '../utils';
@@ -25,13 +26,14 @@ async function processAsset(asset: Asset) {
     if (!asset.Key) {
         log('PG: bad asset', asset);
         return;
-    } else if (await exists(asset.Key)) {
+    } else if (await recordExists(asset.Key)) {
+        log(`PG: Skipping ${asset.Key}`);
         return;
     }
     return downloadAndInsert(asset.Key);
 }
 
-async function exists(assetId: string) {
+async function recordExists(assetId: string) {
     return pgCards.exists({ assetId });
 }
 
@@ -40,6 +42,7 @@ async function* listEpubObjects() {
 }
 
 async function downloadAndInsert(assetId: string) {
+    log(`PG: Processing ${assetId}`);
     const asset = await downloadAsset(bucket, assetId);
     if (!asset) {
         log(`PG: Couldn't load pg asset: ${asset}`);
@@ -73,6 +76,7 @@ async function insertRecord(meta: BooqMeta, assetId: string) {
         index,
     };
     const [inserted] = await pgCards.insertMany([doc]);
+    log(`PG: inserted: ${inspect(doc)}`);
     return inserted;
 }
 
@@ -88,7 +92,15 @@ function indexFromAssetId(assetId: string) {
 }
 
 async function writeTempFile(body: AssetBody) {
-    const path = uuid();
-    await promisify(writeFile)(path, body);
-    return path;
+    const filePath = await tempPath();
+    await promisify(writeFile)(filePath, body);
+    return filePath;
+}
+
+async function tempPath() {
+    const temp = 'tmp';
+    if (!await promisify(exists)(temp)) {
+        await promisify(mkdir)(temp, { recursive: true });
+    }
+    return join(temp, uuid());
 }
