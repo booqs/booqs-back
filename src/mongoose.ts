@@ -6,6 +6,7 @@ export async function connectDb(uri: string) {
     return await connect(uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useCreateIndex: true,
     });
 }
 
