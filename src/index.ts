@@ -8,7 +8,12 @@ configEnv();
 startup();
 
 async function startup() {
-    await connectDb(process.env.BACKEND_MONGODB_URI);
+    const dbUri = process.env.BACKEND_MONGODB_URI;
+    if (dbUri) {
+        await connectDb(dbUri);
+    } else {
+        log('BACKEND_MONGODB_URI is not set');
+    }
 
     const server = new ApolloServer({ typeDefs, resolvers });
     const { url } = await server.listen();

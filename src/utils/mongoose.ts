@@ -1,17 +1,12 @@
 import {
-    Schema, model, Document, set, connect,
+    Schema, model, Document, connect,
 } from 'mongoose';
 
-export async function connectDb(uri: string | undefined) {
-    if (!uri) {
-        return;
-    }
-    set('useNewUrlParser', true);
-    set('useFindAndModify', false);
-    set('useCreateIndex', true);
-    set('useUnifiedTopology', true);
-
-    return connect(uri);
+export async function connectDb(uri: string) {
+    return await connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    });
 }
 
 export function typedModel<T extends SchemaDefinition>(name: string, schema: T) {
