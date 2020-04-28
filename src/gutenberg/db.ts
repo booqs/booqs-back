@@ -9,6 +9,7 @@ const schema = {
         type: Number,
         required: true,
         index: true,
+        unique: true,
     },
     title: String,
     author: String,
