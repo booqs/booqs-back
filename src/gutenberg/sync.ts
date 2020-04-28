@@ -1,4 +1,5 @@
 import { inspect } from 'util';
+import { flatten, uniq } from 'lodash';
 import { parseMetadata } from 'booqs-parser';
 import { BooqMeta } from 'booqs-core';
 import { makeBatches, writeTempFile } from '../utils';
@@ -32,7 +33,6 @@ async function processAsset(asset: Asset) {
 }
 
 async function recordExists(assetId: string) {
-    // return assetId && false;
     return pgCards.exists({ assetId });
 }
 
@@ -91,7 +91,9 @@ function parseString(field: unknown) {
 
 function parseSubject(subject: unknown) {
     if (Array.isArray(subject)) {
-        return subject;
+        const subs = subject.map((s: string) => s.split(' -- '));
+        const result = uniq(flatten(subs));
+        return result;
     } else if (typeof subject === 'string') {
         return [subject];
     } else {
