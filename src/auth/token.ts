@@ -2,11 +2,10 @@ import { sign, verify } from 'jsonwebtoken';
 import { config } from '../config';
 import { afterPrefix } from '../utils';
 
+const issuer = 'booqs';
 const secret = config().jwtSecret;
 export function generateToken(userId: string) {
-    return sign(userId, secret, {
-        issuer: 'booqs',
-    });
+    return sign(userId, secret, { issuer });
 }
 
 export function userIdFromHeader(header: string) {
@@ -16,9 +15,7 @@ export function userIdFromHeader(header: string) {
 }
 
 export function userIdFromToken(token: string) {
-    const userId = verify(token, secret, {
-        issuer: 'booqs',
-    });
+    const userId = verify(token, secret, { issuer });
     return typeof userId === 'string'
         ? userId : undefined;
 }
