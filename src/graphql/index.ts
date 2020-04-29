@@ -1,6 +1,6 @@
 import { gql, IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
-import { auth } from '../auth';
+import { getAuthToken } from '../auth';
 
 export const typeDefs = gql`
 type Card {
@@ -24,7 +24,7 @@ export const resolvers: IResolvers = {
             return results;
         },
         async auth(_, { token, provider }) {
-            const authToken = await auth({
+            const authToken = await getAuthToken({
                 provider,
                 token,
             });

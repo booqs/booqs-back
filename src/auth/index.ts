@@ -6,7 +6,7 @@ export type AuthInput = {
     provider: 'facebook',
     token: string,
 };
-export async function auth(input: AuthInput) {
+export async function getAuthToken(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token);

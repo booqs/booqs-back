@@ -3,6 +3,7 @@ import { config as configEnv } from 'dotenv';
 import { typeDefs, resolvers } from './graphql';
 import { syncWithS3 } from './gutenberg';
 import { connectDb } from './mongoose';
+import { fromContext } from './auth/fromContext';
 
 configEnv();
 startup();
@@ -15,7 +16,11 @@ async function startup() {
         console.warn('BACKEND_MONGODB_URI is not set');
     }
 
-    const server = new ApolloServer({ typeDefs, resolvers });
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers,
+        context: fromContext,
+    });
     const { url } = await server.listen();
     console.info(`Server ready at ${url}`);
     runWorkers();
