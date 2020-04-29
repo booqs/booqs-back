@@ -1,6 +1,6 @@
 import { fetchFbUser } from './facebook';
-import { forFacebook } from './accounts';
-import { generateToken } from './token';
+import { forFacebook, forId } from './accounts';
+import { generateToken, userIdFromHeader } from './token';
 
 export type AuthInput = {
     provider: 'facebook',
@@ -17,4 +17,11 @@ export async function getAuthToken(input: AuthInput) {
         default:
             return undefined;
     }
+}
+
+export async function fromHeader(header: string) {
+    const userId = userIdFromHeader(header);
+    return userId
+        ? forId(userId)
+        : undefined;
 }

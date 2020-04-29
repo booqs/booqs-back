@@ -1,6 +1,6 @@
 import { gql, IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
-import { getAuthToken } from '../auth';
+import { getAuthToken, fromHeader } from '../auth';
 
 export const typeDefs = gql`
 type Card {
@@ -32,3 +32,16 @@ export const resolvers: IResolvers = {
         },
     },
 };
+
+type Context = {
+    req: {
+        headers: {
+            authorization?: string,
+        },
+    },
+};
+export async function context(context: Context) {
+    const header = context.req.headers.authorization ?? '';
+    const user = fromHeader(header);
+    return { user };
+}

@@ -1,9 +1,8 @@
 import { ApolloServer } from 'apollo-server';
 import { config as configEnv } from 'dotenv';
-import { typeDefs, resolvers } from './graphql';
+import { typeDefs, resolvers, context } from './graphql';
 import { syncWithS3 } from './gutenberg';
 import { connectDb } from './mongoose';
-import { fromContext } from './auth/fromContext';
 
 configEnv();
 startup();
@@ -19,7 +18,7 @@ async function startup() {
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        context: fromContext,
+        context,
     });
     const { url } = await server.listen();
     console.info(`Server ready at ${url}`);
