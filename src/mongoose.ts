@@ -18,6 +18,10 @@ export function taggedObject<T>(): TaggedObject<T> {
     return Object;
 }
 
+export const ObjectId = Schema.Types.ObjectId;
+export type ObjectId = Schema.Types.ObjectId;
+type ObjectIdConstructor = typeof ObjectId;
+
 export type DocumentType<T extends SchemaDefinition> = Document & TypeFromSchema<T>;
 export type TypeFromSchema<T extends SchemaDefinition> =
     & { [P in Extract<keyof T, RequiredProperties<T>>]: FieldType<T[P]>; }
@@ -71,7 +75,3 @@ type FieldType<T extends SchemaField<any>> =
     T extends SchemaFieldComplex<infer U> ? GetType<U> :
     T extends SchemaType ? GetType<T> :
     never;
-
-const ObjectId = Schema.Types.ObjectId;
-// type ObjectId = Schema.Types.ObjectId;
-type ObjectIdConstructor = typeof ObjectId;
