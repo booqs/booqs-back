@@ -51,3 +51,11 @@ export async function resizeImage(buffer: Buffer, height: number): Promise<Buffe
         })
         .toBuffer();
 }
+
+export function afterPrefix(str: string, prefix: string): string | undefined {
+    if (str.startsWith(prefix)) {
+        return str.substr(prefix.length);
+    } else {
+        return undefined;
+    }
+}

@@ -8,6 +8,8 @@
         "source.fixAll": true,
     },
     "editor.formatOnSave": true,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.tsdk": "node_modules/typescript/lib",
     "cSpell.words": [
         "Booq",
         "Shakirzianov",
