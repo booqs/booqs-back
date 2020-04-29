@@ -1,8 +1,29 @@
 import { gql, IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
 import { getAuthToken, fromHeader } from '../auth';
+import { bookmarks } from '../data';
 
 export const typeDefs = gql`
+type Query {
+    auth(token: String, provider: String): AuthToken
+    search(query: String): [Card]
+    bookmarks(booqId: BooqIdInput): [Bookmark]
+}
+
+input BooqIdInput {
+    source: String!
+    id: String!
+}
+type BooqId {
+    source: String!
+    id: String!
+}
+
+type Bookmark {
+    booqId: BooqId
+    path: [Int!]!
+    uuid: String
+}
 type Card {
     title: String
     author: String
@@ -10,17 +31,12 @@ type Card {
 type AuthToken {
     token: String
 }
-type Query {
-    auth(token: string, provider: String): AuthToken
-    search(query: String): [Card]
-}
 `;
 
 export const resolvers: IResolvers = {
     Query: {
         async search(_, { query }) {
             const results = await pgLib.search(query, 100);
-            console.log(results);
             return results;
         },
         async auth(_, { token, provider }) {
@@ -29,6 +45,9 @@ export const resolvers: IResolvers = {
                 token,
             });
             return { token: authToken };
+        },
+        async bookmarks(_, { booqId }, context) {
+            return bookmarks.forBook(context.user?._id, booqId.id, booqId.source);
         },
     },
 };
@@ -42,6 +61,15 @@ type Context = {
 };
 export async function context(context: Context) {
     const header = context.req.headers.authorization ?? '';
-    const user = fromHeader(header);
+    let user = await fromHeader(header);
+    // TODO: remove
+    if (!user) {
+        user = {
+            _id: '000000000000000000000000',
+            name: 'Incognito',
+            joined: new Date(Date.now()),
+            pictureUrl: undefined,
+        };
+    }
     return { user };
 }

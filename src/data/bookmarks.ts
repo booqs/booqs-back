@@ -48,9 +48,11 @@ async function addBookmark(accountId: string, bm: BookmarkPost) {
     };
 }
 
-async function forBook(accountId: string, bookId: string): Promise<Bookmark[]> {
+async function forBook(accountId: string, bookId: string, bookSource: string): Promise<Bookmark[]> {
     return docs
-        .find({ accountId, bookId })
+        .find({
+            accountId, bookId, bookSource,
+        })
         .exec();
 }
 
