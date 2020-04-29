@@ -4,21 +4,30 @@ import { getAuthToken, fromHeader } from '../auth';
 import { bookmarks } from '../data';
 
 export const typeDefs = gql`
+input BooqIdInput {
+    source: String!
+    id: String!
+}
+input BookmarkInput {
+    booqId: BooqIdInput
+}
+
 type Query {
     auth(token: String, provider: String): AuthToken
     search(query: String): [Card]
     bookmarks(booqId: BooqIdInput): [Bookmark]
 }
+type Mutation {
+    addBookmark(bm: BookmarkInput): HasUuid
+}
 
-input BooqIdInput {
-    source: String!
-    id: String!
+type HasUuid {
+    uuid: String
 }
 type BooqId {
     source: String!
     id: String!
 }
-
 type Bookmark {
     booqId: BooqId
     path: [Int!]!
@@ -48,6 +57,29 @@ export const resolvers: IResolvers = {
         },
         async bookmarks(_, { booqId }, context) {
             return bookmarks.forBook(context.user?._id, booqId.id, booqId.source);
+        },
+    },
+    Mutation: {
+        async addBookmark(_, { bm }, context) {
+            const result = await bookmarks.addBookmark(
+                context.user?._id,
+                {
+                    uuid: '100',
+                    bookId: bm.booqId.id,
+                    bookSource: bm.booqId.source,
+                    path: [1],
+                },
+            );
+            console.log(result);
+            return result;
+        },
+    },
+    Bookmark: {
+        booqId(parent) {
+            return {
+                id: parent.bookId,
+                source: parent.bookSource,
+            };
         },
     },
 };

@@ -31,21 +31,23 @@ const docs = typedModel('bookmarks', schema);
 type BookmarkPost = Pick<Bookmark, 'uuid' | 'bookId' | 'bookSource' | 'path'>;
 
 async function addBookmark(accountId: string, bm: BookmarkPost) {
-    const toAdd: Bookmark = {
+    const conditions = {
         accountId,
         uuid: bm.uuid,
+    };
+    const toAdd: Bookmark = {
+        ...conditions,
         bookId: bm.bookId,
         bookSource: bm.bookSource,
         path: bm.path,
     };
-    const [result] = await docs.insertMany([toAdd]);
+    await docs.updateOne(
+        conditions,
+        toAdd,
+        { upsert: true },
+    ).exec();
 
-    return {
-        uuid: result.uuid,
-        bookSource: result.bookSource,
-        bookId: result.bookId,
-        path: result.path,
-    };
+    return { uuid: bm.uuid };
 }
 
 async function forBook(accountId: string, bookId: string, bookSource: string): Promise<Bookmark[]> {
