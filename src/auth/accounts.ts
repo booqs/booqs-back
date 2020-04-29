@@ -16,7 +16,7 @@ const schema = {
 type Account = TypeFromSchema<typeof schema>;
 const docs = typedModel('accounts', schema);
 
-async function info(id: string) {
+export async function forId(id: string) {
     const result = await docs.findById(id).exec();
     if (!result) {
         return undefined;
@@ -30,7 +30,7 @@ async function info(id: string) {
     };
 }
 
-async function forFacebook(facebookUser: FacebookUser) {
+export async function forFacebook(facebookUser: FacebookUser) {
     const result = await docs
         .findOne({ facebookId: facebookUser.id })
         .exec();
@@ -59,8 +59,3 @@ async function forFacebook(facebookUser: FacebookUser) {
         joined: doc.joined,
     };
 }
-
-export const accounts = {
-    info,
-    forFacebook,
-};
