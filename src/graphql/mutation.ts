@@ -1,5 +1,5 @@
 import { IResolvers } from 'apollo-server';
-import { bookmarks, highlights } from '../data';
+import { bookmarks, highlights, currents } from '../data';
 import { Context } from './context';
 
 export const mutationResolver: IResolvers<any, Context> = {
@@ -13,7 +13,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                     path: bm.path,
                 });
             } else {
-                return undefined;
+                return false;
             }
         },
         async addHighlight(_, { hl }, context) {
@@ -27,7 +27,20 @@ export const mutationResolver: IResolvers<any, Context> = {
                     group: hl.group,
                 });
             } else {
-                return undefined;
+                return false;
+            }
+        },
+        async addCurrent(_, { current }, context) {
+            if (context.user?._id) {
+                return currents.addCurrent({
+                    accountId: context.user?._id,
+                    booqId: current.booqId,
+                    path: current.path,
+                    source: current.source,
+                    created: new Date(Date.now()),
+                });
+            } else {
+                return false;
             }
         },
     },

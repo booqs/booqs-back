@@ -10,19 +10,25 @@ type Query {
 type Mutation {
     addBookmark(bm: BookmarkInput): Boolean
     addHighlight(hl: HighlightInput): Boolean
+    addCurrent(current: CurrentInput): Boolean
 }
 
 input BookmarkInput {
-    booqId: ID
+    booqId: ID!
     path: [Int!]!
-    uuid: String
+    uuid: String!
 }
 input HighlightInput {
-    booqId: ID
+    booqId: ID!
     group: String!
     start: [Int!]
     end: [Int!]
     uuid: String!
+}
+input CurrentInput {
+    booqId: ID!
+    source: String!
+    path: [Int!]!
 }
 
 type BooqRange {
