@@ -3,12 +3,4 @@ import { DbBookmark } from '../data';
 
 export type BookmarkParent = DbBookmark;
 export const bookmarkResolver: IResolvers<BookmarkParent> = {
-    Bookmark: {
-        booqId(parent) {
-            return {
-                id: parent.bookId,
-                source: parent.bookSource,
-            };
-        },
-    },
 };

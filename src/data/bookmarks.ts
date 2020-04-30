@@ -1,4 +1,4 @@
-import { BooqPath } from 'booqs-core';
+import { BooqPath, BooqId } from 'booqs-core';
 import { ObjectId, typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {
@@ -11,12 +11,8 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    bookSource: {
-        type: String,
-        required: true,
-    },
-    bookId: {
-        type: String,
+    booqId: {
+        type: taggedObject<BooqId>(),
         required: true,
     },
     path: {
@@ -28,39 +24,30 @@ const schema = {
 export type DbBookmark = TypeFromSchema<typeof schema>;
 const collection = typedModel('bookmarks', schema);
 
-type DbBookmarkInput = Pick<DbBookmark, 'uuid' | 'bookId' | 'bookSource' | 'path'>;
-
-async function addBookmark(accountId: string, bm: DbBookmarkInput) {
-    const conditions = {
-        accountId,
-        uuid: bm.uuid,
-    };
-    const toAdd: DbBookmark = {
-        ...conditions,
-        bookId: bm.bookId,
-        bookSource: bm.bookSource,
-        path: bm.path,
-    };
+async function addBookmark(bm: DbBookmark) {
     await collection.updateOne(
-        conditions,
-        toAdd,
+        {
+            accountId: bm.accountId,
+            uuid: bm.uuid,
+        },
+        bm,
         { upsert: true },
     ).exec();
 
     return { uuid: bm.uuid };
 }
 
-async function forBook(accountId: string, bookId: string, bookSource: string): Promise<DbBookmark[]> {
+async function forBook(accountId: string, booqId: BooqId) {
     return collection
         .find({
-            accountId, bookId, bookSource,
+            accountId, booqId,
         })
         .exec();
 }
 
-async function doDelete(accountId: string, bookmarkId: string): Promise<boolean> {
+async function doDelete(accountId: string, uuid: string) {
     const result = await collection
-        .findOneAndDelete({ uuid: bookmarkId, accountId })
+        .findOneAndDelete({ uuid, accountId })
         .exec();
     return result ? true : false;
 }

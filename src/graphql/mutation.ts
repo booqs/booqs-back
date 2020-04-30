@@ -6,32 +6,26 @@ export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
         async addBookmark(_, { bm }, context) {
             if (context.user?._id) {
-                return bookmarks.addBookmark(
-                    context.user?._id,
-                    {
-                        uuid: bm.uuid,
-                        bookId: bm.booqId.id,
-                        bookSource: bm.booqId.source,
-                        path: bm.path,
-                    },
-                );
+                return bookmarks.addBookmark({
+                    accountId: context.user?._id,
+                    uuid: bm.uuid,
+                    booqId: bm.booqId,
+                    path: bm.path,
+                });
             } else {
                 return undefined;
             }
         },
         async addHighlight(_, { hl }, context) {
             if (context.user?._id) {
-                return highlights.addHighlight(
-                    context.user?._id,
-                    {
-                        uuid: hl.uuid,
-                        bookId: hl.booqId.id,
-                        bookSource: hl.booqId.source,
-                        start: hl.start,
-                        end: hl.end,
-                        group: hl.group,
-                    },
-                );
+                return highlights.addHighlight({
+                    accountId: context.user?._id,
+                    uuid: hl.uuid,
+                    booqId: hl.booqId,
+                    start: hl.start,
+                    end: hl.end,
+                    group: hl.group,
+                });
             } else {
                 return undefined;
             }

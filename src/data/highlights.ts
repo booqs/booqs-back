@@ -1,4 +1,4 @@
-import { BooqPath } from 'booqs-core';
+import { BooqPath, BooqId } from 'booqs-core';
 import { taggedObject, ObjectId, typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
@@ -10,12 +10,8 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    bookId: {
-        type: String,
-        required: true,
-    },
-    bookSource: {
-        type: String,
+    booqId: {
+        type: taggedObject<BooqId>(),
         required: true,
     },
     group: {
@@ -34,40 +30,35 @@ const schema = {
 
 const collection = typedModel('highlights', schema);
 export type DbHighlight = TypeFromSchema<typeof schema>;
-type DbHighlightInput = Pick<DbHighlight, 'uuid' | 'bookId' | 'bookSource' | 'start' | 'end' | 'group'>;
-type DbHighlightUpdate = Pick<DbHighlight, 'uuid'> & Partial<DbHighlightInput>;
+type DbHighlightUpdate = Partial<DbHighlight>;
 
-async function forBook(accountId: string, bookId: string, bookSource: string) {
+async function forBook(accountId: string, booqId: BooqId) {
     return collection
-        .find({ accountId, bookId, bookSource })
+        .find({ accountId, booqId })
         .exec();
 }
 
-async function addHighlight(accountId: string, highlight: DbHighlightInput) {
-    const doc: DbHighlight = {
-        accountId,
-        ...highlight,
-    };
+async function addHighlight(highlight: DbHighlight) {
 
     await collection.updateOne(
-        { accountId, uuid: highlight.uuid },
-        doc,
+        { accountId: highlight.accountId, uuid: highlight.uuid },
+        highlight,
         { upsert: true },
     );
     return { uuid: highlight.uuid };
 }
 
-async function update(accountId: string, updates: DbHighlightUpdate) {
+async function update(updates: DbHighlightUpdate) {
     const result = await collection.findOneAndUpdate(
-        { accountId, uuid: updates.uuid },
+        { accountId: updates.accountId, uuid: updates.uuid },
         updates,
     ).exec();
     return result && { uuid: updates.uuid };
 }
 
-async function doDelete(accountId: string, highlightId: string) {
+async function doDelete(accountId: string, uuid: string) {
     const result = await collection
-        .findOneAndDelete({ uuid: highlightId, accountId })
+        .findOneAndDelete({ uuid, accountId })
         .exec();
     return result ? true : false;
 }
