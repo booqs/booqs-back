@@ -10,11 +10,7 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    bookId: {
-        type: String,
-        required: true,
-    },
-    bookSource: {
+    booqId: {
         type: String,
         required: true,
     },
@@ -28,7 +24,7 @@ export type DbBookmark = TypeFromSchema<typeof schema>;
 const collection = typedModel('bookmarks', schema);
 
 async function addBookmark(bm: DbBookmark) {
-    await collection.updateOne(
+    const result = await collection.updateOne(
         {
             accountId: bm.accountId,
             uuid: bm.uuid,
@@ -37,10 +33,10 @@ async function addBookmark(bm: DbBookmark) {
         { upsert: true },
     ).exec();
 
-    return { uuid: bm.uuid };
+    return result ? true : false;
 }
 
-type BookLookup = Pick<DbBookmark, 'accountId' | 'bookId' | 'bookSource'>;
+type BookLookup = Pick<DbBookmark, 'accountId' | 'booqId'>;
 async function forBook(lookup: BookLookup) {
     return collection
         .find(lookup)

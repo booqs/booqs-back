@@ -24,8 +24,7 @@ export const queryResolver: IResolvers<any, Context> = {
             if (context.user?._id) {
                 return bookmarks.forBook({
                     accountId: context.user?._id,
-                    bookId: booqId.id,
-                    bookSource: booqId.source,
+                    booqId,
                 });
             } else {
                 return [];
@@ -35,8 +34,7 @@ export const queryResolver: IResolvers<any, Context> = {
             if (context.user?._id) {
                 return highlights.forBook({
                     accountId: context.user?._id,
-                    bookId: booqId.id,
-                    bookSource: booqId.source,
+                    booqId,
                 });
             } else {
                 return [];

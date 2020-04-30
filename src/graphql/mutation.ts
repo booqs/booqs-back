@@ -9,8 +9,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return bookmarks.addBookmark({
                     accountId: context.user?._id,
                     uuid: bm.uuid,
-                    bookId: bm.booqId.id,
-                    bookSource: bm.booqId.source,
+                    booqId: bm.booqId,
                     path: bm.path,
                 });
             } else {
@@ -22,8 +21,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return highlights.addHighlight({
                     accountId: context.user?._id,
                     uuid: hl.uuid,
-                    bookId: hl.booqId.id,
-                    bookSource: hl.booqId.source,
+                    booqId: hl.booqId,
                     start: hl.start,
                     end: hl.end,
                     group: hl.group,

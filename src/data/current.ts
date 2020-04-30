@@ -5,11 +5,7 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    bookId: {
-        type: String,
-        required: true,
-    },
-    bookSource: {
+    booqId: {
         type: String,
         required: true,
     },
@@ -34,8 +30,7 @@ async function addCurrent(input: DbCurrent) {
     await collection.findOneAndUpdate(
         {
             accountId: input.accountId,
-            bookId: input.bookId,
-            bookSource: input.bookSource,
+            booqId: input.booqId,
             source: input.source,
         },
         input,

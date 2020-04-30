@@ -3,57 +3,46 @@ export const typeDefs = gql`
 type Query {
     auth(token: String, provider: String): AuthToken
     search(query: String): [Card]
-    bookmarks(booqId: BooqIdInput): [Bookmark]
-    highlights(booqId: BooqIdInput): [Highlight]
+    bookmarks(booqId: ID): [Bookmark]
+    highlights(booqId: ID): [Highlight]
     currents: [Current]
 }
 type Mutation {
-    addBookmark(bm: BookmarkInput): HasUuid
-    addHighlight(hl: HighlightInput): HasUuid
+    addBookmark(bm: BookmarkInput): Boolean
+    addHighlight(hl: HighlightInput): Boolean
 }
 
-input BooqIdInput {
-    id: String!
-    source: String!
-}
 input BookmarkInput {
-    booqId: BooqIdInput
+    booqId: ID
     path: [Int!]!
     uuid: String
 }
 input HighlightInput {
-    booqId: BooqIdInput
+    booqId: ID
     group: String!
     start: [Int!]
     end: [Int!]
     uuid: String!
 }
 
-type HasUuid {
-    uuid: String
-}
-type BooqId {
-    source: String!
-    id: String!
-}
 type BooqRange {
     start: [Int!]
     end: [Int!]
 }
 
 type Bookmark {
-    uuid: String
-    booqId: BooqId
+    uuid: ID
+    booqId: ID
     path: [Int!]
 }
 type Highlight {
-    uuid: String
-    booqId: BooqId
+    uuid: ID
+    booqId: ID
     range: BooqRange
     group: String
 }
 type Current {
-    booqId: BooqId
+    booqId: ID
     path: [Int!]
     source: String
 }

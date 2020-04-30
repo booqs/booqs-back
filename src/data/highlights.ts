@@ -9,11 +9,7 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    bookId: {
-        type: String,
-        required: true,
-    },
-    bookSource: {
+    booqId: {
         type: String,
         required: true,
     },
@@ -35,7 +31,7 @@ const collection = typedModel('highlights', schema);
 export type DbHighlight = TypeFromSchema<typeof schema>;
 type DbHighlightUpdate = Partial<DbHighlight>;
 
-type BookLookup = Pick<DbHighlight, 'accountId' | 'bookId' | 'bookSource'>;
+type BookLookup = Pick<DbHighlight, 'accountId' | 'booqId'>;
 async function forBook(lookup: BookLookup) {
     return collection
         .find(lookup)
@@ -43,13 +39,12 @@ async function forBook(lookup: BookLookup) {
 }
 
 async function addHighlight(highlight: DbHighlight) {
-
-    await collection.updateOne(
+    const result = await collection.updateOne(
         { accountId: highlight.accountId, uuid: highlight.uuid },
         highlight,
         { upsert: true },
     );
-    return { uuid: highlight.uuid };
+    return result ? true : false;
 }
 
 async function update(updates: DbHighlightUpdate) {
