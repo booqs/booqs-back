@@ -25,17 +25,17 @@ const schema = {
     },
 } as const;
 
-type Bookmark = TypeFromSchema<typeof schema>;
+export type DbBookmark = TypeFromSchema<typeof schema>;
 const docs = typedModel('bookmarks', schema);
 
-type BookmarkPost = Pick<Bookmark, 'uuid' | 'bookId' | 'bookSource' | 'path'>;
+type DbBookmarkInput = Pick<DbBookmark, 'uuid' | 'bookId' | 'bookSource' | 'path'>;
 
-async function addBookmark(accountId: string, bm: BookmarkPost) {
+async function addBookmark(accountId: string, bm: DbBookmarkInput) {
     const conditions = {
         accountId,
         uuid: bm.uuid,
     };
-    const toAdd: Bookmark = {
+    const toAdd: DbBookmark = {
         ...conditions,
         bookId: bm.bookId,
         bookSource: bm.bookSource,
@@ -50,7 +50,7 @@ async function addBookmark(accountId: string, bm: BookmarkPost) {
     return { uuid: bm.uuid };
 }
 
-async function forBook(accountId: string, bookId: string, bookSource: string): Promise<Bookmark[]> {
+async function forBook(accountId: string, bookId: string, bookSource: string): Promise<DbBookmark[]> {
     return docs
         .find({
             accountId, bookId, bookSource,

@@ -5,6 +5,7 @@ import { afterPrefix } from '../utils';
 const issuer = 'booqs';
 const secret = config().jwtSecret;
 export function generateToken(userId: string) {
+    console.log(issuer);
     return sign(userId, secret, { issuer });
 }
 
