@@ -5,6 +5,7 @@ type Query {
     search(query: String): [Card]
     bookmarks(booqId: BooqIdInput): [Bookmark]
     highlights(booqId: BooqIdInput): [Highlight]
+    currents: [Current]
 }
 type Mutation {
     addBookmark(bm: BookmarkInput): HasUuid
@@ -50,6 +51,11 @@ type Highlight {
     booqId: BooqId
     range: BooqRange
     group: String
+}
+type Current {
+    booqId: BooqId
+    path: [Int!]
+    source: String
 }
 type Card {
     title: String

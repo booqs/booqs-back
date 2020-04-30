@@ -1,7 +1,7 @@
 import { IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
 import { getAuthToken } from '../auth';
-import { bookmarks, highlights } from '../data';
+import { bookmarks, highlights, currents } from '../data';
 import { Context } from './context';
 import { BookmarkParent } from './bookmark';
 import { CardParent } from './card';
@@ -37,6 +37,15 @@ export const queryResolver: IResolvers<any, Context> = {
                     accountId: context.user?._id,
                     bookId: booqId.id,
                     bookSource: booqId.source,
+                });
+            } else {
+                return [];
+            }
+        },
+        async currents(_, __, context) {
+            if (context.user?._id) {
+                return currents.forAccount({
+                    accountId: context.user?._id,
                 });
             } else {
                 return [];

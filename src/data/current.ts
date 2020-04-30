@@ -17,7 +17,7 @@ const schema = {
         type: [Number],
         required: true,
     },
-    sourceId: {
+    source: {
         type: String,
         required: true,
     },
@@ -36,7 +36,7 @@ async function addCurrent(input: DbCurrent) {
             accountId: input.accountId,
             bookId: input.bookId,
             bookSource: input.bookSource,
-            sourceId: input.sourceId,
+            source: input.source,
         },
         input,
         { upsert: true },
@@ -45,8 +45,8 @@ async function addCurrent(input: DbCurrent) {
     return true;
 }
 
-async function forAccount(accountId: string) {
-    return collection.find({ accountId }).exec();
+async function forAccount(lookup: Pick<DbCurrent, 'accountId'>) {
+    return collection.find(lookup).exec();
 }
 
 export const currents = {
