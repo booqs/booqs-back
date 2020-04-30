@@ -1,5 +1,4 @@
-import { BooqPath, BooqId } from 'booqs-core';
-import { taggedObject, ObjectId, typedModel, TypeFromSchema } from '../mongoose';
+import { ObjectId, typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
     uuid: {
@@ -10,8 +9,12 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    booqId: {
-        type: taggedObject<BooqId>(),
+    bookId: {
+        type: String,
+        required: true,
+    },
+    bookSource: {
+        type: String,
         required: true,
     },
     group: {
@@ -19,11 +22,11 @@ const schema = {
         required: true,
     },
     start: {
-        type: taggedObject<BooqPath>(),
+        type: [Number],
         required: true,
     },
     end: {
-        type: taggedObject<BooqPath>(),
+        type: [Number],
         required: true,
     },
 } as const;
@@ -32,9 +35,10 @@ const collection = typedModel('highlights', schema);
 export type DbHighlight = TypeFromSchema<typeof schema>;
 type DbHighlightUpdate = Partial<DbHighlight>;
 
-async function forBook(accountId: string, booqId: BooqId) {
+type BookLookup = Pick<DbHighlight, 'accountId' | 'bookId' | 'bookSource'>;
+async function forBook(lookup: BookLookup) {
     return collection
-        .find({ accountId, booqId })
+        .find(lookup)
         .exec();
 }
 

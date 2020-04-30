@@ -22,14 +22,22 @@ export const queryResolver: IResolvers<any, Context> = {
         },
         async bookmarks(_, { booqId }, context): Promise<BookmarkParent[]> {
             if (context.user?._id) {
-                return bookmarks.forBook(context.user?._id, booqId);
+                return bookmarks.forBook({
+                    accountId: context.user?._id,
+                    bookId: booqId.id,
+                    bookSource: booqId.source,
+                });
             } else {
                 return [];
             }
         },
         async highlights(_, { booqId }, context): Promise<HighlightParent[]> {
             if (context.user?._id) {
-                return highlights.forBook(context.user._id, booqId);
+                return highlights.forBook({
+                    accountId: context.user?._id,
+                    bookId: booqId.id,
+                    bookSource: booqId.source,
+                });
             } else {
                 return [];
             }

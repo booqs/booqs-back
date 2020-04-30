@@ -1,17 +1,20 @@
-import { BooqPath, BooqId } from 'booqs-core';
-import { ObjectId, taggedObject, typedModel, TypeFromSchema } from '../mongoose';
+import { ObjectId, typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
     accountId: {
         type: ObjectId,
         required: true,
     },
-    booqId: {
-        type: taggedObject<BooqId>(),
+    bookId: {
+        type: String,
+        required: true,
+    },
+    bookSource: {
+        type: String,
         required: true,
     },
     path: {
-        type: taggedObject<BooqPath>(),
+        type: [Number],
         required: true,
     },
     sourceId: {
@@ -31,7 +34,8 @@ async function addCurrent(input: DbCurrent) {
     await collection.findOneAndUpdate(
         {
             accountId: input.accountId,
-            booqId: input.booqId,
+            bookId: input.bookId,
+            bookSource: input.bookSource,
             sourceId: input.sourceId,
         },
         input,

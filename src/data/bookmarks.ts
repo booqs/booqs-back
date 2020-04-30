@@ -1,5 +1,4 @@
-import { BooqPath, BooqId } from 'booqs-core';
-import { ObjectId, typedModel, TypeFromSchema, taggedObject } from '../mongoose';
+import { ObjectId, typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
     uuid: {
@@ -11,12 +10,16 @@ const schema = {
         type: ObjectId,
         required: true,
     },
-    booqId: {
-        type: taggedObject<BooqId>(),
+    bookId: {
+        type: String,
+        required: true,
+    },
+    bookSource: {
+        type: String,
         required: true,
     },
     path: {
-        type: taggedObject<BooqPath>(),
+        type: [Number],
         required: true,
     },
 } as const;
@@ -37,11 +40,10 @@ async function addBookmark(bm: DbBookmark) {
     return { uuid: bm.uuid };
 }
 
-async function forBook(accountId: string, booqId: BooqId) {
+type BookLookup = Pick<DbBookmark, 'accountId' | 'bookId' | 'bookSource'>;
+async function forBook(lookup: BookLookup) {
     return collection
-        .find({
-            accountId, booqId,
-        })
+        .find(lookup)
         .exec();
 }
 

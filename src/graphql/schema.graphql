@@ -10,8 +10,8 @@ type Mutation {
 }
 
 input BooqIdInput {
-    source: String!
     id: String!
+    source: String!
 }
 input BookmarkInput {
     booqId: BooqIdInput
@@ -33,18 +33,15 @@ type BooqId {
     source: String!
     id: String!
 }
-type BooqPath {
-    path: [Int!]
-}
 type BooqRange {
-    start: BooqPath
-    end: BooqPath
+    start: [Int!]
+    end: [Int!]
 }
 
 type Bookmark {
     uuid: String
     booqId: BooqId
-    path: BooqPath
+    path: [Int!]
 }
 type Highlight {
     uuid: String
