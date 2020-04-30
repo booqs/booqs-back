@@ -1,10 +1,11 @@
 import { IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
 import { getAuthToken } from '../auth';
-import { bookmarks } from '../data';
+import { bookmarks, highlights } from '../data';
 import { Context } from './context';
 import { BookmarkParent } from './bookmark';
 import { CardParent } from './card';
+import { HighlightParent } from './highlight';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
@@ -22,6 +23,13 @@ export const queryResolver: IResolvers<any, Context> = {
         async bookmarks(_, { booqId }, context): Promise<BookmarkParent[]> {
             if (context.user?._id) {
                 return bookmarks.forBook(context.user?._id, booqId.id, booqId.source);
+            } else {
+                return [];
+            }
+        },
+        async highlights(_, { booqId }, context): Promise<HighlightParent[]> {
+            if (context.user?._id) {
+                return highlights.forBook(context.user._id, booqId.id, booqId.source);
             } else {
                 return [];
             }

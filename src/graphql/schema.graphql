@@ -2,9 +2,11 @@ type Query {
     auth(token: String, provider: String): AuthToken
     search(query: String): [Card]
     bookmarks(booqId: BooqIdInput): [Bookmark]
+    highlights(booqId: BooqIdInput): [Highlight]
 }
 type Mutation {
     addBookmark(bm: BookmarkInput): HasUuid
+    addHighlight(hl: HighlightInput): HasUuid
 }
 
 input BooqIdInput {
@@ -15,6 +17,13 @@ input BookmarkInput {
     booqId: BooqIdInput
     path: [Int!]!
     uuid: String
+}
+input HighlightInput {
+    booqId: BooqIdInput
+    group: String!
+    start: [Int!]
+    end: [Int!]
+    uuid: String!
 }
 
 type HasUuid {
