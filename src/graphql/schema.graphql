@@ -24,11 +24,24 @@ type BooqId {
     source: String!
     id: String!
 }
+type BooqPath {
+    path: [Int!]
+}
+type BooqRange {
+    start: BooqPath
+    end: BooqPath
+}
 
 type Bookmark {
-    booqId: BooqId
-    path: [Int!]!
     uuid: String
+    booqId: BooqId
+    path: BooqPath
+}
+type Highlight {
+    uuid: String
+    booqId: BooqId
+    range: BooqRange
+    group: String
 }
 type Card {
     title: String
