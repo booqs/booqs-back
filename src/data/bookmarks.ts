@@ -26,7 +26,7 @@ const schema = {
 } as const;
 
 export type DbBookmark = TypeFromSchema<typeof schema>;
-const docs = typedModel('bookmarks', schema);
+const collection = typedModel('bookmarks', schema);
 
 type DbBookmarkInput = Pick<DbBookmark, 'uuid' | 'bookId' | 'bookSource' | 'path'>;
 
@@ -41,7 +41,7 @@ async function addBookmark(accountId: string, bm: DbBookmarkInput) {
         bookSource: bm.bookSource,
         path: bm.path,
     };
-    await docs.updateOne(
+    await collection.updateOne(
         conditions,
         toAdd,
         { upsert: true },
@@ -51,7 +51,7 @@ async function addBookmark(accountId: string, bm: DbBookmarkInput) {
 }
 
 async function forBook(accountId: string, bookId: string, bookSource: string): Promise<DbBookmark[]> {
-    return docs
+    return collection
         .find({
             accountId, bookId, bookSource,
         })
@@ -59,7 +59,7 @@ async function forBook(accountId: string, bookId: string, bookSource: string): P
 }
 
 async function doDelete(accountId: string, bookmarkId: string): Promise<boolean> {
-    const result = await docs
+    const result = await collection
         .findOneAndDelete({ uuid: bookmarkId, accountId })
         .exec();
     return result ? true : false;

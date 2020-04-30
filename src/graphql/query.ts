@@ -4,10 +4,11 @@ import { getAuthToken } from '../auth';
 import { bookmarks } from '../data';
 import { Context } from './context';
 import { BookmarkParent } from './bookmark';
+import { CardParent } from './card';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
-        async search(_, { query }) {
+        async search(_, { query }): Promise<CardParent[]> {
             const results = await pgLib.search(query, 100);
             return results;
         },

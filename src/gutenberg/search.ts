@@ -1,7 +1,7 @@
-import { cards, Card } from './schema';
+import { collection, DbPgCard } from './collection';
 
-export async function search(query: string, limit: number): Promise<Card[]> {
-    return cards.aggregate([{
+export async function search(query: string, limit: number): Promise<DbPgCard[]> {
+    return collection.aggregate([{
         $searchBeta: {
             compound: {
                 should: [
