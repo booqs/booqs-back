@@ -1,6 +1,5 @@
 import { IResolvers } from 'apollo-server';
 import { Context } from './context';
-import { CardParent } from './card';
 import { getAuthToken } from '../auth';
 import {
     userBookmarks, userHighlights, userCurrents, userCollection,
@@ -9,7 +8,7 @@ import { search } from '../books';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
-        async search(_, { query }): Promise<CardParent[]> {
+        async search(_, { query }) {
             const results = await search(query, 100);
             return results;
         },

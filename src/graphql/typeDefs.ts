@@ -43,6 +43,7 @@ type BooqRange {
 }
 
 type Card {
+    id: ID!
     title: String
     author: String
 }
