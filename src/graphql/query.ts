@@ -3,7 +3,7 @@ import { pgLib } from '../gutenberg';
 import { getAuthToken } from '../auth';
 import { Context } from './context';
 import { CardParent } from './card';
-import { userBookmarks, userHighlights, userCurrents } from '../data';
+import { userBookmarks, userHighlights, userCurrents, userCollection } from '../data';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
@@ -31,6 +31,11 @@ export const queryResolver: IResolvers<any, Context> = {
         async currents(_, __, { user }) {
             return user
                 ? userCurrents(user)
+                : [];
+        },
+        async collection(_, { name }, { user }) {
+            return user
+                ? userCollection(user, name)
                 : [];
         },
     },

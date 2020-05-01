@@ -3,7 +3,7 @@ import { filterUndefined } from 'booqs-core';
 import { afterPrefix } from '../utils';
 
 export type DbCollection = string[];
-export function userCollection(user: DbUser, name: string) {
+export function userCollection(user: DbUser, name: string): DbCollection {
     const result = filterUndefined(
         user.collections?.map(c => afterPrefix(c, `${name}:`)) ?? [],
     );

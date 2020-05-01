@@ -2,7 +2,7 @@ import { IResolvers } from 'apollo-server';
 import { Context } from './context';
 import {
     addBookmark, addHighlight, addCurrent,
-    deleteBookmark, deleteHighlight, deleteCurrent,
+    deleteBookmark, deleteHighlight, deleteCurrent, addToCollection, removeFromCollection,
 } from '../data';
 import { uuid } from '../utils';
 
@@ -77,6 +77,28 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return deleteCurrent(
                     context.user._id,
                     { booqId },
+                );
+            } else {
+                return false;
+            }
+        },
+        async addToCollection(_, { booqId, name }, { user }) {
+            if (user) {
+                return addToCollection(
+                    user._id,
+                    name,
+                    booqId,
+                );
+            } else {
+                return false;
+            }
+        },
+        async removeFromCollection(_, { booqId, name }, { user }) {
+            if (user) {
+                return removeFromCollection(
+                    user._id,
+                    name,
+                    booqId,
                 );
             } else {
                 return false;
