@@ -13,7 +13,7 @@ const schema = {
     },
     pictureUrl: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
-    highlights: [taggedObject<DbHighlight>()],
+    highlights: taggedObject<StringMap<HighlightData>>(),
     currents: [taggedObject<DbCurrent>()],
     collections: [String],
 } as const;
@@ -28,8 +28,7 @@ export type BookmarkData = {
     booqId: string,
     path: BooqPath,
 };
-export type DbHighlight = {
-    uuid: string,
+export type HighlightData = {
     booqId: string,
     range: BooqRange,
     group: string,

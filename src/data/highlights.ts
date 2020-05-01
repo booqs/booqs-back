@@ -1,16 +1,22 @@
-import { DbHighlight, collection, DbUser } from './schema';
+import { collection, DbUser, HighlightData } from './schema';
 
-export function userHighlights(user: DbUser, booqId: string) {
-    return user.highlights?.filter(h => h.booqId === booqId) ?? [];
+export type DbHighlight = HighlightData & { uuid: string };
+export function userHighlights(user: DbUser, booqId: string): DbHighlight[] {
+    return Object.entries(user.highlights ?? {}).map(([uuid, data]) => ({
+        uuid,
+        ...data,
+    })).filter(hl => hl.booqId === booqId);
 }
 
 export async function addHighlight(
     userId: string,
-    element: DbHighlight,
+    { uuid, ...data }: DbHighlight,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
-        { $push: { highlights: element } },
+        {
+            [`highlights.${uuid}`]: data,
+        },
     ).exec();
 
     return result ? true : false;
@@ -18,11 +24,13 @@ export async function addHighlight(
 
 export async function deleteHighlight(
     userId: string,
-    element: Pick<DbHighlight, 'uuid'>,
+    { uuid }: Pick<DbHighlight, 'uuid'>,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
-        { $pull: { highlights: element } },
+        {
+            $unset: { [`highlights.${uuid}`]: '' },
+        },
     ).exec();
 
     return result ? true : false;

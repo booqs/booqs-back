@@ -1,11 +1,6 @@
-import { BooqPath } from 'booqs-core';
-import { collection, DbUser } from './schema';
+import { collection, DbUser, BookmarkData } from './schema';
 
-export type DbBookmark = {
-    uuid: string,
-    booqId: string,
-    path: BooqPath,
-};
+export type DbBookmark = BookmarkData & { uuid: string };
 
 export function userBookmarks(user: DbUser, booqId: string): DbBookmark[] {
     return Object.entries(user.bookmarks ?? {}).map(([uuid, data]) => ({
@@ -16,12 +11,12 @@ export function userBookmarks(user: DbUser, booqId: string): DbBookmark[] {
 
 export async function addBookmark(
     userId: string,
-    { uuid, booqId, path }: DbBookmark,
+    { uuid, ...data }: DbBookmark,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            [`bookmarks.${uuid}`]: { booqId, path },
+            [`bookmarks.${uuid}`]: data,
         },
     ).exec();
 
