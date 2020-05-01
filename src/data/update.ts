@@ -89,3 +89,35 @@ export async function deleteCurrent(
 
     return result ? true : false;
 }
+
+export async function addToCollection(
+    userId: string,
+    name: string,
+    booqId: string,
+) {
+    const result = await collection.findByIdAndUpdate(
+        userId,
+        {
+            $addToSet: {
+                collections: `${name}:${booqId}`,
+            },
+        },
+    );
+    return result ? true : false;
+}
+
+export async function removeFromCollection(
+    userId: string,
+    name: string,
+    booqId: string,
+) {
+    const result = await collection.findByIdAndUpdate(
+        userId,
+        {
+            $pull: {
+                collections: `${name}:${booqId}`,
+            },
+        },
+    );
+    return result ? true : false;
+}

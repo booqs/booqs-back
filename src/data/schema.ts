@@ -15,6 +15,7 @@ const schema = {
     bookmarks: [taggedObject<DbBookmark>()],
     highlights: [taggedObject<DbHighlight>()],
     currents: [taggedObject<DbCurrent>()],
+    collections: [String],
 } as const;
 export const collection = typedModel('users', schema);
 
