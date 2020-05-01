@@ -1,16 +1,18 @@
 import { gql } from 'apollo-server';
 export const typeDefs = gql`
 type Query {
-    auth(token: String, provider: String): AuthToken
-    search(query: String): [Card]
-    bookmarks(booqId: ID): [Bookmark]
-    highlights(booqId: ID): [Highlight]
+    auth(token: String!, provider: String!): AuthToken
+    search(query: String!): [Card]
+    bookmarks(booqId: ID!): [Bookmark]
+    highlights(booqId: ID!): [Highlight]
     currents: [Current]
+    collection(name: String!): Collection
 }
 type Mutation {
-    addBookmark(bm: BookmarkInput): Boolean
-    addHighlight(hl: HighlightInput): Boolean
-    addCurrent(current: CurrentInput): Boolean
+    addBookmark(bm: BookmarkInput!): Boolean
+    addHighlight(hl: HighlightInput!): Boolean
+    addCurrent(current: CurrentInput!): Boolean
+    addToCollection(name: String!, booqId: ID!): Boolean
 }
 
 input BookmarkInput {
@@ -36,6 +38,13 @@ type BooqRange {
     end: [Int!]
 }
 
+type Card {
+    title: String
+    author: String
+}
+type AuthToken {
+    token: String
+}
 type Bookmark {
     uuid: ID
     booqId: ID
@@ -52,11 +61,7 @@ type Current {
     path: [Int!]
     source: String
 }
-type Card {
-    title: String
-    author: String
-}
-type AuthToken {
-    token: String
+type Collection {
+    books: [Card!]
 }
 `;
