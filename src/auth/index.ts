@@ -1,5 +1,5 @@
 import { fetchFbUser } from './facebook';
-import { forFacebook, forId } from './accounts';
+import { forFacebook, forId } from '../data';
 import { generateToken, userIdFromHeader } from './token';
 
 export type AuthInput = {
@@ -10,8 +10,8 @@ export async function getAuthToken(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token);
-            const account = fb && await forFacebook(fb);
-            const token = account && generateToken(account._id);
+            const user = fb && await forFacebook(fb);
+            const token = user && generateToken(user._id);
             return token;
         }
         default:
