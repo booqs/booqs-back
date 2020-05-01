@@ -3,4 +3,3 @@ export * from './collections';
 export * from './currents';
 export * from './highlights';
 export * from './lookup';
-export * from './schema';

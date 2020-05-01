@@ -12,7 +12,7 @@ const schema = {
         required: true,
     },
     pictureUrl: String,
-    bookmarks: [taggedObject<DbBookmark>()],
+    bookmarks: taggedObject<StringMap<BookmarkData>>(),
     highlights: [taggedObject<DbHighlight>()],
     currents: [taggedObject<DbCurrent>()],
     collections: [String],
@@ -20,8 +20,11 @@ const schema = {
 export const collection = typedModel('users', schema);
 
 export type DbUser = TypeFromSchema<typeof schema>;
-export type DbBookmark = {
-    uuid: string,
+
+type StringMap<T> = {
+    [k: string]: T,
+};
+export type BookmarkData = {
     booqId: string,
     path: BooqPath,
 };
