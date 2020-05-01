@@ -5,6 +5,7 @@ import { Context } from './context';
 import { BookmarkParent } from './bookmark';
 import { CardParent } from './card';
 import { HighlightParent } from './highlight';
+import { userBookmarks } from '../data/bookmarks';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
@@ -19,11 +20,10 @@ export const queryResolver: IResolvers<any, Context> = {
             });
             return { token: authToken };
         },
-        async bookmarks(_, { booqId }, context): Promise<BookmarkParent[]> {
-            return context.user
-                ?.bookmarks
-                ?.filter(bm => bm.booqId === booqId)
-                ?? [];
+        async bookmarks(_, { booqId }, { user }): Promise<BookmarkParent[]> {
+            return user
+                ? userBookmarks(user, booqId)
+                : [];
         },
         async highlights(_, { booqId }, context): Promise<HighlightParent[]> {
             return context.user

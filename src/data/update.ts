@@ -1,31 +1,7 @@
 import {
-    DbBookmark, DbCurrent, DbHighlight,
+    DbCurrent, DbHighlight,
     collection,
 } from './schema';
-
-export async function addBookmark(
-    userId: string,
-    element: DbBookmark,
-) {
-    const result = await collection.findByIdAndUpdate(
-        userId,
-        { $push: { bookmarks: element } },
-    ).exec();
-
-    return result ? true : false;
-}
-
-export async function deleteBookmark(
-    userId: string,
-    element: Pick<DbBookmark, 'uuid'>,
-) {
-    const result = await collection.findByIdAndUpdate(
-        userId,
-        { $pull: { bookmarks: element } },
-    ).exec();
-
-    return result ? true : false;
-}
 
 export async function addHighlight(
     userId: string,
