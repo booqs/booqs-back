@@ -1,31 +1,7 @@
 import {
-    DbCurrent, DbHighlight,
+    DbCurrent,
     collection,
 } from './schema';
-
-export async function addHighlight(
-    userId: string,
-    element: DbHighlight,
-) {
-    const result = await collection.findByIdAndUpdate(
-        userId,
-        { $push: { highlights: element } },
-    ).exec();
-
-    return result ? true : false;
-}
-
-export async function deleteHighlight(
-    userId: string,
-    element: Pick<DbHighlight, 'uuid'>,
-) {
-    const result = await collection.findByIdAndUpdate(
-        userId,
-        { $pull: { highlights: element } },
-    ).exec();
-
-    return result ? true : false;
-}
 
 export async function addCurrent(
     userId: string,
