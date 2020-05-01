@@ -1,0 +1,18 @@
+{
+    "analyzer": "lucene.standard",
+    "searchAnalyzer": "lucene.standard",
+    "mappings": {
+        "dynamic": false,
+        "fields": {
+            "author": {
+                "type": "string"
+            },
+            "subjects": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            }
+        }
+    }
+}
