@@ -1,7 +1,8 @@
-import {
-    DbCurrent,
-    collection,
-} from './schema';
+import { DbCurrent, collection, DbUser } from './schema';
+
+export function userCurrents(user: DbUser) {
+    return user.currents ?? [];
+}
 
 export async function addCurrent(
     userId: string,

@@ -5,8 +5,7 @@ import { Context } from './context';
 import { BookmarkParent } from './bookmark';
 import { CardParent } from './card';
 import { HighlightParent } from './highlight';
-import { userBookmarks } from '../data/bookmarks';
-import { userHighlights } from '../data';
+import { userBookmarks, userHighlights, userCurrents } from '../data';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
@@ -31,10 +30,10 @@ export const queryResolver: IResolvers<any, Context> = {
                 ? userHighlights(user, booqId)
                 : [];
         },
-        async currents(_, __, context) {
-            return context.user
-                ?.currents
-                ?? [];
+        async currents(_, __, { user }) {
+            return user
+                ? userCurrents(user)
+                : [];
         },
     },
 };
