@@ -80,7 +80,7 @@ export async function addCurrent(
 
 export async function deleteCurrent(
     userId: string,
-    element: Pick<DbCurrent, 'booqId' | 'source'>,
+    element: Pick<DbCurrent, 'booqId'>,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
