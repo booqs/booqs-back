@@ -16,6 +16,7 @@ type Mutation {
     addCurrent(current: CurrentInput!): Boolean
     removeCurrent(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
+    removeFromCollection(name: String!, booqId: ID!): Boolean
 }
 
 input BookmarkInput {
