@@ -14,7 +14,7 @@ const schema = {
     pictureUrl: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
     highlights: taggedObject<StringMap<HighlightData>>(),
-    currents: [taggedObject<DbCurrent>()],
+    currents: taggedObject<StringMap<StringMap<CurrentData>>>(),
     collections: [String],
 } as const;
 export const collection = typedModel('users', schema);
@@ -33,9 +33,7 @@ export type HighlightData = {
     range: BooqRange,
     group: string,
 };
-export type DbCurrent = {
-    booqId: string,
+export type CurrentData = {
     path: BooqPath,
-    source: string,
     date: Date,
 };
