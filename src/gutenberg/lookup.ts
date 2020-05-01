@@ -5,5 +5,11 @@ export async function forId(id: string) {
 }
 
 export async function forIds(ids: string[]) {
-    return collection.find({ _id: { $in: ids } });
+    return collection
+        .find({ _id: { $in: ids } })
+        .exec()
+        .then(docs => docs.map(doc => ({
+            ...doc,
+            id: doc.index,
+        })));
 }

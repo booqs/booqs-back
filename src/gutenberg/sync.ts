@@ -139,7 +139,7 @@ function indexFromAssetId(assetId: string) {
     if (match) {
         const indexString = match[1];
         const index = parseInt(indexString, 10);
-        return isNaN(index) ? undefined : index;
+        return isNaN(index) ? undefined : indexString;
     } else {
         return undefined;
     }

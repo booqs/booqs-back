@@ -1,6 +1,6 @@
-import { collection, DbPgCard } from './schema';
+import { collection } from './schema';
 
-export async function search(query: string, limit: number): Promise<DbPgCard[]> {
+export async function search(query: string, limit: number) {
     return collection.aggregate([{
         $searchBeta: {
             compound: {
@@ -34,5 +34,11 @@ export async function search(query: string, limit: number): Promise<DbPgCard[]> 
     },
     {
         $limit: limit,
-    }]).exec();
+    },
+    {
+        $addFields: {
+            id: '$index',
+        },
+    },
+    ]).exec();
 }

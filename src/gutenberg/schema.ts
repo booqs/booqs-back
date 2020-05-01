@@ -1,4 +1,4 @@
-import { typedModel, TypeFromSchema } from '../mongoose';
+import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {
     assetId: {
@@ -6,7 +6,7 @@ const schema = {
         required: true,
     },
     index: {
-        type: Number,
+        type: String,
         required: true,
         index: true,
         unique: true,
@@ -16,10 +16,14 @@ const schema = {
     language: String,
     description: String,
     subjects: [String],
-    meta: Object,
+    meta: taggedObject<object>(),
     cover: String,
-    coverSizes: Object,
+    coverSizes: taggedObject<CoverSizes>(),
 } as const;
+
+type CoverSizes = {
+    [size: number]: string,
+};
 
 export type DbPgCard = TypeFromSchema<typeof schema>;
 export const collection = typedModel('pg-cards', schema);

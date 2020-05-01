@@ -1,7 +1,7 @@
 import { IResolvers } from 'apollo-server';
-import { DbPgCard } from '../gutenberg';
+import { Card } from '../books';
 
-export type CardParent = DbPgCard;
+export type CardParent = Card;
 export const cardResolver: IResolvers<CardParent> = {
     Card: {
         title(parent) {

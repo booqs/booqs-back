@@ -1,14 +1,16 @@
 import { IResolvers } from 'apollo-server';
-import { pgLib } from '../gutenberg';
-import { getAuthToken } from '../auth';
 import { Context } from './context';
 import { CardParent } from './card';
-import { userBookmarks, userHighlights, userCurrents, userCollection } from '../data';
+import { getAuthToken } from '../auth';
+import {
+    userBookmarks, userHighlights, userCurrents, userCollection,
+} from '../data';
+import { search } from '../books';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
         async search(_, { query }): Promise<CardParent[]> {
-            const results = await pgLib.search(query, 100);
+            const results = await search(query, 100);
             return results;
         },
         async auth(_, { token, provider }) {
