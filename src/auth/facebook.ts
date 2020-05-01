@@ -1,11 +1,7 @@
 import axios from 'axios';
+import { UserInfo } from '../data';
 
-export type FacebookUser = {
-    id: string,
-    name: string,
-    profilePicture?: string,
-};
-export async function fetchFbUser(token: string): Promise<FacebookUser | undefined> {
+export async function fetchFbUser(token: string): Promise<UserInfo | undefined> {
     const url = `https://graph.facebook.com/me?fields=name,picture
     &access_token=${token}`;
 

@@ -16,16 +16,16 @@ type Mutation {
 }
 
 input BookmarkInput {
+    uuid: String
     booqId: ID!
     path: [Int!]!
-    uuid: String!
 }
 input HighlightInput {
+    uuid: String
     booqId: ID!
     group: String!
     start: [Int!]
     end: [Int!]
-    uuid: String!
 }
 input CurrentInput {
     booqId: ID!

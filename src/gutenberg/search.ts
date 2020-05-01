@@ -1,4 +1,4 @@
-import { collection, DbPgCard } from './collection';
+import { collection, DbPgCard } from './schema';
 
 export async function search(query: string, limit: number): Promise<DbPgCard[]> {
     return collection.aggregate([{

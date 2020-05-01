@@ -3,7 +3,7 @@ import { flatten, uniq } from 'lodash';
 import { extractMetadata, ExtractedMetadata } from 'booqs-parser';
 import { makeBatches, writeTempFile, resizeImage } from '../utils';
 import { listObjects, downloadAsset, Asset, uploadAsset } from '../s3';
-import { collection, DbPgCard } from './collection';
+import { collection, DbPgCard } from './schema';
 
 const epubsBucket = 'pg-epubs';
 const coversBucket = 'pg-covers';

@@ -1,6 +1,6 @@
 import { search } from './search';
 
-export { DbPgCard } from './collection';
+export { DbPgCard } from './schema';
 export * from './sync';
 
 export const pgLib = {

@@ -1,7 +1,6 @@
 import { IResolvers } from 'apollo-server';
 import { pgLib } from '../gutenberg';
 import { getAuthToken } from '../auth';
-import { bookmarks, highlights, currents } from '../data';
 import { Context } from './context';
 import { BookmarkParent } from './bookmark';
 import { CardParent } from './card';
@@ -21,33 +20,21 @@ export const queryResolver: IResolvers<any, Context> = {
             return { token: authToken };
         },
         async bookmarks(_, { booqId }, context): Promise<BookmarkParent[]> {
-            if (context.user?._id) {
-                return bookmarks.forBook({
-                    accountId: context.user?._id,
-                    booqId,
-                });
-            } else {
-                return [];
-            }
+            return context.user
+                ?.bookmarks
+                ?.filter(bm => bm.booqId === booqId)
+                ?? [];
         },
         async highlights(_, { booqId }, context): Promise<HighlightParent[]> {
-            if (context.user?._id) {
-                return highlights.forBook({
-                    accountId: context.user?._id,
-                    booqId,
-                });
-            } else {
-                return [];
-            }
+            return context.user
+                ?.highlights
+                ?.filter(hl => hl.booqId === booqId)
+                ?? [];
         },
         async currents(_, __, context) {
-            if (context.user?._id) {
-                return currents.forAccount({
-                    accountId: context.user?._id,
-                });
-            } else {
-                return [];
-            }
+            return context.user
+                ?.currents
+                ?? [];
         },
     },
 };

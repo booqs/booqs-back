@@ -1,4 +1,5 @@
 import { fromHeader } from '../auth';
+import { DbUser } from '../data';
 
 type ExpressContext = {
     req: {
@@ -8,24 +9,11 @@ type ExpressContext = {
     },
 };
 export type Context = {
-    user?: {
-        _id: string,
-        name: string,
-        joined: Date,
-        pictureUrl?: string,
-    },
+    user?: DbUser & { _id: string },
 }
 export async function context(context: ExpressContext): Promise<Context> {
     const header = context.req.headers.authorization ?? '';
-    let user = await fromHeader(header);
-    // TODO: remove
-    if (!user) {
-        user = {
-            _id: '000000000000000000000000',
-            name: 'Incognito',
-            joined: new Date(Date.now()),
-            pictureUrl: undefined,
-        };
-    }
+    const user = await fromHeader(header) ?? undefined;
+
     return { user };
 }
