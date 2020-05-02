@@ -4,7 +4,7 @@ import { forIds } from '../books';
 export type CollectionParent = string[];
 export const collectionResolver: IResolvers<CollectionParent> = {
     Collection: {
-        async books(parent) {
+        async booqs(parent) {
             return forIds(parent);
         },
     },

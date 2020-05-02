@@ -2,8 +2,8 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
 type Query {
     auth(token: String!, provider: String!): AuthToken
-    booq(id: ID!): Card
-    search(query: String!): [Card]
+    booq(id: ID!): Booq
+    search(query: String!): [Booq]
     bookmarks(booqId: ID!): [Bookmark]
     highlights(booqId: ID!): [Highlight]
     currents: [Current]
@@ -43,7 +43,7 @@ type BooqRange {
     end: [Int!]
 }
 
-type Card {
+type Booq {
     id: ID!
     title: String
     author: String
@@ -68,6 +68,6 @@ type Current {
     source: String
 }
 type Collection {
-    books: [Card!]
+    booqs: [Booq!]
 }
 `;
