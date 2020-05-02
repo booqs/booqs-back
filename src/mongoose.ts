@@ -7,7 +7,7 @@ export async function connectDb(uri: string) {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
-        useFindAndModify: true,
+        useFindAndModify: false,
     });
 }
 

@@ -4,10 +4,14 @@ import { getAuthToken } from '../auth';
 import {
     userBookmarks, userHighlights, userCurrents, userCollection,
 } from '../data';
-import { search } from '../books';
+import { search, forIds } from '../books';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
+        async booq(_, { id }) {
+            const [result] = await forIds([id]);
+            return result;
+        },
         async search(_, { query }) {
             const results = await search(query, 100);
             return results;
