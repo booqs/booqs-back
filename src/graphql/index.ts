@@ -1,4 +1,5 @@
 import { IResolvers } from 'apollo-server';
+import GraphQLJSON from 'graphql-type-json';
 import { queryResolver } from './query';
 import { mutationResolver } from './mutation';
 import { collectionResolver } from './collection';
@@ -12,4 +13,5 @@ export const resolvers: IResolvers = {
     ...mutationResolver,
     ...collectionResolver,
     ...booqResolver,
+    BooqNode: GraphQLJSON,
 };

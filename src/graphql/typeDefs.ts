@@ -40,6 +40,21 @@ type BooqRange {
     start: [Int!]
     end: [Int!]
 }
+scalar BooqNode
+type BooqNodeEdge {
+    node: BooqNode
+    cursor: String
+}
+type BooqNodePageInfo {
+    hasPreviousPage: Boolean!
+    hasNextPage: Boolean!
+    startCursor: String!
+    endCursor: String!
+}
+type BooqNodeConnection {
+    edges: [BooqNodeEdge]
+    pageInfo: BooqNodePageInfo
+}
 
 type Booq {
     id: ID!
@@ -47,6 +62,7 @@ type Booq {
     author: String
     bookmarks: [Bookmark]
     highlights: [Highlight]
+    nodesConnection(first: Int!, after: String!): BooqNodeConnection
 }
 type AuthToken {
     token: String
