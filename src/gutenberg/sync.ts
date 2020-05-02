@@ -3,10 +3,7 @@ import { flatten, uniq } from 'lodash';
 import { extractMetadata, ExtractedMetadata } from 'booqs-parser';
 import { makeBatches, resizeImage } from '../utils';
 import { listObjects, downloadAsset, Asset, uploadAsset } from '../s3';
-import { collection, DbPgCard } from './schema';
-
-const epubsBucket = 'pg-epubs';
-const coversBucket = 'pg-covers';
+import { collection, DbPgCard, epubsBucket, coversBucket } from './schema';
 
 export async function syncWithS3() {
     report('Syncing with S3');

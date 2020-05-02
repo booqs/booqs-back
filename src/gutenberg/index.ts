@@ -1,10 +1,8 @@
 import { search } from './search';
-import { forId, forIds } from './lookup';
+import { cards, fileForId } from './lookup';
 
 export * from './sync';
 
 export const pgLib = {
-    search,
-    forId,
-    forIds,
+    search, cards, fileForId,
 };

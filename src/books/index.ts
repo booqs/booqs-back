@@ -31,7 +31,7 @@ export async function forIds(ids: string[]) {
     const groupedResults = Object.entries(grouped).map(async ([sourcePrefix, pids]) => {
         const source = sources.find(s => s.prefix === sourcePrefix);
         if (source) {
-            const forSource = await source.forIds(pids.map(p => p.id));
+            const forSource = await source.cards(pids.map(p => p.id));
             return forSource.map(addIdPrefix(sourcePrefix));
         } else {
             return undefined;
@@ -43,6 +43,14 @@ export async function forIds(ids: string[]) {
     return ids.map(
         id => results.find(r => r.id === id),
     );
+}
+
+export async function fileForId(booqId: string) {
+    const [prefix, id] = parseId(booqId);
+    const source = sources.find(s => s.prefix === prefix);
+    return source && id
+        ? source.fileForId(id)
+        : undefined;
 }
 
 function addIdPrefix(prefix: string) {

@@ -12,16 +12,22 @@ export type LibraryCard = {
         [n: number]: string,
     },
 };
+export type BookFile = {
+    kind: 'epub',
+    file: Buffer,
+};
 export type LibrarySource = {
     prefix: string,
     search(query: string, limit: number): Promise<LibraryCard[]>,
-    forIds(ids: string[]): Promise<LibraryCard[]>,
+    cards(ids: string[]): Promise<LibraryCard[]>,
+    fileForId(id: string): Promise<BookFile | undefined>,
 };
 
 const gutenberg: LibrarySource = {
     prefix: 'pg',
     search: pgLib.search,
-    forIds: pgLib.forIds,
+    cards: pgLib.cards,
+    fileForId: pgLib.fileForId,
 };
 
 export const sources = [gutenberg];
