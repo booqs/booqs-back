@@ -17,7 +17,6 @@ export const booqResolver: IResolvers<BooqParent> = {
                 : [];
         },
         nodesConnection(parent, { first, after }) {
-            console.log(parent);
             return buildNodesConnection({
                 card: parent,
                 first, after,
