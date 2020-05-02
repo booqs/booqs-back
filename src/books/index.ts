@@ -3,6 +3,7 @@ import { makeId, parseId, filterUndefined } from 'booqs-core';
 import { sources, LibraryCard } from './sources';
 
 export { LibraryCard } from './sources';
+export * from './content';
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
     const cards = sources.map(
@@ -43,14 +44,6 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
     return ids.map(
         id => results.find(r => r.id === id),
     );
-}
-
-export async function fileForId(booqId: string) {
-    const [prefix, id] = parseId(booqId);
-    const source = sources.find(s => s.prefix === prefix);
-    return source && id
-        ? source.fileForId(id)
-        : undefined;
 }
 
 function addIdPrefix(prefix: string) {
