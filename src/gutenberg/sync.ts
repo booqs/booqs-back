@@ -1,7 +1,7 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
 import { extractMetadata, ExtractedMetadata } from 'booqs-parser';
-import { makeBatches, writeTempFile, resizeImage } from '../utils';
+import { makeBatches, resizeImage } from '../utils';
 import { listObjects, downloadAsset, Asset, uploadAsset } from '../s3';
 import { collection, DbPgCard } from './schema';
 
@@ -47,18 +47,18 @@ async function downloadAndInsert(assetId: string) {
         report(`Couldn't load pg asset: ${asset}`);
         return;
     }
-    const fileName = await writeTempFile(asset);
-    const { value, diags } = await extractMetadata(fileName, {
+    const meta = await extractMetadata({
+        fileData: asset as any,
         extractCover: true,
+        diagnoser: diag => {
+            report(diag.diag, diag.data);
+        },
     });
-    if (diags.length > 0) {
-        report(`Diagnostics while parsing ${assetId}`, diags);
-    }
-    if (!value) {
+    if (!meta) {
         report(`Couldn't parse metadata: ${assetId}`);
         return;
     }
-    return insertRecord(value, assetId);
+    return insertRecord(meta, assetId);
 }
 
 async function insertRecord({ metadata, cover }: ExtractedMetadata, assetId: string) {
