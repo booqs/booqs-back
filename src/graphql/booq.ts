@@ -1,7 +1,7 @@
 import { IResolvers } from 'apollo-server';
 import { LibraryCard, booqForId } from '../books';
 import { userBookmarks, userHighlights } from '../data';
-import { BooqNode } from 'booqs-core';
+import { BooqNode, previewForPath } from 'booqs-core';
 
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
@@ -15,6 +15,14 @@ export const booqResolver: IResolvers<BooqParent> = {
             return user
                 ? userHighlights(user, parent.id)
                 : [];
+        },
+        async preview(parent, { path, length }) {
+            const booq = await booqForId(parent.id);
+            if (!booq) {
+                return undefined;
+            }
+            const preview = previewForPath(booq.nodes, path, length ?? 1500);
+            return preview;
         },
         nodesConnection(parent, { first, after }) {
             return buildNodesConnection({
