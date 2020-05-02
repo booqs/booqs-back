@@ -62,7 +62,7 @@ type Booq {
     author: String
     bookmarks: [Bookmark]
     highlights: [Highlight]
-    nodesConnection(first: Int!, after: String!): BooqNodeConnection
+    nodesConnection(first: Int, after: String): BooqNodeConnection
 }
 type AuthToken {
     token: String
