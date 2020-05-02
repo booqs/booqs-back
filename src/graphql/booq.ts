@@ -22,7 +22,7 @@ export const booqResolver: IResolvers<BooqParent> = {
                 return undefined;
             }
             const preview = previewForPath(booq.nodes, path, length);
-            return preview?.substr(0, length);
+            return preview?.trim()?.substr(0, length);
         },
         nodesConnection(parent, { first, after }) {
             return buildNodesConnection({
