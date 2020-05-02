@@ -4,8 +4,6 @@ type Query {
     auth(token: String!, provider: String!): AuthToken
     booq(id: ID!): Booq
     search(query: String!): [Booq]
-    bookmarks(booqId: ID!): [Bookmark]
-    highlights(booqId: ID!): [Highlight]
     currents: [Current]
     collection(name: String!): Collection
 }
@@ -47,6 +45,8 @@ type Booq {
     id: ID!
     title: String
     author: String
+    bookmarks: [Bookmark]
+    highlights: [Highlight]
 }
 type AuthToken {
     token: String

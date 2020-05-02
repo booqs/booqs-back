@@ -2,9 +2,9 @@ import { groupBy, flatten } from 'lodash';
 import { makeId, parseId, filterUndefined } from 'booqs-core';
 import { sources, LibraryCard } from './sources';
 
-export { LibraryCard as Card } from './sources';
+export { LibraryCard } from './sources';
 
-export async function search(query: string, limit: number) {
+export async function search(query: string, limit: number): Promise<LibraryCard[]> {
     const cards = sources.map(
         source => source.search(query, limit)
             .then(
@@ -15,7 +15,7 @@ export async function search(query: string, limit: number) {
     return Promise.all(cards).then(flatten);
 }
 
-export async function forIds(ids: string[]) {
+export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefined>> {
     const parsed = filterUndefined(
         ids.map(idString => {
             const [source, id] = parseId(idString);

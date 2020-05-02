@@ -2,17 +2,18 @@ import { IResolvers } from 'apollo-server';
 import { Context } from './context';
 import { getAuthToken } from '../auth';
 import {
-    userBookmarks, userHighlights, userCurrents, userCollection,
+    userCurrents, userCollection,
 } from '../data';
 import { search, forIds } from '../books';
+import { BooqParent } from './booq';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
-        async booq(_, { id }) {
+        async booq(_, { id }): Promise<BooqParent | undefined> {
             const [result] = await forIds([id]);
             return result;
         },
-        async search(_, { query }) {
+        async search(_, { query }): Promise<BooqParent[]> {
             const results = await search(query, 100);
             return results;
         },
@@ -22,16 +23,6 @@ export const queryResolver: IResolvers<any, Context> = {
                 token,
             });
             return { token: authToken };
-        },
-        async bookmarks(_, { booqId }, { user }) {
-            return user
-                ? userBookmarks(user, booqId)
-                : [];
-        },
-        async highlights(_, { booqId }, { user }) {
-            return user
-                ? userHighlights(user, booqId)
-                : [];
         },
         async currents(_, __, { user }) {
             return user
