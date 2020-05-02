@@ -21,8 +21,8 @@ export const booqResolver: IResolvers<BooqParent> = {
             if (!booq) {
                 return undefined;
             }
-            const preview = previewForPath(booq.nodes, path, length ?? 1500);
-            return preview;
+            const preview = previewForPath(booq.nodes, path, length);
+            return preview?.substr(0, length);
         },
         nodesConnection(parent, { first, after }) {
             return buildNodesConnection({
