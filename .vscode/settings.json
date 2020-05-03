@@ -1,6 +1,5 @@
 {
     "files.exclude": {
-        "**/dist/**": true,
         "**/.DS_Store": true,
         "**/node_modules/**": true
     },
@@ -8,19 +7,27 @@
         "source.fixAll": true,
     },
     "editor.formatOnSave": true,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.tsdk": "node_modules/typescript/lib",
     "cSpell.words": [
         "Booq",
+        "QLJSON",
         "Shakirzianov",
         "Srcs",
         "Whitespaces",
         "booqs",
         "coverpage",
+        "diagnoser",
         "epub",
         "epubs",
         "hacky",
+        "kinesisvideomedia",
+        "lucene",
+        "pids",
         "promisify",
         "readonly",
         "rgrove",
+        "upsert",
         "xmls"
     ]
 }
