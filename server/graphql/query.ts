@@ -3,7 +3,7 @@ import { getAuthToken } from '../auth';
 import {
     userCurrents, userCollection,
 } from '../data';
-import { search, forIds } from '../books';
+import { search, forIds, featuredIds } from '../books';
 import { Context } from './context';
 import { BooqParent } from './booq';
 
@@ -33,6 +33,10 @@ export const queryResolver: IResolvers<any, Context> = {
             return user
                 ? userCollection(user, name)
                 : [];
+        },
+        async featured(_, { limit }) {
+            const ids = await featuredIds(limit);
+            return forIds(ids);
         },
     },
 };

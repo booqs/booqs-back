@@ -6,6 +6,7 @@ type Query {
     search(query: String!): [Booq]
     currents: [Current]
     collection(name: String!): Collection
+    featured(limit: Int!): [Booq]
 }
 type Mutation {
     addBookmark(bm: BookmarkInput!): Boolean

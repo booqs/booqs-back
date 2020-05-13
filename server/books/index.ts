@@ -4,6 +4,7 @@ import { LibraryCard } from '../sources';
 import { userUploadsLib } from '../uploads';
 import { sources } from './libSources';
 import { ReadStream } from 'fs';
+import { pgCards } from '../gutenberg/schema';
 
 export * from './content';
 
@@ -54,6 +55,15 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const card = await userUploadsLib.uploadEpub(fileStream, userId);
     return card && addIdPrefix('uu')(card);
+}
+
+export async function featuredIds(limit: number) {
+    return pgCards
+        .find()
+        .limit(limit)
+        .select('index')
+        .exec()
+        .then(rs => rs.map(r => makeId('pg', r.index)));
 }
 
 function addIdPrefix(prefix: string) {
