@@ -25,22 +25,22 @@ export async function uploadEpub(fileStream: ReadStream, userId: string): Promis
         diagnoser: diag => report(diag.diag, diag.data),
     });
     if (!booq) {
-        report(`Can't parse upload`);
+        report('Can\'t parse upload');
         return undefined;
     }
     const assetId = uuid();
     const uploadResult = await uploadAsset(userUploadedEpubsBucket, assetId, buffer);
     if (!uploadResult.$response) {
-        report(`Can't upload file to S3`);
+        report('Can\'t upload file to S3');
         return undefined;
     }
     const insertResult = await insertRecord(booq, assetId, hash);
     const uploadImagesResult = await uploadImages(userUploadedImagesBucket, insertResult._id, booq);
-    uploadImagesResult.map(id => report(`Uploaded image: ${id}`))
+    uploadImagesResult.map(id => report(`Uploaded image: ${id}`));
     return toLibraryCard(insertResult);
 }
 
-async function insertRecord(booq: Booq, assetId: string, fileHash: string, ) {
+async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
     const {
         title, creator: author, subject, language, description, cover,
         ...rest

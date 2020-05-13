@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
-import { BooqMeta, Booq, booqLength } from '../../core';
+import { Booq, booqLength } from '../../core';
 import { parseEpub } from '../../parser';
 import { makeBatches } from '../utils';
 import { listObjects, downloadAsset, Asset } from '../s3';

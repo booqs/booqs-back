@@ -1,4 +1,4 @@
-import { pgCards } from "../gutenberg/schema";
+import { pgCards } from '../gutenberg/schema';
 
 export async function featuredIds(limit: number) {
     return pgCards
