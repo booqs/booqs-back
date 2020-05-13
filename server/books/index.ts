@@ -70,6 +70,6 @@ function processCard({ prefix, imagesRoot }: LibrarySource) {
     return (card: LibraryCard) => ({
         ...card,
         id: makeId(prefix, card.id),
-        cover: `${imagesRoot}/${card.cover}`,
+        cover: `${imagesRoot}/${card.id}/${card.cover}`,
     });
 }
