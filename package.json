@@ -3,15 +3,15 @@
   "private": true,
   "version": "0.1.0",
   "description": "Booqs backend",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/server/index.js",
+  "types": "dist/server/index.d.ts",
   "scripts": {
     "prepare": "npm run build",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint server/**/*.ts",
     "build-ts": "tsc",
     "build": "npm run build-ts && npm run lint",
-    "debug": "tsc -w & cross-env NODE_ENV=development nodemon dist/index.js",
-    "start": "node dist/src/index.js"
+    "debug": "tsc -w & cross-env NODE_ENV=development nodemon dist/server/index.js",
+    "start": "node dist/server/index.js"
   },
   "repository": {
     "type": "git",
