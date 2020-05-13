@@ -63,10 +63,15 @@ type Booq {
     title: String
     author: String
     cover(size: Int): String
+    tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
     preview(path: [Int!], length: Int = 1500): String
     nodesConnection(first: Int, after: String): BooqNodeConnection
+}
+type Tag {
+    tag: String!
+    value: String
 }
 type AuthToken {
     token: String
