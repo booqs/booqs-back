@@ -10,9 +10,7 @@ export async function startup() {
         typeDefs,
         resolvers,
         context,
-        cors: {
-            origin: '*',
-        },
+        cors: true,
     });
     const { url } = await server.listen();
     console.info(`Server ready at ${url}`);
