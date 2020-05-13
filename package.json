@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/booqs/booqs-back",
   "devDependencies": {
+    "@types/css": "0.0.31",
     "@types/graphql-type-json": "^0.3.2",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/lodash": "^4.14.150",
@@ -51,6 +52,7 @@
     "axios": "^0.19.2",
     "booqs-core": "^0.2.1",
     "booqs-parser": "^0.3.0",
+    "css": "^2.2.4",
     "dotenv": "^8.2.0",
     "graphql": "^15.0.0",
     "graphql-import": "^1.0.2",
