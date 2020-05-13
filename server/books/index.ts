@@ -8,6 +8,9 @@ import { ReadStream } from 'fs';
 export * from './content';
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
+    if (!query) {
+        return [];
+    }
     const cards = sources.map(
         source => source.search(query, limit)
             .then(
