@@ -1,1 +1,5 @@
-export * from './micro';
+import { config as configEnv } from 'dotenv';
+import { startup } from './startup';
+
+configEnv();
+startup();
