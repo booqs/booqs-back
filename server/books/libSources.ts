@@ -2,7 +2,7 @@ import { LibrarySource } from '../sources';
 import { userUploadsImagesRoot, userUploadsLib } from '../uploads';
 import { pgImagesRoot, pgLib } from '../gutenberg';
 
-const gutenberg: LibrarySource = {
+export const gutenberg: LibrarySource = {
     prefix: 'pg',
     imagesRoot: pgImagesRoot,
     search: pgLib.search,
@@ -10,7 +10,7 @@ const gutenberg: LibrarySource = {
     fileForId: pgLib.fileForId,
 };
 
-const userUploads: LibrarySource = {
+export const userUploads: LibrarySource = {
     prefix: 'uu',
     imagesRoot: userUploadsImagesRoot,
     search: userUploadsLib.search,

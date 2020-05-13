@@ -1,8 +1,8 @@
 import { groupBy, flatten } from 'lodash';
 import { makeId, parseId, filterUndefined } from '../../core';
-import { LibraryCard } from '../sources';
+import { LibraryCard, LibrarySource } from '../sources';
 import { userUploadsLib } from '../uploads';
-import { sources } from './libSources';
+import { sources, userUploads } from './libSources';
 import { ReadStream } from 'fs';
 import { pgCards } from '../gutenberg/schema';
 
@@ -15,7 +15,7 @@ export async function search(query: string, limit: number): Promise<LibraryCard[
     const cards = sources.map(
         source => source.search(query, limit)
             .then(
-                results => results.map(addIdPrefix(source.prefix)),
+                results => results.map(processCard(source)),
             ),
     );
 
@@ -39,7 +39,7 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
         const source = sources.find(s => s.prefix === sourcePrefix);
         if (source) {
             const forSource = await source.cards(pids.map(p => p.id));
-            return forSource.map(addIdPrefix(sourcePrefix));
+            return forSource.map(processCard(source));
         } else {
             return undefined;
         }
@@ -54,7 +54,7 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
 
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const card = await userUploadsLib.uploadEpub(fileStream, userId);
-    return card && addIdPrefix('uu')(card);
+    return card && processCard(userUploads)(card);
 }
 
 export async function featuredIds(limit: number) {
@@ -66,10 +66,10 @@ export async function featuredIds(limit: number) {
         .then(rs => rs.map(r => makeId('pg', r.index)));
 }
 
-function addIdPrefix(prefix: string) {
+function processCard({ prefix, imagesRoot }: LibrarySource) {
     return (card: LibraryCard) => ({
         ...card,
         id: makeId(prefix, card.id),
-        cover: card.cover && makeId(prefix, card.cover),
+        cover: `${imagesRoot}/${card.cover}`,
     });
 }

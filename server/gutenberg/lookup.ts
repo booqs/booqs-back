@@ -20,8 +20,8 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
             description, meta, cover, length,
         }) => ({
             id: index,
-            title, author, language, subjects, description, meta,
-            cover, length,
+            cover, title, author, language, subjects, description, meta,
+            length,
         })));
 }
 
