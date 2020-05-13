@@ -12,7 +12,9 @@ export async function startup() {
         context,
         cors: true,
     });
-    const { url } = await server.listen();
+    const { url } = await server.listen({
+        port: process.env.PORT || 4000,
+    });
     console.info(`Server ready at ${url}`);
     runWorkers();
 }
