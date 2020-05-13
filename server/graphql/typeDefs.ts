@@ -62,7 +62,7 @@ type Booq {
     id: ID!
     title: String
     author: String
-    cover: String
+    cover(size: Int): String
     bookmarks: [Bookmark]
     highlights: [Highlight]
     preview(path: [Int!], length: Int = 1500): String

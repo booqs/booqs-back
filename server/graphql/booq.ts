@@ -7,6 +7,11 @@ import { LibraryCard } from '../sources';
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
     Booq: {
+        cover(parent, { size }) {
+            return parent.cover && size
+                ? `${parent.cover}@${size}`
+                : parent.cover;
+        },
         async bookmarks(parent, _, { user }) {
             return user
                 ? userBookmarks(user, parent.id)
