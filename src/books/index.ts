@@ -1,8 +1,10 @@
 import { groupBy, flatten } from 'lodash';
-import { makeId, parseId, filterUndefined } from 'booqs-core';
-import { sources, LibraryCard } from './sources';
+import { makeId, parseId, filterUndefined } from '../../core';
+import { LibraryCard } from '../sources';
+import { userUploadsLib } from '../uploads';
+import { sources } from './libSources';
+import { ReadStream } from 'fs';
 
-export { LibraryCard } from './sources';
 export * from './content';
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
@@ -46,9 +48,15 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
     );
 }
 
+export async function uploadEpub(fileStream: ReadStream, userId: string) {
+    const card = await userUploadsLib.uploadEpub(fileStream, userId);
+    return card && addIdPrefix('uu')(card);
+}
+
 function addIdPrefix(prefix: string) {
     return (card: LibraryCard) => ({
         ...card,
         id: makeId(prefix, card.id),
+        cover: card.cover && makeId(prefix, card.cover),
     });
 }

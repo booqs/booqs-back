@@ -1,9 +1,9 @@
-import { pgCards, pgEpubsBucket } from './schema';
+import { uuCards, userUploadedEpubsBucket } from './schema';
 import { downloadAsset } from '../s3';
 import { LibraryCard } from '../sources';
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
-    return pgCards
+    return uuCards
         .find(
             { index: { $in: ids } },
             {
@@ -16,21 +16,21 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
         )
         .exec()
         .then(docs => docs.map(({
-            index, title, author, language, subjects,
+            _id, title, author, language, subjects,
             description, meta, cover, length,
         }) => ({
-            id: index,
+            id: _id,
             title, author, language, subjects, description, meta,
             cover, length,
         })));
 }
 
 export async function fileForId(id: string) {
-    const doc = await pgCards.findOne({ index: id }).exec();
+    const doc = await uuCards.findOne({ index: id }).exec();
     if (!doc) {
         return undefined;
     } else {
-        const asset = await downloadAsset(pgEpubsBucket, doc.assetId);
+        const asset = await downloadAsset(userUploadedEpubsBucket, doc.assetId);
         return Buffer.isBuffer(asset)
             ? { kind: 'epub', file: asset } as const
             : undefined;

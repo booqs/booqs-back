@@ -1,8 +1,13 @@
 import { S3 } from 'aws-sdk';
 import { ListObjectsV2Output } from 'aws-sdk/clients/s3';
 import { ContinuationToken } from 'aws-sdk/clients/kinesisvideomedia';
+import { config } from './config';
 
 const service = new S3();
+service.config.update({
+    accessKeyId: config().awsAccessKeyId,
+    secretAccessKey: config().awsSecretKey,
+});
 
 export type Asset = S3.Object;
 export type AssetBody = S3.Body;

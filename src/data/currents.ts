@@ -1,5 +1,5 @@
-import { CurrentData, collection, DbUser } from './schema';
 import { flatten } from 'lodash';
+import { CurrentData, collection, DbUser } from './schema';
 
 export type DbCurrent = CurrentData & {
     booqId: string,

@@ -1,5 +1,8 @@
 import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
+export const pgEpubsBucket = 'pg-epubs';
+export const pgImagesBucket = 'pg-epub-images';
+
 const schema = {
     assetId: {
         type: String,
@@ -11,22 +14,18 @@ const schema = {
         index: true,
         unique: true,
     },
+    length: {
+        type: Number,
+        required: true,
+    },
     title: String,
     author: String,
     language: String,
     description: String,
     subjects: [String],
-    meta: taggedObject<object>(),
     cover: String,
-    coverSizes: taggedObject<CoverSizes>(),
+    meta: taggedObject<object>(),
 } as const;
 
-type CoverSizes = {
-    [size: number]: string,
-};
-
 export type DbPgCard = TypeFromSchema<typeof schema>;
-export const collection = typedModel('pg-cards', schema);
-
-export const epubsBucket = 'pg-epubs';
-export const coversBucket = 'pg-covers';
+export const pgCards = typedModel('pg-cards', schema);

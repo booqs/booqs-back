@@ -1,10 +1,10 @@
 import { IResolvers } from 'apollo-server';
-import { Context } from './context';
 import { getAuthToken } from '../auth';
 import {
     userCurrents, userCollection,
 } from '../data';
 import { search, forIds } from '../books';
+import { Context } from './context';
 import { BooqParent } from './booq';
 
 export const queryResolver: IResolvers<any, Context> = {

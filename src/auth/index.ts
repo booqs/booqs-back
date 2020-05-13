@@ -1,5 +1,5 @@
-import { fetchFbUser } from './facebook';
 import { forFacebook, forId } from '../data';
+import { fetchFbUser } from './facebook';
 import { generateToken, userIdFromHeader } from './token';
 
 export type AuthInput = {

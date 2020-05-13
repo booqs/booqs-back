@@ -1,8 +1,8 @@
-import { pgCards } from './schema';
+import { uuCards } from './schema';
 import { LibraryCard } from '../sources';
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
-    return pgCards.aggregate([{
+    return uuCards.aggregate([{
         $searchBeta: {
             compound: {
                 should: [

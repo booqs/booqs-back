@@ -1,18 +1,32 @@
 import {
-    Schema, model, Document, connect,
+    Schema, model, Document, connect, Model,
 } from 'mongoose';
+import { config } from './config';
 
-export async function connectDb(uri: string) {
-    return await connect(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-    });
+let db: any;
+export async function connectDb() {
+    if (!db) {
+        const dbUri = config().mongodbUri;
+        if (dbUri) {
+            console.log('Connecting to db...');
+            db = await connect(dbUri, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+                useCreateIndex: true,
+                useFindAndModify: false,
+            });
+            console.log('Connected');
+        } else {
+            console.warn('BOOQS_BACKEND_MONGODB_URI is not set');
+        }
+    }
+    return db;
 }
 
-export function typedModel<T extends SchemaDefinition>(name: string, schema: T) {
-    return model<DocumentType<T>>(name, new Schema(schema));
+export function typedModel<T extends SchemaDefinition>(name: string, schema: T): Model<DocumentType<T>> {
+    const key = `mongodb_${name}`;
+    (global as any)[key] = (global as any)[key] ?? model(name, new Schema(schema));
+    return (global as any)[key];
 }
 
 export function taggedObject<T>(): TaggedObject<T> {
@@ -23,7 +37,10 @@ export const ObjectId = Schema.Types.ObjectId;
 export type ObjectId = Schema.Types.ObjectId;
 type ObjectIdConstructor = typeof ObjectId;
 
-export type DocumentType<T extends SchemaDefinition> = Document & TypeFromSchema<T>;
+export type DocumentType<T extends SchemaDefinition> =
+    & TypeFromSchema<T>
+    & Document
+    ;
 export type TypeFromSchema<T extends SchemaDefinition> =
     & { [P in Extract<keyof T, RequiredProperties<T>>]: FieldType<T[P]>; }
     & { [P in Exclude<keyof T, RequiredProperties<T>>]?: FieldType<T[P]>; }

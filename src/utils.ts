@@ -1,7 +1,6 @@
 import { promisify } from 'util';
 import { writeFile, exists, mkdir } from 'fs';
 import { join } from 'path';
-import * as sharp from 'sharp';
 
 // TODO: move to 'core' ?
 export function uuid() {
@@ -41,15 +40,6 @@ export async function tempPath() {
         await promisify(mkdir)(temp, { recursive: true });
     }
     return join(temp, uuid());
-}
-
-export async function resizeImage(buffer: Buffer, height: number): Promise<Buffer> {
-    return sharp(buffer)
-        .resize({
-            height,
-            fit: 'cover',
-        })
-        .toBuffer();
 }
 
 export function afterPrefix(str: string, prefix: string): string | undefined {

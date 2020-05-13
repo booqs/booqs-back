@@ -1,10 +1,12 @@
+import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
-import { Context } from './context';
 import {
     addBookmark, addHighlight, addCurrent,
     deleteBookmark, deleteHighlight, deleteCurrent, addToCollection, removeFromCollection,
 } from '../data';
 import { uuid } from '../utils';
+import { Context } from './context';
+import { uploadEpub } from '../books';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
@@ -103,6 +105,16 @@ export const mutationResolver: IResolvers<any, Context> = {
             } else {
                 return false;
             }
+        },
+        async uploadEpub(_, { file }, { user }) {
+            if (user?._id) {
+                const actual = await file;
+                const stream: ReadStream = actual.createReadStream();
+                const card = await uploadEpub(stream, user._id);
+                return card;
+            }
+
+            return undefined;
         },
     },
 };

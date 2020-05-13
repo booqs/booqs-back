@@ -1,5 +1,5 @@
+import { filterUndefined } from '../../core';
 import { collection, DbUser } from './schema';
-import { filterUndefined } from 'booqs-core';
 import { afterPrefix } from '../utils';
 
 export type DbCollection = string[];

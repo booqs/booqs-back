@@ -1,9 +1,11 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
-import { extractMetadata, ExtractedMetadata } from 'booqs-parser';
-import { makeBatches, resizeImage } from '../utils';
-import { listObjects, downloadAsset, Asset, uploadAsset } from '../s3';
-import { collection, DbPgCard, epubsBucket, coversBucket } from './schema';
+import { BooqMeta, Booq, booqLength } from '../../core';
+import { parseEpub } from '../../parser';
+import { makeBatches } from '../utils';
+import { listObjects, downloadAsset, Asset } from '../s3';
+import { pgCards, DbPgCard, pgEpubsBucket, pgImagesBucket } from './schema';
+import { uploadImages } from '../images';
 
 export async function syncWithS3() {
     report('Syncing with S3');
@@ -30,88 +32,65 @@ async function processAsset(asset: Asset) {
 }
 
 async function recordExists(assetId: string) {
-    return collection.exists({ assetId });
+    return pgCards.exists({ assetId });
 }
 
 async function* listEpubObjects() {
-    yield* listObjects(epubsBucket);
+    yield* listObjects(pgEpubsBucket);
 }
 
 async function downloadAndInsert(assetId: string) {
     report(`Processing ${assetId}`);
-    const asset = await downloadAsset(epubsBucket, assetId);
+    const asset = await downloadAsset(pgEpubsBucket, assetId);
     if (!asset) {
         report(`Couldn't load pg asset: ${asset}`);
         return;
     }
-    const meta = await extractMetadata({
+    const booq = await parseEpub({
         fileData: asset as any,
-        extractCover: true,
         diagnoser: diag => {
             report(diag.diag, diag.data);
         },
     });
-    if (!meta) {
-        report(`Couldn't parse metadata: ${assetId}`);
+    if (!booq) {
+        report(`Couldn't parse epub: ${assetId}`);
         return;
     }
-    return insertRecord(meta, assetId);
+    const document = await insertRecord(booq, assetId);
+    if (document) {
+        await uploadImages(pgImagesBucket, document.index, booq);
+        return document.index;
+    } else {
+        return undefined;
+    }
 }
 
-async function insertRecord({ metadata, cover }: ExtractedMetadata, assetId: string) {
+async function insertRecord(booq: Booq, assetId: string) {
     const index = indexFromAssetId(assetId);
     if (index === undefined) {
         report(`Invalid asset ig: ${assetId}`);
         return undefined;
     }
-    const coverData = await uploadCover(cover, assetId);
     const {
-        title, creator: author, subject, language, description,
+        title, creator: author, subject, language, description, cover,
         ...rest
-    } = metadata;
+    } = booq.meta;
+    const length = booqLength(booq);
     const doc: DbPgCard = {
         assetId,
         index,
+        length,
         title: parseString(title),
         author: parseString(author),
         language: parseString(language),
         description: parseString(description),
         subjects: parseSubject(subject),
+        cover: parseString(cover),
         meta: rest,
-        ...coverData,
     };
-    const [inserted] = await collection.insertMany([doc]);
+    const [inserted] = await pgCards.insertMany([doc]);
     report('inserted', inserted);
     return inserted;
-}
-
-async function uploadCover(coverBase64: string | undefined, assetId: string) {
-    if (!coverBase64) {
-        return {};
-    }
-    const cover = Buffer.from(coverBase64, 'base64');
-    const originalId = `${assetId}-cover`;
-    const originalResult = await uploadAsset(coversBucket, originalId, cover);
-    if (originalResult.$response) {
-        const size = 270;
-        const resized = await resizeImage(cover, size);
-        const resizedId = `${originalId}@${size}`;
-        const resizedResult = await uploadAsset(coversBucket, resizedId, resized);
-        if (resizedResult.$response) {
-            return {
-                cover: originalId,
-                coverSizes: {
-                    [size]: resizedId,
-                },
-            };
-        } else {
-            report(`Can't upload resized cover: ${resizedId}`);
-            return { cover: originalId };
-        }
-    } else {
-        report(`Can't upload original cover: ${originalId}`);
-        return {};
-    }
 }
 
 function parseString(field: unknown) {

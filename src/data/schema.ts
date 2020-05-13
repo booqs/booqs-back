@@ -1,4 +1,4 @@
-import { BooqPath, BooqRange } from 'booqs-core';
+import { BooqPath, BooqRange } from '../../core';
 import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {

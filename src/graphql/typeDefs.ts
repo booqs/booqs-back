@@ -16,6 +16,7 @@ type Mutation {
     removeCurrent(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
+    uploadEpub(file: Upload!): Booq
 }
 
 input BookmarkInput {

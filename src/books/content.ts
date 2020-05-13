@@ -1,6 +1,6 @@
-import { parseId, Booq } from 'booqs-core';
-import { sources } from './sources';
-import { parseEpub } from 'booqs-parser';
+import { parseId, Booq } from '../../core';
+import { parseEpub } from '../../parser';
+import { sources } from './libSources';
 
 const cache: {
     [booqId: string]: Booq | undefined,
