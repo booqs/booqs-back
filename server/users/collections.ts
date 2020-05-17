@@ -41,3 +41,7 @@ export async function removeFromCollection(
     );
     return result ? true : false;
 }
+
+export async function addUpload(userId: string, uploadId: string) {
+    return addToCollection(userId, 'uploads', `uu/${uploadId}`);
+}

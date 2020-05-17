@@ -40,17 +40,3 @@ export function toLibraryCard(doc: DocumentType<typeof cardsSchema>): LibraryCar
         cover: doc.cover,
     };
 }
-
-const registrySchema = {
-    userId: {
-        type: String,
-        required: true,
-    },
-    cardId: {
-        type: String,
-        required: true,
-    },
-} as const;
-
-export type DbUpload = TypeFromSchema<typeof registrySchema>;
-export const uuRegistry = typedModel('uu-registry', registrySchema);

@@ -1,14 +1,15 @@
 import { createHash } from 'crypto';
 import { ReadStream } from 'fs';
 import { inspect } from 'util';
-import {
-    uuCards, uuRegistry, DbUpload, DbUuCard,
-    userUploadedEpubsBucket, toLibraryCard,
-} from './schema';
 import { parseEpub } from '../../parser';
 import { booqLength, Booq } from '../../core';
 import { uploadAsset } from '../s3';
 import { uuid } from '../utils';
+import { addUpload } from '../users';
+import {
+    uuCards, DbUuCard,
+    userUploadedEpubsBucket, toLibraryCard,
+} from './schema';
 
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const { buffer, hash } = await buildFile(fileStream);
@@ -68,12 +69,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
 }
 
 async function addToRegistry(cardId: string, userId: string) {
-    const doc: DbUpload = {
-        userId,
-        cardId,
-    };
-    const [result] = await uuRegistry.insertMany([doc]);
-    return result;
+    return addUpload(userId, cardId);
 }
 
 type File = {
