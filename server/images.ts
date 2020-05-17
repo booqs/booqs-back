@@ -1,6 +1,6 @@
 import * as sharp from 'sharp';
-import { Booq } from '../../core';
-import { uploadAsset } from '../s3';
+import { Booq } from '../core';
+import { uploadAsset } from './s3';
 
 const bucket = 'booqs-images';
 const coverSizes = [60, 120, 210];
@@ -10,7 +10,7 @@ export function booqImageUrl(booqId: string, src: string, size?: number) {
     return size ? `${base}@${size}` : base;
 }
 
-export async function uploadBooqImages(booq: Booq, booqId: string) {
+export async function uploadBooqImages(booqId: string, booq: Booq) {
     const allImages = Object.entries(booq.images).map(
         ([src, base64]) => uploadImage(base64, booqId, src),
     );
