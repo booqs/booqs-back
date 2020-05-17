@@ -1,7 +1,7 @@
 import { IResolvers } from 'apollo-server';
 import { BooqNode, previewForPath, filterUndefined } from '../../core';
 import { booqForId } from '../books';
-import { userBookmarks, userHighlights } from '../data';
+import { userBookmarks, userHighlights } from '../users';
 import { LibraryCard } from '../sources';
 import { booqImageUrl } from '../images';
 

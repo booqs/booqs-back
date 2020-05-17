@@ -1,4 +1,4 @@
-import { forFacebook, forId } from '../data';
+import { forFacebook, forId } from '../users';
 import { fetchFbUser } from './facebook';
 import { generateToken, userIdFromHeader } from './token';
 

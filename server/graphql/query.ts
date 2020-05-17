@@ -2,7 +2,7 @@ import { IResolvers } from 'apollo-server';
 import { authWithToken } from '../auth';
 import {
     userCurrents, userCollection,
-} from '../data';
+} from '../users';
 import { search, forIds, featuredIds } from '../books';
 import { Context } from './context';
 import { BooqParent } from './booq';
