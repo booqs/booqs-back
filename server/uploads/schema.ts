@@ -2,7 +2,6 @@ import { typedModel, TypeFromSchema, taggedObject, DocumentType } from '../mongo
 import { LibraryCard } from '../sources';
 
 export const userUploadedEpubsBucket = 'uu-epubs';
-export const userUploadedImagesBucket = 'uu-epub-images';
 
 const cardsSchema = {
     assetId: {

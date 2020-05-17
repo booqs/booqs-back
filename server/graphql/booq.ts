@@ -3,14 +3,15 @@ import { BooqNode, previewForPath, filterUndefined } from '../../core';
 import { booqForId } from '../books';
 import { userBookmarks, userHighlights } from '../data';
 import { LibraryCard } from '../sources';
+import { booqImageUrl } from '../images';
 
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
     Booq: {
         cover(parent, { size }) {
-            return parent.cover && size
-                ? `${parent.cover}@${size}`
-                : parent.cover;
+            return parent.cover
+                ? booqImageUrl(parent.id, parent.cover, size)
+                : undefined;
         },
         tags(parent) {
             return buildTags(parent);
