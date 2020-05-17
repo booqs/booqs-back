@@ -1,4 +1,4 @@
-import parseXmlLib from '@rgrove/parse-xml';
+import * as parseXmlLib from '@rgrove/parse-xml';
 import { Result } from './result';
 
 export type XmlStringParserInput = {
@@ -32,7 +32,7 @@ export type XmlBase<T extends string> = {
     type: T,
     parent: Xml,
 };
-type NotElement = { name?: undefined, attributes?: undefined, };
+type NotElement = { name?: undefined, attributes?: undefined };
 export type XmlWithParent<T extends string> = XmlBase<T> & {
     parent: XmlWithChildren,
 };
@@ -48,9 +48,9 @@ export type XmlElement = XmlBase<'element'> & {
     attributes: XmlAttributes,
     children: Xml[],
 };
-export type XmlText = XmlBase<'text'> & { text: string, } & NotElement;
-export type XmlCData = XmlBase<'cdata'> & { text: string, } & NotElement;
-export type XmlComment = XmlBase<'comment'> & { content: string, } & NotElement;
+export type XmlText = XmlBase<'text'> & { text: string } & NotElement;
+export type XmlCData = XmlBase<'cdata'> & { text: string } & NotElement;
+export type XmlComment = XmlBase<'comment'> & { content: string } & NotElement;
 
 export type XmlType = Xml['type'];
 

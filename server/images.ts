@@ -1,6 +1,6 @@
-import { Booq, coverSize, previewCoverSize } from "../core";
-import { uploadAsset } from "./s3";
-import sharp from 'sharp';
+import { Booq, coverSize, previewCoverSize } from '../core';
+import { uploadAsset } from './s3';
+import * as sharp from 'sharp';
 
 export async function uploadImages(bucket: string, booqId: string, booq: Booq) {
     const promises = Object.entries(booq.images).map(
