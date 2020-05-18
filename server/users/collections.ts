@@ -1,13 +1,31 @@
+import { uniq } from 'lodash';
 import { filterUndefined } from '../../core';
 import { collection, DbUser } from './schema';
 import { afterPrefix } from '../utils';
 
 export type DbCollection = string[];
 export function userCollection(user: DbUser, name: string): DbCollection {
+    switch (name) {
+        case 'my-books':
+            return combineCollections([
+                namedCollection(user, 'reading-list'),
+                namedCollection(user, 'uploads'),
+            ]);
+        default:
+            return namedCollection(user, name);
+    }
+}
+
+function namedCollection(user: DbUser, name: string): DbCollection {
     const result = filterUndefined(
         user.collections?.map(c => afterPrefix(c, `${name}:`)) ?? [],
     );
     return result;
+}
+
+function combineCollections(collections: DbCollection[]): DbCollection {
+    const all = collections.reduce((res, curr) => res.concat(curr));
+    return uniq(all);
 }
 
 export async function addToCollection(
