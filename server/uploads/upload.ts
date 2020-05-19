@@ -36,6 +36,7 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
         return undefined;
     }
     const insertResult = await insertRecord(booq, assetId, hash);
+    await addToRegistry(insertResult._id, userId);
     return {
         card: toLibraryCard(insertResult),
         booq,
