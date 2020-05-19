@@ -8,7 +8,7 @@ export function userCollection(user: DbUser, name: string): DbCollection {
     switch (name) {
         case 'my-books':
             return combineCollections([
-                namedCollection(user, 'reading-list'),
+                namedCollection(user, 'my-books'),
                 namedCollection(user, 'uploads'),
             ]);
         default:
