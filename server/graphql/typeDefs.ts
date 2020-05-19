@@ -38,11 +38,20 @@ input CurrentInput {
     path: [Int!]!
 }
 
-type BooqRange {
-    start: [Int!]
-    end: [Int!]
+type Booq {
+    id: ID!
+    title: String
+    author: String
+    cover(size: Int): String
+    tags: [Tag]!
+    bookmarks: [Bookmark]
+    highlights: [Highlight]
+    preview(path: [Int!], length: Int = 1500): String
+    nodesConnection(first: Int, after: String): BooqNodeConnection
 }
+
 scalar BooqNode
+
 type BooqNodeEdge {
     node: BooqNode
     cursor: String
@@ -58,17 +67,11 @@ type BooqNodeConnection {
     pageInfo: BooqNodePageInfo
 }
 
-type Booq {
-    id: ID!
-    title: String
-    author: String
-    cover(size: Int): String
-    tags: [Tag]!
-    bookmarks: [Bookmark]
-    highlights: [Highlight]
-    preview(path: [Int!], length: Int = 1500): String
-    nodesConnection(first: Int, after: String): BooqNodeConnection
+type BooqRange {
+    start: [Int!]
+    end: [Int!]
 }
+
 type Tag {
     tag: String!
     value: String

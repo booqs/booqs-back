@@ -1,9 +1,10 @@
 import { IResolvers } from 'apollo-server';
-import { BooqNode, previewForPath, filterUndefined } from '../../core';
+import { previewForPath, filterUndefined } from '../../core';
 import { booqForId } from '../books';
 import { userBookmarks, userHighlights } from '../users';
 import { LibraryCard } from '../sources';
 import { booqImageUrl } from '../images';
+import { buildNodesConnection } from './nodesConnection';
 
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
@@ -68,54 +69,4 @@ function buildTags(card: BooqParent): Tag[] {
                 value: card.id.substr('pg/'.length),
             },
     ]);
-}
-
-async function buildNodesConnection({ card, first, after }: {
-    card: LibraryCard,
-    first?: number,
-    after?: string,
-}) {
-    const booq = await booqForId(card.id);
-    if (!booq) {
-        return undefined;
-    }
-    const start = after
-        ? decodeCursor(after) + 1
-        : 0;
-    const end = Math.min(
-        booq.nodes.length,
-        start + (first ?? 1),
-    );
-    const edges: Edge[] = [];
-    for (let index = start; index < end; index++) {
-        edges.push({
-            node: booq.nodes[index],
-            cursor: encodeCursor(index),
-        });
-    }
-
-    return {
-        edges,
-        pageInfo: {
-            hasPreviousPage: start > 0,
-            hasNextPage: end < booq.nodes.length,
-            startCursor: encodeCursor(0),
-            endCursor: encodeCursor(booq.nodes.length - 1),
-        },
-    };
-}
-
-type Edge = {
-    node: BooqNode,
-    cursor: string,
-};
-
-type CursorContent = number;
-function decodeCursor(cursor: string): CursorContent {
-    const parsed = parseInt(cursor, 10);
-    return isNaN(parsed) ? 0 : parsed;
-}
-
-function encodeCursor(content: CursorContent): string {
-    return content.toString();
 }
