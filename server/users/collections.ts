@@ -25,7 +25,8 @@ function namedCollection(user: DbUser, name: string): DbCollection {
 
 function combineCollections(collections: DbCollection[]): DbCollection {
     const all = collections.reduce((res, curr) => res.concat(curr));
-    return uniq(all);
+    const result = uniq(all);
+    return result;
 }
 
 export async function addToCollection(
