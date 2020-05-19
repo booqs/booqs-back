@@ -1,20 +1,20 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
-import { Booq, booqLength } from '../../core';
+import { Booq, booqLength, filterUndefined } from '../../core';
 import { parseEpub } from '../../parser';
 import { makeBatches } from '../utils';
 import { listObjects, downloadAsset, Asset } from '../s3';
-import { pgCards, DbPgCard, pgEpubsBucket, pgImagesBucket } from './schema';
-import { uploadImages } from '../images';
+import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
 
-export async function syncWithS3() {
+export async function* syncWithS3() {
     report('Syncing with S3');
 
     const batches = makeBatches(listEpubObjects(), 50);
     for await (const batch of batches) {
-        await Promise.all(
+        const added = await Promise.all(
             batch.map(processAsset),
         );
+        yield* filterUndefined(added);
     }
 
     report('done syncing with S3');
@@ -58,8 +58,10 @@ async function downloadAndInsert(assetId: string) {
     }
     const document = await insertRecord(booq, assetId);
     if (document) {
-        await uploadImages(pgImagesBucket, document.index, booq);
-        return document.index;
+        return {
+            id: document.index,
+            booq,
+        };
     } else {
         return undefined;
     }

@@ -1,9 +1,9 @@
 import { IResolvers } from 'apollo-server';
-import { getAuthToken } from '../auth';
+import { authWithToken } from '../auth';
 import {
     userCurrents, userCollection,
-} from '../data';
-import { search, forIds } from '../books';
+} from '../users';
+import { search, forIds, featuredIds } from '../books';
 import { Context } from './context';
 import { BooqParent } from './booq';
 
@@ -18,11 +18,19 @@ export const queryResolver: IResolvers<any, Context> = {
             return results;
         },
         async auth(_, { token, provider }) {
-            const authToken = await getAuthToken({
+            const result = await authWithToken({
                 provider,
                 token,
             });
-            return { token: authToken };
+            if (result) {
+                return {
+                    token: result.token,
+                    name: result.user.name,
+                    profilePicture: result.user.pictureUrl,
+                };
+            } else {
+                return undefined;
+            }
         },
         async currents(_, __, { user }) {
             return user
@@ -33,6 +41,10 @@ export const queryResolver: IResolvers<any, Context> = {
             return user
                 ? userCollection(user, name)
                 : [];
+        },
+        async featured(_, { limit }) {
+            const ids = await featuredIds(limit);
+            return forIds(ids);
         },
     },
 };

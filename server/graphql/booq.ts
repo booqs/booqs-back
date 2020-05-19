@@ -1,12 +1,21 @@
 import { IResolvers } from 'apollo-server';
-import { BooqNode, previewForPath } from '../../core';
+import { BooqNode, previewForPath, filterUndefined } from '../../core';
 import { booqForId } from '../books';
-import { userBookmarks, userHighlights } from '../data';
+import { userBookmarks, userHighlights } from '../users';
 import { LibraryCard } from '../sources';
+import { booqImageUrl } from '../images';
 
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
     Booq: {
+        cover(parent, { size }) {
+            return parent.cover
+                ? booqImageUrl(parent.id, parent.cover, size)
+                : undefined;
+        },
+        tags(parent) {
+            return buildTags(parent);
+        },
         async bookmarks(parent, _, { user }) {
             return user
                 ? userBookmarks(user, parent.id)
@@ -33,6 +42,33 @@ export const booqResolver: IResolvers<BooqParent> = {
         },
     },
 };
+
+type Tag = {
+    tag: string,
+    value?: string,
+};
+function buildTags(card: BooqParent): Tag[] {
+    return filterUndefined([
+        {
+            tag: 'pages',
+            value: Math.floor(card.length / 1500).toString(),
+        },
+        ...(card.subjects ?? []).map(s => ({
+            tag: 'subject',
+            value: s,
+        })),
+        card.language === undefined ? undefined :
+            {
+                tag: 'language',
+                value: card.language,
+            },
+        !card.id.startsWith('pg/') ? undefined :
+            {
+                tag: 'pg-index',
+                value: card.id.substr('pg/'.length),
+            },
+    ]);
+}
 
 async function buildNodesConnection({ card, first, after }: {
     card: LibraryCard,

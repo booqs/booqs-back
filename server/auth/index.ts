@@ -1,4 +1,4 @@
-import { forFacebook, forId } from '../data';
+import { forFacebook, forId } from '../users';
 import { fetchFbUser } from './facebook';
 import { generateToken, userIdFromHeader } from './token';
 
@@ -6,13 +6,20 @@ export type AuthInput = {
     provider: 'facebook',
     token: string,
 };
-export async function getAuthToken(input: AuthInput) {
+export async function authWithToken(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token);
             const user = fb && await forFacebook(fb);
-            const token = user && generateToken(user._id);
-            return token;
+            if (user) {
+                const token = generateToken(user._id);
+                return {
+                    token,
+                    user,
+                };
+            } else {
+                return undefined;
+            }
         }
         default:
             return undefined;

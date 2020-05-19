@@ -1,3 +1,4 @@
+import * as mongoose from 'mongoose';
 import { uuCards, userUploadedEpubsBucket } from './schema';
 import { downloadAsset } from '../s3';
 import { LibraryCard } from '../sources';
@@ -5,7 +6,7 @@ import { LibraryCard } from '../sources';
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
     return uuCards
         .find(
-            { index: { $in: ids } },
+            { _id: { $in: ids.map(id => mongoose.Types.ObjectId(id)) } },
             {
                 index: true,
                 title: true, author: true,

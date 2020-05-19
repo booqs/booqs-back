@@ -3,7 +3,7 @@ import { IResolvers } from 'apollo-server';
 import {
     addBookmark, addHighlight, addCurrent,
     deleteBookmark, deleteHighlight, deleteCurrent, addToCollection, removeFromCollection,
-} from '../data';
+} from '../users';
 import { uuid } from '../utils';
 import { Context } from './context';
 import { uploadEpub } from '../books';

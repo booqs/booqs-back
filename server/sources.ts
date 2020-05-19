@@ -14,7 +14,6 @@ export type BookFile = {
 };
 export type LibrarySource = {
     prefix: string,
-    imagesRoot: string,
     search(query: string, limit: number): Promise<LibraryCard[]>,
     cards(ids: string[]): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,

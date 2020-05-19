@@ -1,21 +1,27 @@
-import { LibrarySource } from '../sources';
-import { userUploadsImagesRoot, userUploadsLib } from '../uploads';
-import { pgImagesRoot, pgLib } from '../gutenberg';
+import { makeId } from '../../core';
+import { LibrarySource, LibraryCard } from '../sources';
+import { userUploadsLib } from '../uploads';
+import { pgLib } from '../gutenberg';
 
-const gutenberg: LibrarySource = {
+export const gutenberg: LibrarySource = {
     prefix: 'pg',
-    imagesRoot: pgImagesRoot,
     search: pgLib.search,
     cards: pgLib.cards,
     fileForId: pgLib.fileForId,
 };
 
-const userUploads: LibrarySource = {
+export const userUploads: LibrarySource = {
     prefix: 'uu',
-    imagesRoot: userUploadsImagesRoot,
     search: userUploadsLib.search,
     cards: userUploadsLib.cards,
     fileForId: userUploadsLib.fileForId,
 };
 
 export const sources = [gutenberg, userUploads];
+
+export function processCard({ prefix }: LibrarySource) {
+    return (card: LibraryCard) => ({
+        ...card,
+        id: makeId(prefix, card.id),
+    });
+}

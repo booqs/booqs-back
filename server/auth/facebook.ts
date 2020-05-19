@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserInfo } from '../data';
+import { UserInfo } from '../users';
 
 export async function fetchFbUser(token: string): Promise<UserInfo | undefined> {
     const url = `https://graph.facebook.com/me?fields=name,picture

@@ -1,7 +1,6 @@
 import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 export const pgEpubsBucket = 'pg-epubs';
-export const pgImagesBucket = 'pg-epub-images';
 
 const schema = {
     assetId: {

@@ -2,7 +2,6 @@ import { typedModel, TypeFromSchema, taggedObject, DocumentType } from '../mongo
 import { LibraryCard } from '../sources';
 
 export const userUploadedEpubsBucket = 'uu-epubs';
-export const userUploadedImagesBucket = 'uu-epub-images';
 
 const cardsSchema = {
     assetId: {
@@ -41,17 +40,3 @@ export function toLibraryCard(doc: DocumentType<typeof cardsSchema>): LibraryCar
         cover: doc.cover,
     };
 }
-
-const registrySchema = {
-    userId: {
-        type: String,
-        required: true,
-    },
-    cardId: {
-        type: String,
-        required: true,
-    },
-} as const;
-
-export type DbUpload = TypeFromSchema<typeof registrySchema>;
-export const uuRegistry = typedModel('uu-registry', registrySchema);

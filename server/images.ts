@@ -1,31 +1,39 @@
-import { Booq, coverSize, previewCoverSize } from "../core";
-import { uploadAsset } from "./s3";
-import sharp from 'sharp';
+import * as sharp from 'sharp';
+import { Booq } from '../core';
+import { uploadAsset } from './s3';
 
-export async function uploadImages(bucket: string, booqId: string, booq: Booq) {
-    const promises = Object.entries(booq.images).map(
-        ([src, base64]) => uploadImage(bucket, base64, booqId, src),
+const bucket = 'booqs-images';
+const coverSizes = [60, 120, 210];
+
+export function booqImageUrl(booqId: string, src: string, size?: number) {
+    const base = `https://${bucket}.s3.amazonaws.com/${booqId}/${src}`;
+    return size ? `${base}@${size}` : base;
+}
+
+export async function uploadBooqImages(booqId: string, booq: Booq) {
+    const allImages = Object.entries(booq.images).map(
+        ([src, base64]) => uploadImage(base64, booqId, src),
     );
-
     if (typeof booq.meta.cover === 'string') {
         const coverSrc = booq.meta.cover;
         const coverBuffer = booq.images[coverSrc];
         if (coverBuffer) {
-            const coverPromise = uploadImage(bucket, coverBuffer, booqId, coverSrc, coverSize);
-            const coverPreviewPromise = uploadImage(bucket, coverBuffer, booqId, coverSrc, previewCoverSize);
-            return Promise.all([coverPromise, coverPreviewPromise, ...promises]);
+            const covers = coverSizes.map(
+                size => uploadImage(coverBuffer, booqId, coverSrc, size),
+            );
+            return Promise.all([...covers, ...allImages]);
         }
     }
-    return Promise.all(promises);
+    return Promise.all(allImages);
 }
 
-async function uploadImage(bucket: string, base64: string, booqId: string, src: string, size?: number) {
+async function uploadImage(base64: string, booqId: string, src: string, size?: number) {
     const id = size
-        ? `${booqId}/${src}@${size * 3}`
+        ? `${booqId}/${src}@${size}`
         : `${booqId}/${src}`;
     const buffer = Buffer.from(base64, 'base64');
     const toUpload = size
-        ? await resizeImage(buffer, size * 3)
+        ? await resizeImage(buffer, size)
         : buffer;
     const result = await uploadAsset(bucket, id, toUpload);
     return result.$response

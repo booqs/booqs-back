@@ -1,5 +1,5 @@
 import { fromHeader } from '../auth';
-import { DbUser } from '../data';
+import { DbUser } from '../users';
 
 type ExpressContext = {
     req: {

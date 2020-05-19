@@ -1,23 +1,24 @@
 import { createHash } from 'crypto';
 import { ReadStream } from 'fs';
 import { inspect } from 'util';
-import {
-    uuCards, uuRegistry, DbUpload, DbUuCard,
-    userUploadedEpubsBucket, userUploadedImagesBucket, toLibraryCard,
-} from './schema';
 import { parseEpub } from '../../parser';
 import { booqLength, Booq } from '../../core';
 import { uploadAsset } from '../s3';
 import { uuid } from '../utils';
-import { uploadImages } from '../images';
-import { LibraryCard } from '../sources';
+import { addUpload } from '../users';
+import {
+    uuCards, DbUuCard,
+    userUploadedEpubsBucket, toLibraryCard,
+} from './schema';
 
-export async function uploadEpub(fileStream: ReadStream, userId: string): Promise<LibraryCard | undefined> {
+export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const { buffer, hash } = await buildFile(fileStream);
     const existing = await uuCards.findOne({ fileHash: hash }).exec();
     if (existing) {
         await addToRegistry(existing._id, userId);
-        return toLibraryCard(existing);
+        return {
+            card: toLibraryCard(existing),
+        };
     }
 
     const booq = await parseEpub({
@@ -35,9 +36,11 @@ export async function uploadEpub(fileStream: ReadStream, userId: string): Promis
         return undefined;
     }
     const insertResult = await insertRecord(booq, assetId, hash);
-    const uploadImagesResult = await uploadImages(userUploadedImagesBucket, insertResult._id, booq);
-    uploadImagesResult.map(id => report(`Uploaded image: ${id}`));
-    return toLibraryCard(insertResult);
+    await addToRegistry(insertResult._id, userId);
+    return {
+        card: toLibraryCard(insertResult),
+        booq,
+    };
 }
 
 async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
@@ -67,12 +70,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
 }
 
 async function addToRegistry(cardId: string, userId: string) {
-    const doc: DbUpload = {
-        userId,
-        cardId,
-    };
-    const [result] = await uuRegistry.insertMany([doc]);
-    return result;
+    return addUpload(userId, cardId);
 }
 
 type File = {

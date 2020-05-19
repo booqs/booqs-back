@@ -1,11 +1,12 @@
 import { gql } from 'apollo-server';
 export const typeDefs = gql`
 type Query {
-    auth(token: String!, provider: String!): AuthToken
+    auth(token: String!, provider: String!): AuthResult
     booq(id: ID!): Booq
     search(query: String!): [Booq]
     currents: [Current]
     collection(name: String!): Collection
+    featured(limit: Int!): [Booq]
 }
 type Mutation {
     addBookmark(bm: BookmarkInput!): Boolean
@@ -61,13 +62,21 @@ type Booq {
     id: ID!
     title: String
     author: String
+    cover(size: Int): String
+    tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
     preview(path: [Int!], length: Int = 1500): String
     nodesConnection(first: Int, after: String): BooqNodeConnection
 }
-type AuthToken {
-    token: String
+type Tag {
+    tag: String!
+    value: String
+}
+type AuthResult {
+    token: String!
+    name: String!
+    profilePicture: String
 }
 type Bookmark {
     uuid: ID
