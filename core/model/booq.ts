@@ -22,6 +22,7 @@ export type BooqNode = {
     children?: BooqNode[],
     attrs?: BooqNodeAttrs,
     content?: string,
+    offset?: number,
 }
 
 export type TableOfContentsItem = {
@@ -40,7 +41,7 @@ export type BooqMeta = {
     [name in string]?: string | string[];
 };
 export type BooqImages = {
-    [src: string]: string;
+    [src: string]: string,
 };
 export type Booq = {
     nodes: BooqNode[],
