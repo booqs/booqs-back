@@ -10,6 +10,14 @@ export function iteratorsNode(iter: BooqNodeIterator): BooqNode {
     return iter.nodes[iter.index];
 }
 
+export function iteratorsPath(iter: BooqNodeIterator): BooqPath {
+    if (iter.parent) {
+        return [...iteratorsPath(iter.parent), iter.index];
+    } else {
+        return [iter.index];
+    }
+}
+
 export function rootIterator(nodes: BooqNode[]) {
     return {
         nodes,
