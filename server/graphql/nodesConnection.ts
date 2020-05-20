@@ -5,19 +5,25 @@ import {
 import { LibraryCard } from '../sources';
 import { booqForId } from '../books';
 
-export async function buildNodesConnection({ card, after }: {
+export async function buildNodesConnection({ card, after, before }: {
     card: LibraryCard,
     after?: string,
+    before?: string,
 }): Promise<Connection | undefined> {
     const booq = await booqForId(card.id);
     if (!booq) {
         return undefined;
     }
 
-    const afterPath = after ? decodeCursor(after) : undefined;
-    const range = rangeAfterPath(booq, afterPath);
-
-    return connectionForRange(booq, range);
+    const beforePath = before ? decodeCursor(before) : undefined;
+    if (beforePath) {
+        const range = rangeBeforePath(booq, beforePath);
+        return connectionForRange(booq, range);
+    } else {
+        const afterPath = after ? decodeCursor(after) : undefined;
+        const range = rangeAfterPath(booq, afterPath);
+        return connectionForRange(booq, range);
+    }
 }
 
 function rangeAfterPath(booq: Booq, afterPath?: BooqPath): BooqRange {
@@ -33,6 +39,22 @@ function rangeAfterPath(booq: Booq, afterPath?: BooqPath): BooqRange {
             end = path;
             break;
         }
+    }
+
+    return {
+        start,
+        end,
+    };
+}
+
+function rangeBeforePath(booq: Booq, beforePath: BooqPath): BooqRange {
+    const end = beforePath;
+    let start: BooqPath = [0];
+    for (const path of generateBreakPoints(booq)) {
+        if (!pathLessThan(path, end)) {
+            break;
+        }
+        start = path;
     }
 
     return {

@@ -47,7 +47,7 @@ type Booq {
     bookmarks: [Bookmark]
     highlights: [Highlight]
     preview(path: [Int!], length: Int = 1500): String
-    nodesConnection(after: String): BooqNodeConnection
+    nodesConnection(after: String, before: String): BooqNodeConnection
 }
 
 scalar BooqNode
