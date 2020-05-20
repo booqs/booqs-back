@@ -35,10 +35,10 @@ export const booqResolver: IResolvers<BooqParent> = {
             const preview = previewForPath(booq.nodes, path, length);
             return preview?.trim()?.substr(0, length);
         },
-        nodesConnection(parent, { first, after }) {
+        nodesConnection(parent, { after }) {
             return buildNodesConnection({
                 card: parent,
-                first, after,
+                after,
             });
         },
     },

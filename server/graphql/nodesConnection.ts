@@ -1,42 +1,63 @@
 import {
     BooqNode, Booq, BooqPath, pathFromString, pathToString,
-    BooqRange, nodesForRange, nextNode, rootIterator, findPath, iteratorsPath,
+    BooqRange, nodesForRange, nextNode, rootIterator, findPath, iteratorsPath, pathLessThan,
 } from '../../core';
 import { LibraryCard } from '../sources';
 import { booqForId } from '../books';
 
 export async function buildNodesConnection({ card, after }: {
     card: LibraryCard,
-    first?: number,
     after?: string,
 }): Promise<Connection | undefined> {
     const booq = await booqForId(card.id);
     if (!booq) {
         return undefined;
     }
+
+    const afterPath = after ? decodeCursor(after) : undefined;
+    const range = rangeAfterPath(booq, afterPath);
+
+    return connectionForRange(booq, range);
+}
+
+function rangeAfterPath(booq: Booq, afterPath?: BooqPath): BooqRange {
     const root = rootIterator(booq.nodes);
-    const afterPath = after && decodeCursor(after);
     const afterNode = afterPath && findPath(root, afterPath);
     const startNode = afterNode && nextNode(afterNode);
     const start = startNode
         ? iteratorsPath(startNode)
         : [0];
+    let end = undefined;
+    for (const path of generateBreakPoints(booq)) {
+        if (pathLessThan(start, path)) {
+            end = path;
+            break;
+        }
+    }
 
-    const range: BooqRange = {
+    return {
         start,
+        end,
     };
+}
 
+function* generateBreakPoints(booq: Booq) {
+    for (const item of booq.toc.items) {
+        yield item.path;
+    }
+}
+
+function connectionForRange(booq: Booq, range: BooqRange): Connection {
     const edges = Array.from(edgesForRange(booq, range));
-    const end = range.end && findPath(root, range.end);
-    const next = end && nextNode(end);
+    const lastPath = [booq.nodes.length];
 
     return {
         edges,
         pageInfo: {
             hasPreviousPage: range.start.length >= 0 && range.start[0] >= 0,
-            hasNextPage: !!next,
+            hasNextPage: range.end ? true : false,
             startCursor: encodeCursor([0]),
-            endCursor: encodeCursor([booq.nodes.length]),
+            endCursor: encodeCursor(lastPath),
         },
     };
 }
