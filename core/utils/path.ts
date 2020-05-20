@@ -13,3 +13,17 @@ export function pathFromString(pathString: string): BooqPath | undefined {
         ? undefined
         : path;
 }
+
+export function pathLessThan(first: BooqPath, second: BooqPath): boolean {
+    const [firstHead, ...firstTail] = first;
+    const [secondHead, ...secondTail] = second;
+    if (secondHead === undefined) {
+        return false;
+    } else if (firstHead === undefined) {
+        return true;
+    } else if (firstHead === secondHead) {
+        return pathLessThan(firstTail, secondTail);
+    } else {
+        return firstHead < secondHead;
+    }
+}
