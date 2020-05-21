@@ -64,6 +64,10 @@ function rangeBeforePath(booq: Booq, beforePath: BooqPath): BooqRange {
 }
 
 function* generateBreakPoints(booq: Booq) {
+    // eslint-disable-next-line no-constant-condition
+    if (true) {
+        return;
+    }
     for (const item of booq.toc.items) {
         yield item.path;
     }
