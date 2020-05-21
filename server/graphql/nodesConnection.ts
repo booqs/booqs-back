@@ -5,8 +5,9 @@ import {
 import { LibraryCard } from '../sources';
 import { booqForId } from '../books';
 
-export async function buildNodesConnection({ card, after, before }: {
+export async function buildNodesConnection({ card, all, after, before }: {
     card: LibraryCard,
+    all?: boolean,
     after?: string,
     before?: string,
 }): Promise<Connection | undefined> {
@@ -15,6 +16,9 @@ export async function buildNodesConnection({ card, after, before }: {
         return undefined;
     }
 
+    if (all) {
+        return connectionForRange(booq, { start: [] });
+    }
     const beforePath = before ? decodeCursor(before) : undefined;
     if (beforePath) {
         const range = rangeBeforePath(booq, beforePath);
@@ -64,10 +68,6 @@ function rangeBeforePath(booq: Booq, beforePath: BooqPath): BooqRange {
 }
 
 function* generateBreakPoints(booq: Booq) {
-    // eslint-disable-next-line no-constant-condition
-    if (true) {
-        return;
-    }
     for (const item of booq.toc.items) {
         yield item.path;
     }
