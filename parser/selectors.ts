@@ -79,7 +79,7 @@ function hasClass(xml: Xml, cls: string) {
     if (!classes) {
         return false;
     } else {
-        cls = cls.toLowerCase();
+        cls = cls.toLowerCase().substr(1);
         return classes
             .toLowerCase()
             .split(' ')

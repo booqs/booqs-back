@@ -88,8 +88,7 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
 }
 
 export function parseInlineStyle(style: string, fileName: string) {
-    // TODO: use '*' selector
-    const pseudoCss = `div {\n${style}\n}`;
+    const pseudoCss = `* {\n${style}\n}`;
     const { value, diags } = parseCss(pseudoCss, fileName);
     if (value) {
         return {
