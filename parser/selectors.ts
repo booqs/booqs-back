@@ -18,9 +18,13 @@ type IdSelector = {
     selector: 'id',
     id: string,
 }
+type PseudoSelector = {
+    selector: 'pseudo',
+    pseudo: string,
+};
 
 type SimpleSelector =
-    | UniversalSelector | ElementSelector | ClassSelector | IdSelector;
+    | UniversalSelector | ElementSelector | ClassSelector | IdSelector | PseudoSelector;
 
 type DescendantSelector = {
     selector: 'descendant',
@@ -68,6 +72,8 @@ export function selectXml(xml: Xml, selector: Selector): boolean {
         case 'and':
             return selector.selectors
                 .every(sel => selectXml(xml, sel));
+        case 'pseudo':
+            return false;
         default:
             assertNever(selector);
             return false;
@@ -131,8 +137,15 @@ const idSel: SelectorParser = project(
         id,
     }),
 );
+const pseudoSel: SelectorParser = project(
+    regex(/:[a-zA-Z0-9_.-]+/),
+    pseudo => ({
+        selector: 'pseudo',
+        pseudo,
+    }),
+);
 const atomSel = choice(
-    universalSel, elementSel, classSel, idSel,
+    universalSel, elementSel, classSel, idSel, pseudoSel,
 );
 
 const andSel: SelectorParser = project(
