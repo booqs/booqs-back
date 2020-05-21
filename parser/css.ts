@@ -56,14 +56,7 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
                 break;
             }
             case 'media': {
-                const mediaRule = parsedRule as Media;
-                if (mediaRule.media !== 'all') {
-                    diags.push({
-                        diag: `unsupported media rule: ${mediaRule.media}`,
-                    });
-                    break;
-                }
-                const fromMedia = processRules(mediaRule.rules ?? []);
+                const fromMedia = processMedia(parsedRule);
                 rules.push(...fromMedia.value);
                 diags.push(...fromMedia.diags);
                 break;
@@ -126,4 +119,22 @@ function buildRule(rule: Rule): Result<StyleRule> {
         },
         diags,
     };
+}
+
+function processMedia(media: Media) {
+    switch (media.media) {
+        case 'all':
+        case 'screen':
+            return processRules(media.rules ?? []);
+        case 'print':
+        case 'speech':
+            return { value: [], diags: [] };
+        default:
+            return {
+                value: [],
+                diags: [{
+                    diag: `unsupported media rule: ${media.media}`,
+                }],
+            };
+    }
 }
