@@ -242,17 +242,14 @@ async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNod
     return result;
 }
 
-function getStyle(xml: Xml, env: Env) {
+function getStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
     const rules = getRules(xml, env);
     const declarations = flatten(rules.map(r => r.content));
     if (declarations.length === 0) {
         return undefined;
+    } else {
+        return declarations;
     }
-    const style: BooqNodeStyle = {};
-    for (const decl of declarations) {
-        style[decl.property] = decl.value;
-    }
-    return style;
 }
 
 function getRules(xml: Xml, env: Env) {

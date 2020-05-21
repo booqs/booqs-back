@@ -3,12 +3,8 @@ import {
 } from 'css';
 import { Result, combineResults, Diagnostic } from './result';
 import { Selector, parseSelector } from './selectors';
-import { filterUndefined } from '../core';
+import { filterUndefined, StyleDeclaration } from '../core';
 
-export type StyleDeclaration = {
-    property: string,
-    value: string | undefined,
-};
 export type StyleRule = {
     selector: Selector,
     content: StyleDeclaration[],
