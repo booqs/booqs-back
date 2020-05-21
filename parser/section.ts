@@ -194,8 +194,10 @@ async function processStyle(style: XmlElement, env: Env) {
 
 async function processBody(body: XmlElement, env: Env) {
     const node = await processXml(body, env);
-    node.id = env.fileName;
-    return node;
+    return {
+        ...node,
+        fileName: env.fileName,
+    };
 }
 
 async function processXmls(xmls: Xml[], env: Env) {

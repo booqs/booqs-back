@@ -17,7 +17,10 @@ export async function booqForId(booqId: string) {
         return undefined;
     }
     // TODO: log diagnostics
-    const booq = await parseEpub({ fileData: file.file });
+    const booq = await parseEpub({
+        fileData: file.file,
+        diagnoser: d => console.log(d),
+    });
     cache[booqId] = booq;
     return booq;
 }

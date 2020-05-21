@@ -23,6 +23,7 @@ export type BooqNode = {
     attrs?: BooqNodeAttrs,
     content?: string,
     offset?: number,
+    fileName?: string,
 }
 
 export type TableOfContentsItem = {

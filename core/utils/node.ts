@@ -53,7 +53,7 @@ export async function processNodeAsync(node: BooqNode, f: (n: BooqNode) => Promi
         ...node,
         children: node.children
             ? await Promise.all(
-                node.children.map(ch => processNodeAsync(ch, f))
+                node.children.map(ch => processNodeAsync(ch, f)),
             )
             : undefined,
     });
@@ -73,6 +73,24 @@ export function nodeLength(node: BooqNode): number {
     }
 }
 
-function nodesLength(nodes: BooqNode[]) {
+export function nodesLength(nodes: BooqNode[]) {
     return nodes.reduce((len, n) => len + nodeLength(n), 0);
+}
+
+export function positionForPath(nodes: BooqNode[], path: BooqPath): number {
+    const [head, ...tail] = path;
+    if (head === undefined) {
+        return 0;
+    }
+    let position = 0;
+    for (let idx = 0; idx < Math.min(nodes.length, head); idx++) {
+        position += nodeLength(nodes[idx]);
+    }
+    const last = nodes[head];
+    if (last?.children) {
+        const after = positionForPath(last.children, tail);
+        return after + position;
+    } else {
+        return position;
+    }
 }
