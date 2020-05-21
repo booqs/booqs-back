@@ -111,7 +111,7 @@ const universalSel: SelectorParser = project(
     () => ({ selector: 'universal' }),
 );
 const elementSel: SelectorParser = project(
-    regex(/[a-zA-Z]+/),
+    regex(/[a-zA-Z][a-zA-Z0-9]*/),
     name => ({
         selector: 'element',
         name,
