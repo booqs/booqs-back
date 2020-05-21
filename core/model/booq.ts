@@ -12,11 +12,9 @@ export type BooqRange = {
 export type BooqNodeAttrs = {
     [name in string]?: string;
 };
-export type StyleDeclaration = {
-    property: string,
-    value: string | undefined,
+export type BooqNodeStyle = {
+    [name in string]?: string;
 };
-export type BooqNodeStyle = StyleDeclaration[];
 export type BooqNode = {
     name?: string,
     id?: string,

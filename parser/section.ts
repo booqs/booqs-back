@@ -1,11 +1,11 @@
-import { BooqNode, flatten, BooqNodeStyle } from '../core';
+import { BooqNode } from '../core';
 import {
     xmlStringParser, xml2string, XmlElement, XmlDocument, Xml, isWhitespaces,
 } from './xmlTree';
 import { EpubSection, EpubFile } from './epubFile';
-import { parseCss, Stylesheet, StyleRule, parseInlineStyle } from './css';
+import { parseCss, Stylesheet, StyleRule } from './css';
 import { Result, Diagnostic } from './result';
-import { selectXml } from './selectors';
+import { getStyle } from './style';
 
 export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -197,7 +197,7 @@ async function processBody(body: XmlElement, env: Env) {
     return {
         ...node,
         fileName: env.fileName,
-        name: 'file',
+        name: 'div',
     };
 }
 
@@ -240,31 +240,6 @@ async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNod
             : undefined,
     };
     return result;
-}
-
-function getStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
-    const rules = getRules(xml, env);
-    const declarations = flatten(rules.map(r => r.content));
-    if (declarations.length === 0) {
-        return undefined;
-    } else {
-        return declarations;
-    }
-}
-
-function getRules(xml: Xml, env: Env) {
-    const cssRules = env.stylesheet.rules.filter(
-        rule => selectXml(xml, rule.selector),
-    );
-    const inline = xml.attributes?.style;
-    if (inline) {
-        const { value, diags } = parseInlineStyle(inline, `${env.fileName}: <${xml.name} style>`);
-        diags.forEach(d => env.report(d));
-        const inlineRules = value ?? [];
-        return [...cssRules, ...inlineRules];
-    } else {
-        return cssRules;
-    }
 }
 
 function isEmptyText(xml: Xml) {
