@@ -48,7 +48,7 @@ export function selectXml(xml: Xml, selector: Selector): boolean {
         case 'class':
             return hasClass(xml, selector.class);
         case 'id':
-            return xml.attributes?.id === selector.id;
+            return xml.attributes?.id === selector.id.substr(1);
         case 'element':
             return xml.name === selector.name;
         case 'descendant': {
