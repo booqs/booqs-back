@@ -1,4 +1,4 @@
-import { assertNever } from '../core';
+import { assertNever, filterUndefined } from '../core';
 import { regex, project, Parser, choice, sequence, oneOrMore } from './stringParser';
 import { Result } from './result';
 import { Xml } from './xmlTree';
@@ -90,8 +90,12 @@ function hasClass(xml: Xml, cls: string) {
 export function parseSelector(sel: string): Result<Selector> {
     const result = selectorParser(sel);
     if (result.success) {
-        // TODO: assert empty next
-        return { value: result.value, diags: [] };
+        const diags = filterUndefined([
+            result.next
+                ? { diag: `Selector tail: ${result.next} of ${sel}` }
+                : undefined,
+        ]);
+        return { value: result.value, diags };
     } else {
         return {
             diags: [{
@@ -107,21 +111,21 @@ const universalSel: SelectorParser = project(
     () => ({ selector: 'universal' }),
 );
 const elementSel: SelectorParser = project(
-    regex(/[a-z]+/),
+    regex(/[a-zA-Z]+/),
     name => ({
         selector: 'element',
         name,
     }),
 );
 const classSel: SelectorParser = project(
-    regex(/\.[a-z]+/),
+    regex(/\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*/),
     cls => ({
         selector: 'class',
         class: cls,
     }),
 );
 const idSel: SelectorParser = project(
-    regex(/#[a-z]+/),
+    regex(/#[a-zA-Z][a-zA-Z0-9_.-]*/),
     id => ({
         selector: 'id',
         id,
