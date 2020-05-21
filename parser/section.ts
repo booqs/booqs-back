@@ -197,6 +197,7 @@ async function processBody(body: XmlElement, env: Env) {
     return {
         ...node,
         fileName: env.fileName,
+        name: 'file',
     };
 }
 
@@ -224,22 +225,20 @@ async function processXml(xml: Xml, env: Env): Promise<BooqNode> {
 }
 
 async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNode> {
-    const result: BooqNode = {};
-    const { id, class: _, style: __, ...rest } = element.attributes;
-    if (id !== undefined) {
-        result.id = id;
-    }
+    const {
+        name, children,
+        attributes: { id, class: _, style: __, ...rest },
+    } = element;
     const style = getStyle(element, env);
-    if (style) {
-        result.style = style;
-    }
-    if (Object.keys(rest).length > 0) {
-        result.attrs = rest;
-    }
-    if (element.children) {
-        const children = await processXmls(element.children, env);
-        result.children = children;
-    }
+    const result: BooqNode = {
+        name, style, id,
+        children: children?.length > 0
+            ? await processXmls(element.children, env)
+            : undefined,
+        attrs: Object.keys(rest).length > 0
+            ? rest
+            : undefined,
+    };
     return result;
 }
 
