@@ -36,10 +36,7 @@ function getRules(xml: Xml, env: Env) {
 }
 
 function buildStyle(declarations: StyleDeclaration[], env: Env): BooqNodeStyle {
-    const style: BooqNodeStyle = {};
-    for (const { property, value } of declarations) {
-        style[translatePropertyName(property)] = value;
-    }
+    const style = declarations.reduce(applyStyle, {});
 
     return style;
 }
@@ -48,4 +45,28 @@ function translatePropertyName(property: string): string {
     const comps = property.split('-');
     const result = comps.reduce((res, c) => res + capitalize(c));
     return result;
+}
+
+function applyStyle(style: BooqNodeStyle, { property, value }: StyleDeclaration): BooqNodeStyle {
+    switch (property) {
+        case 'margin':
+            return {
+                ...style,
+                margin: value,
+                marginTop: undefined, marginBottom: undefined,
+                marginLeft: undefined, marginRight: undefined,
+            };
+        case 'padding':
+            return {
+                ...style,
+                padding: value,
+                paddingTop: undefined, paddingBottom: undefined,
+                paddingLeft: undefined, paddingRight: undefined,
+            };
+        default:
+            return {
+                ...style,
+                [translatePropertyName(property)]: value,
+            };
+    }
 }
