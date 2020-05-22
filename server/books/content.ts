@@ -1,4 +1,4 @@
-import { parseId, Booq } from '../../core';
+import { parseId, Booq, logTime } from '../../core';
 import { parseEpub } from '../../parser';
 import { sources } from './libSources';
 
@@ -16,10 +16,10 @@ export async function booqForId(booqId: string) {
     if (!file) {
         return undefined;
     }
-    const booq = await parseEpub({
+    const booq = await logTime(() => parseEpub({
         fileData: file.file,
         diagnoser: d => console.log(d),
-    });
+    }), 'Parser');
     cache[booqId] = booq;
     return booq;
 }

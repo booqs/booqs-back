@@ -28,3 +28,12 @@ export function filterUndefined<T>(arr: Array<T | undefined>): T[] {
 export function pretty(obj: any, depth?: number) {
     return inspect(obj, false, depth ?? 8, true);
 }
+
+export async function logTime<T>(f: () => Promise<T>, label?: string) {
+    console.log(`Start: ${label}`);
+    const start = Date.now();
+    const result = await f();
+    const end = Date.now();
+    console.log(`End: ${label}, time: ${end - start}`);
+    return result;
+}

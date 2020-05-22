@@ -1,7 +1,7 @@
 import { assertNever, filterUndefined } from '../core';
 import { regex, project, Parser, choice, sequence, oneOrMore } from './stringParser';
 import { Result } from './result';
-import { XmlElement } from './xmlTree';
+import { XmlElement, nameOf, attributesOf } from './xmlTree';
 
 type UniversalSelector = {
     selector: 'universal',
@@ -52,9 +52,9 @@ export function selectXml(xml: XmlElement, selector: Selector): boolean {
         case 'class':
             return hasClass(xml, selector.class);
         case 'id':
-            return xml.attributes?.id === selector.id.substr(1);
+            return attributesOf(xml)?.id === selector.id.substr(1);
         case 'element':
-            return xml.name === selector.name;
+            return nameOf(xml) === selector.name;
         case 'descendant': {
             if (selectXml(xml, selector.descendant)) {
                 while (xml.parent) {
@@ -81,7 +81,7 @@ export function selectXml(xml: XmlElement, selector: Selector): boolean {
 }
 
 function hasClass(xml: XmlElement, cls: string) {
-    const classes = xml.attributes?.class;
+    const classes = attributesOf(xml)?.class;
     if (!classes) {
         return false;
     } else {

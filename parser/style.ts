@@ -1,6 +1,6 @@
 import { flatten, capitalize } from 'lodash';
 import { BooqNodeStyle } from '../core';
-import { XmlElement } from './xmlTree';
+import { XmlElement, nameOf, attributesOf } from './xmlTree';
 import { selectXml } from './selectors';
 import { parseInlineStyle, Stylesheet, StyleDeclaration } from './css';
 import { Diagnostic } from './result';
@@ -24,9 +24,9 @@ function getRules(xml: XmlElement, env: Env) {
     const cssRules = env.stylesheet.rules.filter(
         rule => selectXml(xml, rule.selector),
     );
-    const inline = xml.attributes?.style;
+    const inline = attributesOf(xml)?.style;
     if (inline) {
-        const { value, diags } = parseInlineStyle(inline, `${env.fileName}: <${xml.name} style>`);
+        const { value, diags } = parseInlineStyle(inline, `${env.fileName}: <${nameOf(xml)} style>`);
         diags.forEach(d => env.report(d));
         const inlineRules = value ?? [];
         return [...cssRules, ...inlineRules];

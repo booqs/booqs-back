@@ -1,75 +1,56 @@
-import { Parser } from 'htmlparser2';
-
-export function xmlStringParser(input: string): XmlElement {
-    let current: XmlElement = {
-        name: '@root',
-        attributes: {},
-        children: [],
-    };
-    const parser = new Parser({
-        onopentag(name, attributes) {
-            current = {
-                parent: current,
-                name, attributes,
-                children: [],
-            };
-        },
-        onclosetag() {
-            if (current.parent) {
-                current.parent.children.push(current);
-                current = current.parent;
-            }
-        },
-        ontext(text: string) {
-            current.children.push({ text });
-        },
-    }, {
-        xmlMode: true,
-    });
-    parser.end(input);
-
-    return current;
-}
+import { parseDOM } from 'htmlparser2';
+import { findOne, getOuterHTML, getChildren, getName, isTag, isText } from 'domutils';
 
 export type XmlAttributes = {
-    [key: string]: string,
+    [attr: string]: string,
 };
-export type XmlElement = {
-    parent?: XmlElement,
-    children: XmlChild[],
-    name: string,
-    attributes: XmlAttributes,
-    text?: undefined,
-};
-export type XmlText = {
-    name?: undefined,
-    children?: undefined,
-    text: string,
-};
-export type XmlChild = XmlElement | XmlText;
-
-export function attributesToString(attr: XmlAttributes): string {
-    const result = Object.keys(attr)
-        .map(k => attr[k] ? `${k}="${attr[k]}"` : k)
-        .join(' ');
-
-    return result;
+export type XmlElement = ReturnType<typeof parseDOM>[number];
+export function xmlStringParser(input: string) {
+    return parseDOM(input);
 }
 
-export function xml2string(xml: XmlChild, depth = 1): string {
-    if (xml.name !== undefined) {
-        const name = xml.name;
-        const attrs = attributesToString(xml.attributes);
-        const attrsStr = attrs.length > 0 ? ' ' + attrs : '';
-        const chs = depth !== 0
-            ? xml.children
-                .map(ch => xml2string(ch, depth - 1))
-                .join('')
-            : '';
-        return chs.length > 0
-            ? `<${name}${attrsStr}>${chs}</${name}>`
-            : `<${name}${attrsStr}/>`;
+export function asObject(element: XmlElement) {
+    if (isTag(element)) {
+        return {
+            name: element.name,
+            attributes: element.attribs,
+            children: element.children,
+        };
+    } else if (isText(element)) {
+        return {
+            text: element.nodeValue,
+        };
     } else {
-        return xml.text;
+        return {};
     }
+}
+
+export function nameOf(element: XmlElement) {
+    return isTag(element)
+        ? getName(element)
+        : undefined;
+}
+
+export function textOf(element: XmlElement): string | undefined {
+    return isText(element)
+        ? element.nodeValue
+        : undefined;
+}
+
+export function attributesOf(element: XmlElement) {
+    return isTag(element)
+        ? element.attribs
+        : {};
+}
+
+export function childrenOf(element: XmlElement): XmlElement[] {
+    return getChildren(element) ?? [];
+}
+
+export function findByName(elements: XmlElement[], name: string) {
+    return findOne(n => n.name === name, elements, true);
+}
+
+export function xml2string(...elements: XmlElement[]) {
+    return getOuterHTML(elements);
 }
