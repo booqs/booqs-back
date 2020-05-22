@@ -1,6 +1,6 @@
 import { BooqNode } from '../core';
 import {
-    xmlStringParser, xml2string, XmlElement, XmlDocument, Xml, isWhitespaces,
+    xmlStringParser, xml2string, XmlElement, XmlDocument, Xml, isWhitespaces, XmlAttributes,
 } from './xmlTree';
 import { EpubSection, EpubFile } from './epubFile';
 import { parseCss, Stylesheet, StyleRule } from './css';
@@ -235,11 +235,27 @@ async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNod
         children: children?.length > 0
             ? await processXmls(element.children, env)
             : undefined,
-        attrs: Object.keys(rest).length > 0
-            ? rest
-            : undefined,
+        attrs: processAttributes(rest),
     };
     return result;
+}
+
+function processAttributes(attrs: XmlAttributes) {
+    const entries = Object
+        .entries(attrs)
+        .map((entry): [string, string | undefined] => {
+            switch (entry[0]) {
+                case 'colspan':
+                    return ['colSpan', entry[1]];
+                case 'rowspan':
+                    return ['rowSpan', entry[1]];
+                default:
+                    return entry;
+            }
+        });
+    return entries.length
+        ? Object.fromEntries(entries)
+        : undefined;
 }
 
 function isEmptyText(xml: Xml) {

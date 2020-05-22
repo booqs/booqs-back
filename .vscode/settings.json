@@ -16,6 +16,7 @@
         "Srcs",
         "Whitespaces",
         "booqs",
+        "colspan",
         "coverpage",
         "diagnoser",
         "epub",
@@ -27,6 +28,7 @@
         "promisify",
         "readonly",
         "rgrove",
+        "rowspan",
         "upsert",
         "xmls"
     ]
