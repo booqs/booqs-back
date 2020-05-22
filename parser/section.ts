@@ -5,7 +5,8 @@ import {
 import { EpubSection, EpubFile } from './epubFile';
 import { parseCss, Stylesheet, StyleRule } from './css';
 import { Result, Diagnostic } from './result';
-import { getStyle } from './style';
+import { processStyle } from './style';
+import { transformHref } from './parserUtils';
 
 export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -111,7 +112,7 @@ async function processHead(head: XmlElement, env: Env) {
                 break;
             }
             case 'style': {
-                const fromStyle = await processStyle(ch, env);
+                const fromStyle = await processStyleElement(ch, env);
                 rules.push(...fromStyle);
                 break;
             }
@@ -178,7 +179,7 @@ async function processLink(link: XmlElement, env: Env) {
     }
 }
 
-async function processStyle(style: XmlElement, env: Env) {
+async function processStyleElement(style: XmlElement, env: Env) {
     const content = style.children[0];
     if (style.attributes.type !== 'text/css' || style.children.length !== 1 || content.type !== 'text') {
         env.report({
@@ -229,28 +230,37 @@ async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNod
         name, children,
         attributes: { id, class: _, style: __, ...rest },
     } = element;
-    const style = getStyle(element, env);
     const result: BooqNode = {
-        name, style, id,
+        name,
+        id: processId(id, env),
+        style: processStyle(element, env),
+        attrs: processAttributes(rest, env),
         children: children?.length > 0
-            ? await processXmls(element.children, env)
+            ? await processXmls(children, env)
             : undefined,
-        attrs: processAttributes(rest),
     };
     return result;
 }
 
-function processAttributes(attrs: XmlAttributes) {
+function processId(id: string | undefined, env: Env) {
+    return id
+        ? `${env.fileName}/${id}`
+        : undefined;
+}
+
+function processAttributes(attrs: XmlAttributes, env: Env) {
     const entries = Object
         .entries(attrs)
-        .map((entry): [string, string | undefined] => {
-            switch (entry[0]) {
+        .map(([key, value]): [string, string | undefined] => {
+            switch (key) {
                 case 'colspan':
-                    return ['colSpan', entry[1]];
+                    return ['colSpan', value];
                 case 'rowspan':
-                    return ['rowSpan', entry[1]];
+                    return ['rowSpan', value];
+                case 'href':
+                    return ['href', value ? transformHref(value) : undefined];
                 default:
-                    return entry;
+                    return [key, value];
             }
         });
     return entries.length

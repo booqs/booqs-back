@@ -10,7 +10,7 @@ type Env = {
     stylesheet: Stylesheet,
     report: (diag: Diagnostic) => void,
 };
-export function getStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
+export function processStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
     const rules = getRules(xml, env);
     const declarations = flatten(rules.map(r => r.content));
     if (declarations.length === 0) {

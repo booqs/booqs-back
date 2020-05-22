@@ -3,13 +3,15 @@ import {
 } from '../core';
 import { EpubFile } from './epubFile';
 import { Diagnostic, Result } from './result';
+import { transformHref } from './parserUtils';
 
 export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Result<TableOfContents>> {
     const diags: Diagnostic[] = [];
     const items: TableOfContentsItem[] = [];
     for (const epubTocItem of file.toc()) {
         if (epubTocItem.href) {
-            const path = findPathForHref(nodes, epubTocItem.href);
+            const targetId = transformHref(epubTocItem.href).substr(1);
+            const path = findPathForId(nodes, targetId);
             if (path) {
                 items.push({
                     title: epubTocItem.title,
@@ -39,28 +41,13 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
     };
 }
 
-function findPathForHref(nodes: BooqNode[], href: string): BooqPath | undefined {
-    const [fileName, id] = href.split('#');
-    const idx = nodes.findIndex(n => n.fileName === fileName);
-    if (idx >= 0) {
-        if (id) {
-            const path = findPathForId(nodes[idx].children ?? [], id);
-            return path && [idx, ...path];
-        } else {
-            return [idx];
-        }
-    } else {
-        return undefined;
-    }
-}
-
 function findPathForId(nodes: BooqNode[], targetId: string): BooqPath | undefined {
     for (let idx = 0; idx < nodes.length; idx++) {
         const { id, children } = nodes[idx];
         if (id === targetId) {
             return [idx];
         } else if (children) {
-            const path = findPathForHref(children, targetId);
+            const path = findPathForId(children, targetId);
             if (path) {
                 return [idx, ...path];
             }
