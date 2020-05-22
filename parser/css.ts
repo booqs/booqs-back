@@ -1,16 +1,24 @@
 import {
     parse, Rule, Declaration, Charset, Media, AtRule, Comment,
 } from 'css';
+import { compile, is, CompiledQuery } from 'css-select';
+import { SpecificityArray, calculate, compare } from 'specificity';
 import { Result, combineResults, Diagnostic } from './result';
-import { Selector, parseSelector } from './selectors';
-import { filterUndefined } from '../core';
+import { filterUndefined, flatten } from '../core';
+import { XmlElement, attributesOf } from './xmlTree';
 
+type Specificity = SpecificityArray;
+export type Selector = {
+    selector: string,
+    compiled: CompiledQuery,
+    specificity: Specificity,
+};
 export type StyleDeclaration = {
     property: string,
     value: string | undefined,
 };
 export type StyleRule = {
-    selector: Selector,
+    selectors: Selector[],
     content: StyleDeclaration[],
 }
 export type Stylesheet = {
@@ -40,6 +48,38 @@ export function parseCss(css: string, fileName: string): Result<Stylesheet> {
         value: { rules },
         diags,
     };
+}
+
+export function applyRules(xml: XmlElement, rules: StyleRule[]) {
+    const assignments = flatten(
+        rules.map(rule => selectXml(xml, rule)),
+    );
+    const result: {
+        [key in string]?: {
+            value?: string,
+            specificity: Specificity,
+        };
+    } = {};
+    for (const { property, value, specificity } of assignments) {
+        const existing = result[property];
+        if (!existing || compare(existing.specificity, specificity) <= 0) {
+            result[property] = { value, specificity };
+        }
+    }
+    const style = Object.fromEntries(
+        Object.entries(result).map(([k, v]) => [k, v?.value]),
+    );
+    const inlineStyle = attributesOf(xml)?.style;
+    const inlineRules = inlineStyle !== undefined
+        ? parseInlineStyle(inlineStyle, 'inline')
+        : [];
+    const inlineDeclarations = flatten(
+        inlineRules.map(rule => rule.content),
+    );
+    for (const { property, value } of inlineDeclarations) {
+        style[property] = value;
+    }
+    return style;
 }
 
 function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
@@ -87,17 +127,10 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
     };
 }
 
-export function parseInlineStyle(style: string, fileName: string) {
+function parseInlineStyle(style: string, fileName: string) {
     const pseudoCss = `* {\n${style}\n}`;
-    const { value, diags } = parseCss(pseudoCss, fileName);
-    if (value) {
-        return {
-            value: value.rules,
-            diags,
-        };
-    } else {
-        return { diags };
-    }
+    const { value } = parseCss(pseudoCss, fileName);
+    return value?.rules ?? [];
 }
 
 function buildRule(rule: Rule): Result<StyleRule> {
@@ -109,10 +142,7 @@ function buildRule(rule: Rule): Result<StyleRule> {
 
     return {
         value: {
-            selector: {
-                selector: 'or',
-                selectors,
-            },
+            selectors,
             content: (rule.declarations ?? [])
                 .filter((r): r is Declaration => r.type === 'declaration')
                 .map(d => ({
@@ -140,4 +170,51 @@ function processMedia(media: Media) {
                 }],
             };
     }
+}
+
+function selectXml(xml: XmlElement, rule: StyleRule) {
+    let maxSpecificity: Specificity | undefined = undefined;
+    for (const sel of rule.selectors) {
+        if (isSelect(xml, sel)) {
+            if (maxSpecificity !== undefined) {
+                maxSpecificity = compare(
+                    maxSpecificity,
+                    sel.specificity,
+                ) < 0 ? sel.specificity : maxSpecificity;
+            } else {
+                maxSpecificity = sel.specificity;
+            }
+            return rule.content.map(decl => ({
+                property: decl.property,
+                value: decl.value,
+                specificity: sel.specificity,
+            }));
+        }
+    }
+    if (maxSpecificity !== undefined) {
+        return rule.content.map(decl => ({
+            property: decl.property,
+            value: decl.value,
+            specificity: maxSpecificity!,
+        }));
+    } else {
+        return [];
+    }
+}
+
+function isSelect(xml: XmlElement, selector: Selector) {
+    return is(xml, selector.compiled);
+}
+
+function parseSelector(selector: string): Result<Selector> {
+    const compiled = compile(selector);
+    const [specificity] = calculate(selector);
+    return {
+        value: {
+            selector,
+            compiled,
+            specificity: specificity.specificityArray,
+        },
+        diags: [],
+    };
 }

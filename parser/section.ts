@@ -3,10 +3,10 @@ import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
 import { EpubSection, EpubFile } from './epubFile';
-import { parseCss, Stylesheet, StyleRule } from './css';
+import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
 import { Result, Diagnostic } from './result';
-import { processStyle } from './style';
 import { transformHref } from './parserUtils';
+import { capitalize } from 'lodash';
 
 export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -190,6 +190,24 @@ function processId(id: string | undefined, env: Env) {
     return id
         ? `${env.fileName}/${id}`
         : undefined;
+}
+
+function processStyle(element: XmlElement, env: Env) {
+    const style = applyRules(element, env.stylesheet.rules);
+    const translated = Object.fromEntries(
+        Object
+            .entries(style)
+            .map(([key, value]) => [translatePropertyName(key), value]),
+    );
+    return Object.keys(translated).length > 0
+        ? translated
+        : undefined;
+}
+
+function translatePropertyName(property: string): string {
+    const comps = property.split('-');
+    const result = comps.reduce((res, c) => res + capitalize(c));
+    return result;
 }
 
 function processAttributes(attrs: XmlAttributes, env: Env) {
