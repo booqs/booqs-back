@@ -6,7 +6,7 @@ import {
 } from '../users';
 import { uuid } from '../utils';
 import { Context } from './context';
-import { uploadEpub } from '../books';
+import { uploadToSource } from '../books';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
@@ -110,7 +110,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             if (user?._id) {
                 const actual = await file;
                 const stream: ReadStream = actual.createReadStream();
-                const card = await uploadEpub(stream, user._id);
+                const card = await uploadToSource('uu', stream, user._id);
                 return card;
             }
 

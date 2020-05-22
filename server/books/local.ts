@@ -5,7 +5,6 @@ import { readFile } from 'fs';
 
 const epubsRoot = join('epubs');
 export const localBooqs: LibrarySource = {
-    prefix: 'lo',
     async search() { return []; },
     async cards(ids: string[]) {
         return ids.map(id => ({ id, length: 0 }));

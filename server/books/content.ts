@@ -16,7 +16,6 @@ export async function booqForId(booqId: string) {
     if (!file) {
         return undefined;
     }
-    // TODO: log diagnostics
     const booq = await parseEpub({
         fileData: file.file,
         diagnoser: d => console.log(d),
@@ -27,7 +26,7 @@ export async function booqForId(booqId: string) {
 
 async function fileForId(booqId: string) {
     const [prefix, id] = parseId(booqId);
-    const source = sources.find(s => s.prefix === prefix);
+    const source = sources[prefix];
     return source && id
         ? source.fileForId(id)
         : undefined;

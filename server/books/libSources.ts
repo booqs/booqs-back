@@ -1,26 +1,18 @@
 import { makeId } from '../../core';
 import { LibrarySource, LibraryCard } from '../sources';
-import { userUploadsLib } from '../uploads';
-import { pgLib } from '../gutenberg';
+import { uuSource } from '../uploads';
+import { pgSource } from '../gutenberg';
 import { localBooqs } from './local';
 
-export const gutenberg: LibrarySource = {
-    prefix: 'pg',
-    search: pgLib.search,
-    cards: pgLib.cards,
-    fileForId: pgLib.fileForId,
+export const sources: {
+    [prefix in string]?: LibrarySource;
+} = {
+    pg: pgSource,
+    uu: uuSource,
+    lo: localBooqs,
 };
 
-export const userUploads: LibrarySource = {
-    prefix: 'uu',
-    search: userUploadsLib.search,
-    cards: userUploadsLib.cards,
-    fileForId: userUploadsLib.fileForId,
-};
-
-export const sources = [gutenberg, userUploads, localBooqs];
-
-export function processCard({ prefix }: LibrarySource) {
+export function processCard(prefix: string) {
     return (card: LibraryCard) => ({
         ...card,
         id: makeId(prefix, card.id),
