@@ -1,7 +1,7 @@
 import { assertNever, filterUndefined } from '../core';
 import { regex, project, Parser, choice, sequence, oneOrMore } from './stringParser';
 import { Result } from './result';
-import { Xml } from './xmlTree';
+import { XmlElement } from './xmlTree';
 
 type UniversalSelector = {
     selector: 'universal',
@@ -45,7 +45,7 @@ type CompositeSelector =
 
 export type Selector = SimpleSelector | CompositeSelector;
 
-export function selectXml(xml: Xml, selector: Selector): boolean {
+export function selectXml(xml: XmlElement, selector: Selector): boolean {
     switch (selector.selector) {
         case 'universal':
             return true;
@@ -80,7 +80,7 @@ export function selectXml(xml: Xml, selector: Selector): boolean {
     }
 }
 
-function hasClass(xml: Xml, cls: string) {
+function hasClass(xml: XmlElement, cls: string) {
     const classes = xml.attributes?.class;
     if (!classes) {
         return false;

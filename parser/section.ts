@@ -1,6 +1,6 @@
 import { BooqNode } from '../core';
 import {
-    xmlStringParser, xml2string, XmlElement, XmlDocument, Xml, isWhitespaces, XmlAttributes,
+    xmlStringParser, xml2string, XmlElement, XmlAttributes, XmlChild,
 } from './xmlTree';
 import { EpubSection, EpubFile } from './epubFile';
 import { parseCss, Stylesheet, StyleRule } from './css';
@@ -35,26 +35,8 @@ type Env = {
 };
 
 async function processSectionContent(content: string, env: Env) {
-    const { value, diags } = xmlStringParser({
-        xmlString: content,
-        removeTrailingWhitespaces: false,
-    });
-    diags.forEach(d => env.report(d));
-    return value && processDocument(value, env);
-}
-
-async function processDocument(document: XmlDocument, env: Env) {
-    let html: XmlElement | undefined = undefined;
-    for (const ch of document.children) {
-        if (ch.name === 'html') {
-            html = ch;
-        } else {
-            env.report({
-                diag: 'unexpected root element',
-                data: { xml: xml2string(ch) },
-            });
-        }
-    }
+    const document = xmlStringParser(content);
+    const html = document.children.find(ch => ch.name === 'html');
     if (html === undefined) {
         env.report({
             diag: 'no html element',
@@ -62,49 +44,29 @@ async function processDocument(document: XmlDocument, env: Env) {
         });
         return undefined;
     } else {
-        return processHtml(html, env);
-    }
-}
-
-
-async function processHtml(html: XmlElement, env: Env) {
-    let body: XmlElement | undefined = undefined;
-    let head: XmlElement | undefined = undefined;
-    for (const ch of html.children) {
-        switch (ch.name) {
-            case 'body':
-                body = ch;
-                break;
-            case 'head':
-                head = ch;
-                break;
-            default:
-                if (!isEmptyText(ch)) {
-                    env.report({
-                        diag: 'unexpected node in <html>',
-                        data: { xml: xml2string(ch) },
-                    });
-                }
+        const head = html?.children?.find(ch => ch.name === 'head');
+        const body = html?.children?.find(ch => ch.name === 'body');
+        if (!body?.name) {
+            env.report({
+                diag: 'missing body node',
+                data: { xml: xml2string(html) },
+            });
+            return undefined;
+        } else {
+            const stylesheet = head?.name !== undefined
+                ? await processHead(head, env)
+                : undefined;
+            return processBody(body, {
+                ...env,
+                stylesheet: stylesheet ?? env.stylesheet,
+            });
         }
-    }
-    if (!body) {
-        env.report({
-            diag: 'missing body node',
-            data: { xml: xml2string(html) },
-        });
-        return undefined;
-    } else {
-        const stylesheet = head && await processHead(head, env);
-        return processBody(body, {
-            ...env,
-            stylesheet: stylesheet ?? env.stylesheet,
-        });
     }
 }
 
 async function processHead(head: XmlElement, env: Env) {
     const rules: StyleRule[] = [];
-    for (const ch of head.children) {
+    for (const ch of head?.children ?? []) {
         switch (ch.name) {
             case 'link': {
                 const fromLink = await processLink(ch, env);
@@ -181,7 +143,7 @@ async function processLink(link: XmlElement, env: Env) {
 
 async function processStyleElement(style: XmlElement, env: Env) {
     const content = style.children[0];
-    if (style.attributes.type !== 'text/css' || style.children.length !== 1 || content.type !== 'text') {
+    if (style.attributes.type !== 'text/css' || style.children.length !== 1 || !content.text) {
         env.report({
             diag: 'unsupported style tag',
             data: { xml: xml2string(style) },
@@ -202,26 +164,17 @@ async function processBody(body: XmlElement, env: Env) {
     };
 }
 
-async function processXmls(xmls: Xml[], env: Env) {
+async function processXmls(xmls: XmlChild[], env: Env) {
     return Promise.all(
         xmls.map(n => processXml(n, env)),
     );
 }
 
-async function processXml(xml: Xml, env: Env): Promise<BooqNode> {
-    switch (xml.type) {
-        case 'text':
-            return {
-                content: xml.text,
-            };
-        case 'element':
-            return processXmlElement(xml, env);
-        default:
-            env.report({
-                diag: 'unexpected node',
-                data: { xml: xml2string(xml) },
-            });
-            return {};
+async function processXml(xml: XmlChild, env: Env): Promise<BooqNode> {
+    if (!xml.name) {
+        return { content: xml.text };
+    } else {
+        return processXmlElement(xml, env);
     }
 }
 
@@ -268,6 +221,7 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
         : undefined;
 }
 
-function isEmptyText(xml: Xml) {
-    return xml.type === 'text' && isWhitespaces(xml.text);
+function isEmptyText(xml: XmlChild) {
+    return xml.text !== undefined && xml.text.match(/^\s*$/)
+        ? true : false;
 }

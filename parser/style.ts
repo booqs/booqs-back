@@ -1,6 +1,6 @@
 import { flatten, capitalize } from 'lodash';
 import { BooqNodeStyle } from '../core';
-import { Xml } from './xmlTree';
+import { XmlElement } from './xmlTree';
 import { selectXml } from './selectors';
 import { parseInlineStyle, Stylesheet, StyleDeclaration } from './css';
 import { Diagnostic } from './result';
@@ -10,7 +10,7 @@ type Env = {
     stylesheet: Stylesheet,
     report: (diag: Diagnostic) => void,
 };
-export function processStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
+export function processStyle(xml: XmlElement, env: Env): BooqNodeStyle | undefined {
     const rules = getRules(xml, env);
     const declarations = flatten(rules.map(r => r.content));
     if (declarations.length === 0) {
@@ -20,7 +20,7 @@ export function processStyle(xml: Xml, env: Env): BooqNodeStyle | undefined {
     }
 }
 
-function getRules(xml: Xml, env: Env) {
+function getRules(xml: XmlElement, env: Env) {
     const cssRules = env.stylesheet.rules.filter(
         rule => selectXml(xml, rule.selector),
     );
