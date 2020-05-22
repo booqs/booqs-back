@@ -2,6 +2,7 @@ import { makeId } from '../../core';
 import { LibrarySource, LibraryCard } from '../sources';
 import { userUploadsLib } from '../uploads';
 import { pgLib } from '../gutenberg';
+import { localBooqs } from './local';
 
 export const gutenberg: LibrarySource = {
     prefix: 'pg',
@@ -17,7 +18,7 @@ export const userUploads: LibrarySource = {
     fileForId: userUploadsLib.fileForId,
 };
 
-export const sources = [gutenberg, userUploads];
+export const sources = [gutenberg, userUploads, localBooqs];
 
 export function processCard({ prefix }: LibrarySource) {
     return (card: LibraryCard) => ({
