@@ -1,4 +1,4 @@
-import { BooqNode } from '../core';
+import { BooqNode, BooqNodeStyle } from '../core';
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
@@ -193,15 +193,43 @@ function processId(id: string | undefined, env: Env) {
 }
 
 function processStyle(element: XmlElement, env: Env) {
-    const style = applyRules(element, env.stylesheet.rules);
-    const translated = Object.fromEntries(
-        Object
-            .entries(style)
-            .map(([key, value]) => [translatePropertyName(key), value]),
-    );
-    return Object.keys(translated).length > 0
-        ? translated
+    const input = applyRules(element, env.stylesheet.rules);
+    const style: BooqNodeStyle = {};
+    for (const [property, value] of Object.entries(input)) {
+        switch (property) {
+            case 'background': case 'background-color':
+                if (isWhiteColor(value)) {
+                    continue;
+                }
+                break;
+            case 'color':
+                if (isBlackColor(value)) {
+                    continue;
+                }
+        }
+        style[translatePropertyName(property)] = value;
+    }
+    return Object.keys(style).length > 0
+        ? style
         : undefined;
+}
+
+function isWhiteColor(color: string | undefined) {
+    switch (color) {
+        case 'white': case '#fff': case '#ffffff':
+            return true;
+        default:
+            return false;
+    }
+}
+
+function isBlackColor(color: string | undefined) {
+    switch (color) {
+        case 'black': case '#000': case '#000000':
+            return true;
+        default:
+            return false;
+    }
 }
 
 function translatePropertyName(property: string): string {
