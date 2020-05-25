@@ -47,24 +47,23 @@ type Booq {
     bookmarks: [Bookmark]
     highlights: [Highlight]
     preview(path: [Int!], length: Int = 1500): String
-    nodesConnection(all: Boolean, after: String, before: String): BooqNodeConnection
+    fragment(path: [Int!]): BooqFragment
+    nodes: [BooqNode]
 }
 
 scalar BooqNode
 
-type BooqNodeEdge {
-    node: BooqNode
-    cursor: String
+type BooqFragment {
+    previous: BooqAnchor
+    current: BooqAnchor!
+    next: BooqAnchor
+    position: Int!
+    nodes: [BooqNode]
 }
-type BooqNodePageInfo {
-    hasPreviousPage: Boolean!
-    hasNextPage: Boolean!
-    startCursor: String!
-    endCursor: String!
-}
-type BooqNodeConnection {
-    edges: [BooqNodeEdge]
-    pageInfo: BooqNodePageInfo
+
+type BooqAnchor {
+    title: String
+    path: [Int!]!
 }
 
 type BooqRange {

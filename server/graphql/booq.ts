@@ -4,7 +4,7 @@ import { booqForId } from '../books';
 import { userBookmarks, userHighlights } from '../users';
 import { LibraryCard } from '../sources';
 import { booqImageUrl } from '../images';
-import { buildNodesConnection } from './nodesConnection';
+import { buildFragment } from './fragment';
 
 export type BooqParent = LibraryCard;
 export const booqResolver: IResolvers<BooqParent> = {
@@ -35,10 +35,16 @@ export const booqResolver: IResolvers<BooqParent> = {
             const preview = previewForPath(booq.nodes, path, length);
             return preview?.trim()?.substr(0, length);
         },
-        nodesConnection(parent, { all, before, after }) {
-            return buildNodesConnection({
+        async nodes(parent) {
+            const booq = await booqForId(parent.id);
+            return booq
+                ? booq.nodes
+                : undefined;
+        },
+        fragment(parent, { path }) {
+            return buildFragment({
                 card: parent,
-                all, before, after,
+                path,
             });
         },
     },
