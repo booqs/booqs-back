@@ -79,3 +79,13 @@ export function pathLessThan(first: BooqPath, second: BooqPath): boolean {
         return firstHead < secondHead;
     }
 }
+
+export function pathInRange(path: BooqPath, range: BooqRange): boolean {
+    return pathLessThan(path, range.start)
+        ? false
+        : (
+            range.end
+                ? pathLessThan(path, range.end)
+                : true
+        );
+}
