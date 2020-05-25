@@ -1,5 +1,5 @@
 import {
-    BooqNode, TableOfContentsItem, TableOfContents, BooqPath, nodesLength, positionForPath,
+    BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core';
 import { EpubFile } from './epubFile';
 import { Diagnostic, Result } from './result';
@@ -41,17 +41,3 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
     };
 }
 
-function findPathForId(nodes: BooqNode[], targetId: string): BooqPath | undefined {
-    for (let idx = 0; idx < nodes.length; idx++) {
-        const { id, children } = nodes[idx];
-        if (id === targetId) {
-            return [idx];
-        } else if (children) {
-            const path = findPathForId(children, targetId);
-            if (path) {
-                return [idx, ...path];
-            }
-        }
-    }
-    return undefined;
-}

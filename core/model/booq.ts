@@ -24,6 +24,7 @@ export type BooqNode = {
     content?: string,
     offset?: number,
     fileName?: string,
+    ref?: BooqPath,
 }
 
 export type TableOfContentsItem = {
