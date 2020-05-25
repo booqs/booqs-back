@@ -1,4 +1,4 @@
-import { BooqNode, BooqPath, Booq } from '../model';
+import { BooqNode, BooqPath, Booq } from './common';
 
 export function nodeText(node: BooqNode): string {
     if (node.children?.length) {
@@ -39,24 +39,6 @@ export function* iterateNodes(nodes: BooqNode[], path: BooqPath = [0], position 
         idx++;
     }
     return position;
-}
-
-export function processNode(node: BooqNode, f: (n: BooqNode) => BooqNode): BooqNode {
-    return f({
-        ...node,
-        children: node.children?.map(ch => processNode(ch, f)),
-    });
-}
-
-export async function processNodeAsync(node: BooqNode, f: (n: BooqNode) => Promise<BooqNode>): Promise<BooqNode> {
-    return f({
-        ...node,
-        children: node.children
-            ? await Promise.all(
-                node.children.map(ch => processNodeAsync(ch, f)),
-            )
-            : undefined,
-    });
 }
 
 export function booqLength(booq: Booq): number {

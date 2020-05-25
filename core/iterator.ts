@@ -1,4 +1,4 @@
-import { BooqNode, BooqPath } from '../model';
+import { BooqNode, BooqPath } from './common';
 
 export type BooqNodeIterator = {
     parent: BooqNodeIterator | undefined,

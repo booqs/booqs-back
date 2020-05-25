@@ -1,9 +1,8 @@
 import {
-    BooqNode, Booq, BooqPath, nodesForRange, pathLessThan,
+    BooqNode, Booq, BooqPath, nodesForRange, pathLessThan, positionForPath,
 } from '../../core';
 import { LibraryCard } from '../sources';
 import { booqForId } from '../books';
-import { positionForPath } from '../../core/utils/node';
 
 export async function buildFragment({ card, path }: {
     card: LibraryCard,

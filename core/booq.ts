@@ -1,4 +1,7 @@
-import { BooqNode, BooqRange } from '../model';
+import { BooqNode, BooqRange, BooqPath } from './common';
+import {
+    findPath, rootIterator, firstLeaf, iteratorsNode, nextNode,
+} from './iterator';
 
 export function nodesForRange(nodes: BooqNode[], { start, end }: BooqRange): BooqNode[] {
     const [startHead, ...startTail] = start;
@@ -39,4 +42,38 @@ function subnodeForRange(node: BooqNode, range: BooqRange): BooqNode {
             offset: range.start[0] || undefined,
         };
     }
+}
+
+export function findPathForId(nodes: BooqNode[], targetId: string): BooqPath | undefined {
+    for (let idx = 0; idx < nodes.length; idx++) {
+        const { id, children } = nodes[idx];
+        if (id === targetId) {
+            return [idx];
+        } else if (children) {
+            const path = findPathForId(children, targetId);
+            if (path) {
+                return [idx, ...path];
+            }
+        }
+    }
+    return undefined;
+}
+
+export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number) {
+    let iter = findPath(rootIterator(nodes), path);
+    if (!iter) {
+        return undefined;
+    }
+    iter = firstLeaf(iter);
+    let preview = '';
+    while (iter) {
+        const node = iteratorsNode(iter);
+        preview += node.content ?? '';
+        if (preview.length >= length) {
+            return preview;
+        }
+        iter = nextNode(iter);
+        iter = iter && firstLeaf(iter);
+    }
+    return preview;
 }
