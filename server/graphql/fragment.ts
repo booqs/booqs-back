@@ -1,5 +1,5 @@
 import {
-    BooqNode, Booq, BooqPath, nodesForRange, pathLessThan, positionForPath,
+    BooqNode, Booq, BooqPath, nodesForRange, pathLessThan,
 } from '../../core';
 import { LibraryCard } from '../sources';
 import { booqForId } from '../books';
@@ -25,6 +25,7 @@ function fullBooqFragment(booq: Booq): BooqFragment {
         current: {
             path: [0],
             title: undefined,
+            position: 0,
         },
         position: 0,
         nodes: booq.nodes,
@@ -35,11 +36,12 @@ function fragmentForPath(booq: Booq, path: BooqPath): BooqFragment {
     let previous: BooqAnchor | undefined;
     let next: BooqAnchor | undefined;
     let current: BooqAnchor = {
-        path: [],
-        title: undefined,
+        path: [0],
+        title: booq.toc.title,
+        position: 0,
     };
 
-    for (const anchor of generateBreakPoints(booq)) {
+    for (const anchor of generateAnchors(booq, fragmentLength)) {
         if (!pathLessThan(path, anchor.path)) {
             previous = current;
             current = anchor;
@@ -48,7 +50,6 @@ function fragmentForPath(booq: Booq, path: BooqPath): BooqFragment {
             break;
         }
     }
-    const position = positionForPath(booq.nodes, current.path);
     const nodes = nodesForRange(booq.nodes, {
         start: current.path,
         end: next?.path,
@@ -56,17 +57,23 @@ function fragmentForPath(booq: Booq, path: BooqPath): BooqFragment {
 
     return {
         previous, current, next,
-        position,
+        position: current.position,
         nodes,
     };
 }
 
-function* generateBreakPoints(booq: Booq) {
+const fragmentLength = 4500;
+function* generateAnchors(booq: Booq, length: number) {
+    let position = 0;
     for (const item of booq.toc.items) {
-        yield {
-            title: item.title,
-            path: item.path,
-        };
+        if (item.position - position > length) {
+            yield {
+                position: item.position,
+                title: item.title,
+                path: item.path,
+            };
+            position = item.position;
+        }
     }
 }
 
@@ -80,4 +87,5 @@ type BooqFragment = {
 type BooqAnchor = {
     path: BooqPath,
     title: string | undefined,
+    position: number,
 };
