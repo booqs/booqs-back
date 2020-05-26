@@ -47,6 +47,12 @@ export const booqResolver: IResolvers<BooqParent> = {
                 path,
             });
         },
+        async tableOfContents(parent) {
+            const booq = await booqForId(parent.id);
+            return booq
+                ? booq.toc
+                : undefined;
+        },
     },
 };
 

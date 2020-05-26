@@ -49,6 +49,7 @@ type Booq {
     preview(path: [Int!], length: Int = 1500): String
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
+    tableOfContents: TableOfContents
 }
 
 scalar BooqNode
@@ -69,6 +70,17 @@ type BooqAnchor {
 type BooqRange {
     start: [Int!]
     end: [Int!]
+}
+
+type TableOfContents {
+    items: [TocItem!]!
+    title: String
+    length: Int!
+}
+type TocItem {
+    path: [Int!]!
+    position: Int!
+    title: String
 }
 
 type Tag {
