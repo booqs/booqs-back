@@ -1,8 +1,8 @@
 import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
 import {
-    addBookmark, addHighlight, addCurrent,
-    deleteBookmark, deleteHighlight, deleteCurrent, addToCollection, removeFromCollection,
+    addBookmark, addHighlight, addBooqHistory,
+    deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection,
 } from '../users';
 import { uuid } from '../utils';
 import { Context } from './context';
@@ -62,7 +62,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async addCurrent(_, { current }, context) {
             if (context.user?._id) {
-                return addCurrent(
+                return addBooqHistory(
                     context.user?._id,
                     {
                         booqId: current.booqId,
@@ -76,7 +76,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async removeCurrent(_, { booqId }, context) {
             if (context.user) {
-                return deleteCurrent(
+                return deleteBooqHistory(
                     context.user._id,
                     { booqId },
                 );

@@ -1,10 +1,10 @@
 import { IResolvers } from 'apollo-server';
 import { previewForPath } from '../../core';
-import { DbCurrent } from '../users';
+import { DbBooqHistory } from '../users';
 import { forId, booqForId } from '../books';
 import { BooqParent } from './booq';
 
-export type CurrentParent = DbCurrent;
+export type CurrentParent = DbBooqHistory;
 export const currentResolver: IResolvers<CurrentParent> = {
     Current: {
         async booq(parent): Promise<BooqParent | undefined> {
