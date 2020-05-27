@@ -3,15 +3,21 @@ import { parseEpub } from '../../parser';
 import { sources } from './libSources';
 
 const cache: {
-    [booqId: string]: Booq | undefined,
+    [booqId: string]: Promise<Booq | undefined>,
 } = {};
 
 export async function booqForId(booqId: string) {
     const cached = cache[booqId];
     if (cached) {
         return cached;
+    } else {
+        const promise = parseBooqForId(booqId);
+        cache[booqId] = promise;
+        return promise;
     }
+}
 
+async function parseBooqForId(booqId: string) {
     const file = await fileForId(booqId);
     if (!file) {
         return undefined;
@@ -20,7 +26,6 @@ export async function booqForId(booqId: string) {
         fileData: file.file,
         diagnoser: d => console.log(d),
     }), 'Parser');
-    cache[booqId] = booq;
     return booq;
 }
 

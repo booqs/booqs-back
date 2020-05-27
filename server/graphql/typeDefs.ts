@@ -104,6 +104,7 @@ type BooqHistory {
     path: [Int!]
     source: String
     preview(length: Int = 1500): String
+    position: Int
 }
 type Collection {
     booqs: [Booq!]
