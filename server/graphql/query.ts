@@ -4,7 +4,7 @@ import { userBooqHistory, userCollection } from '../users';
 import { search, forId, forIds, featuredIds } from '../books';
 import { Context } from './context';
 import { BooqParent } from './booq';
-import { CurrentParent } from './current';
+import { BooqHistoryParent } from './history';
 
 export const queryResolver: IResolvers<any, Context> = {
     Query: {
@@ -30,7 +30,7 @@ export const queryResolver: IResolvers<any, Context> = {
                 return undefined;
             }
         },
-        async currents(_, __, { user }): Promise<CurrentParent[]> {
+        async history(_, __, { user }): Promise<BooqHistoryParent[]> {
             return user
                 ? userBooqHistory(user)
                 : [];

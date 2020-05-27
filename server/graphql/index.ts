@@ -4,7 +4,7 @@ import { queryResolver } from './query';
 import { mutationResolver } from './mutation';
 import { collectionResolver } from './collection';
 import { booqResolver } from './booq';
-import { currentResolver } from './current';
+import { booqHistoryResolver } from './history';
 import { bookmarkResolver } from './bookmark';
 import { highlightResolver } from './highlight';
 
@@ -16,7 +16,7 @@ export const resolvers: IResolvers = {
     ...mutationResolver,
     ...collectionResolver,
     ...booqResolver,
-    ...currentResolver,
+    ...booqHistoryResolver,
     ...bookmarkResolver,
     ...highlightResolver,
     BooqNode: GraphQLJSON,

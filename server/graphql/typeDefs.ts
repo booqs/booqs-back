@@ -4,7 +4,7 @@ type Query {
     auth(token: String!, provider: String!): AuthResult
     booq(id: ID!): Booq
     search(query: String!): [Booq]
-    currents: [Current]
+    history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
 }
@@ -13,8 +13,8 @@ type Mutation {
     removeBookmark(uuid: ID!): Boolean
     addHighlight(hl: HighlightInput!): Boolean
     removeHighlight(uuid: ID!): Boolean
-    addCurrent(current: CurrentInput!): Boolean
-    removeCurrent(booqId: ID!): Boolean
+    addBooqHistory(event: BooqHistoryInput!): Boolean
+    removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
     uploadEpub(file: Upload!): Booq
@@ -32,7 +32,7 @@ input HighlightInput {
     start: [Int!]
     end: [Int!]
 }
-input CurrentInput {
+input BooqHistoryInput {
     booqId: ID!
     source: ID!
     path: [Int!]!
@@ -99,7 +99,7 @@ type Highlight {
     range: BooqRange
     group: String
 }
-type Current {
+type BooqHistory {
     booq: Booq
     path: [Int!]
     source: String

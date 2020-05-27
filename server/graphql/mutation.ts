@@ -60,7 +60,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async addCurrent(_, { current }, context) {
+        async addBooqHistory(_, { current }, context) {
             if (context.user?._id) {
                 return addBooqHistory(
                     context.user?._id,
@@ -74,7 +74,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeCurrent(_, { booqId }, context) {
+        async removeBooqHistory(_, { booqId }, context) {
             if (context.user) {
                 return deleteBooqHistory(
                     context.user._id,

@@ -4,9 +4,9 @@ import { DbBooqHistory } from '../users';
 import { forId, booqForId } from '../books';
 import { BooqParent } from './booq';
 
-export type CurrentParent = DbBooqHistory;
-export const currentResolver: IResolvers<CurrentParent> = {
-    Current: {
+export type BooqHistoryParent = DbBooqHistory;
+export const booqHistoryResolver: IResolvers<BooqHistoryParent> = {
+    BooqHistory: {
         async booq(parent): Promise<BooqParent | undefined> {
             return forId(parent.booqId);
         },
