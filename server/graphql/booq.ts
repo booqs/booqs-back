@@ -50,7 +50,7 @@ export const booqResolver: IResolvers<BooqParent> = {
         async tableOfContents(parent) {
             const booq = await booqForId(parent.id);
             return booq
-                ? booq.toc
+                ? booq.toc.items
                 : undefined;
         },
     },
