@@ -4,6 +4,11 @@ import { LibraryCard } from '../sources';
 import { sources, processCard } from './libSources';
 import { pgCards } from '../gutenberg/schema';
 
+export async function forId(id: string) {
+    const [result] = await forIds([id]);
+    return result;
+}
+
 export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefined>> {
     const parsed = filterUndefined(
         ids.map(idString => {

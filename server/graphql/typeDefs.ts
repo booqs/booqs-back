@@ -89,20 +89,21 @@ type AuthResult {
     profilePicture: String
 }
 type Bookmark {
+    booq: Booq
     uuid: ID
-    booqId: ID
     path: [Int!]
 }
 type Highlight {
+    booq: Booq
     uuid: ID
-    booqId: ID
     range: BooqRange
     group: String
 }
 type Current {
-    booqId: ID
+    booq: Booq
     path: [Int!]
     source: String
+    preview(length: Int = 1500): String
 }
 type Collection {
     booqs: [Booq!]
