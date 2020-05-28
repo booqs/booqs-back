@@ -1,6 +1,7 @@
-import { parseId, Booq, logTime } from '../../core';
+import { parseId, Booq } from '../../core';
 import { parseEpub } from '../../parser';
 import { sources } from './libSources';
+import { logTime } from '../utils';
 
 const cache: {
     [booqId: string]: Promise<Booq | undefined>,

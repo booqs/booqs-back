@@ -3,8 +3,9 @@ import {
 } from 'css';
 import { compile, is, CompiledQuery } from 'css-select';
 import { SpecificityArray, calculate, compare } from 'specificity';
+import { flatten } from 'lodash';
 import { Result, combineResults, Diagnostic } from './result';
-import { filterUndefined, flatten } from '../core';
+import { filterUndefined } from '../core';
 import { XmlElement, attributesOf } from './xmlTree';
 
 type Specificity = SpecificityArray;

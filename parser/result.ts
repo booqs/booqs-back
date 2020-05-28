@@ -1,4 +1,4 @@
-import { flatten } from '../core';
+import { flatten } from 'lodash';
 
 export type Diagnostic = {
     diag: string,
