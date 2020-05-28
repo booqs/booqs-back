@@ -30,10 +30,11 @@ export const queryResolver: IResolvers<any, Context> = {
                 return undefined;
             }
         },
-        async history(_, __, { user }): Promise<BooqHistoryParent[]> {
-            return user
+        history(_, __, { user }): BooqHistoryParent[] {
+            const result = user
                 ? userBooqHistory(user)
                 : [];
+            return result;
         },
         async collection(_, { name }, { user }) {
             return user

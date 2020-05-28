@@ -60,14 +60,14 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async addBooqHistory(_, { current }, context) {
+        async addBooqHistory(_, { event }, context) {
             if (context.user?._id) {
                 return addBooqHistory(
                     context.user?._id,
                     {
-                        booqId: current.booqId,
-                        path: current.path,
-                        source: current.source,
+                        booqId: event.booqId,
+                        path: event.path,
+                        source: event.source,
                         date: new Date(Date.now()),
                     });
             } else {

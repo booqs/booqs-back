@@ -22,7 +22,7 @@ export async function addBooqHistory(
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            [`currents.${booqId}.${source}`]: data,
+            [`history.${booqId}.${source}`]: data,
         },
     ).exec();
 
@@ -37,7 +37,7 @@ export async function deleteBooqHistory(
         userId,
         {
             $unset: {
-                [`currents.${booqId}`]: '',
+                [`history.${booqId}`]: '',
             },
         },
     ).exec();
