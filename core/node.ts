@@ -7,25 +7,24 @@ import { assertNever } from './misc';
 
 export function nodesForRange(nodes: BooqNode[], range: BooqRange): BooqNode[] {
     const [startHead, ...startTail] = range.start;
-    const [endHead, ...endTail] = range.end ?? [nodes.length];
-    if (!startHead) {
-        return nodes;
-    }
+    const [endHead, ...endTail] = range.end ?? [];
+    const actualStart = startHead ?? 0;
+    const actualEnd = endHead ?? nodes.length;
     const result: BooqNode[] = [];
     for (let idx = 0; idx < nodes.length; idx++) {
         const node = nodes[idx];
-        if (idx < startHead) {
+        if (idx < actualStart) {
             result.push({
                 kind: 'stub',
                 length: nodeLength(node),
             });
-        } else if (idx === startHead) {
+        } else if (idx === actualStart) {
             if (node.kind === 'element' && node.children) {
                 result.push({
                     ...node,
                     children: nodesForRange(node.children, {
                         start: startTail,
-                        end: startHead === endHead && endTail.length > 0
+                        end: actualEnd === idx && endTail.length > 0
                             ? endTail
                             : undefined,
                     }),
@@ -33,8 +32,20 @@ export function nodesForRange(nodes: BooqNode[], range: BooqRange): BooqNode[] {
             } else {
                 result.push(node);
             }
-        } else if (idx < endHead) {
+        } else if (idx < actualEnd) {
             result.push(node);
+        } else if (idx === actualEnd && endTail.length) {
+            if (node.kind === 'element' && node.children) {
+                result.push({
+                    ...node,
+                    children: nodesForRange(node.children, {
+                        start: [0],
+                        end: endTail,
+                    }),
+                });
+            } else {
+                result.push(node);
+            }
         } else {
             result.push({
                 kind: 'stub',
