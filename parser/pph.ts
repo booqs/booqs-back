@@ -23,16 +23,14 @@ function markParagraphNode(node: BooqNode): BooqNode {
 function isParagraph(node: BooqNode) {
     switch (node.name) {
         case 'div': case 'p':
-            return !node.children?.some(isParagraph);
-        case 'span':
-            return !node.children?.some(isNonEmptyText);
+            return !hasChildParagraphs(node);
         default:
             return false;
     }
 }
 
-function isNonEmptyText(node: BooqNode): boolean {
-    return node.name === undefined && node.content
-        ? (node.content.match(/^\s*$/) ? false : true)
-        : false;
+function hasChildParagraphs(node: BooqNode): boolean {
+    return node.children !== undefined && node.children.some(
+        ch => isParagraph(ch) || hasChildParagraphs(ch),
+    );
 }
