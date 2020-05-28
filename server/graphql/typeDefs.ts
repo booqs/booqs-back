@@ -10,32 +10,14 @@ type Query {
 }
 type Mutation {
     addBookmark(bm: BookmarkInput!): Boolean
-    removeBookmark(uuid: ID!): Boolean
+    removeBookmark(id: ID!): Boolean
     addHighlight(hl: HighlightInput!): Boolean
-    removeHighlight(uuid: ID!): Boolean
+    removeHighlight(id: ID!): Boolean
     addBooqHistory(event: BooqHistoryInput!): Boolean
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
     uploadEpub(file: Upload!): Booq
-}
-
-input BookmarkInput {
-    uuid: ID
-    booqId: ID!
-    path: [Int!]!
-}
-input HighlightInput {
-    uuid: ID
-    booqId: ID!
-    group: String!
-    start: [Int!]
-    end: [Int!]
-}
-input BooqHistoryInput {
-    booqId: ID!
-    source: ID!
-    path: [Int!]!
 }
 
 type Booq {
@@ -51,6 +33,24 @@ type Booq {
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
     tableOfContents: [TocItem!]
+}
+
+input BookmarkInput {
+    id: ID
+    booqId: ID!
+    path: [Int!]!
+}
+input HighlightInput {
+    id: ID
+    booqId: ID!
+    group: String!
+    start: [Int!]
+    end: [Int!]
+}
+input BooqHistoryInput {
+    booqId: ID!
+    source: ID!
+    path: [Int!]!
 }
 
 scalar BooqNode
@@ -91,12 +91,12 @@ type AuthResult {
 }
 type Bookmark {
     booq: Booq
-    uuid: ID
+    id: ID
     path: [Int!]
 }
 type Highlight {
     booq: Booq
-    uuid: ID
+    id: ID
     range: BooqRange
     group: String
 }

@@ -1,22 +1,22 @@
 import { collection, DbUser, BookmarkData } from './schema';
 
-export type DbBookmark = BookmarkData & { uuid: string };
+export type DbBookmark = BookmarkData & { id: string };
 
 export function userBookmarks(user: DbUser, booqId: string): DbBookmark[] {
-    return Object.entries(user.bookmarks ?? {}).map(([uuid, data]) => ({
-        uuid,
+    return Object.entries(user.bookmarks ?? {}).map(([id, data]) => ({
+        id,
         ...data,
     })).filter(bm => bm.booqId === booqId);
 }
 
 export async function addBookmark(
     userId: string,
-    { uuid, ...data }: DbBookmark,
+    { id, ...data }: DbBookmark,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            [`bookmarks.${uuid}`]: data,
+            [`bookmarks.${id}`]: data,
         },
     ).exec();
 
@@ -25,12 +25,12 @@ export async function addBookmark(
 
 export async function deleteBookmark(
     userId: string,
-    { uuid }: Pick<DbBookmark, 'uuid'>,
+    { id }: Pick<DbBookmark, 'id'>,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            $unset: { [`bookmarks.${uuid}`]: '' },
+            $unset: { [`bookmarks.${id}`]: '' },
         },
     ).exec();
 

@@ -15,7 +15,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return addBookmark(
                     context.user?._id,
                     {
-                        uuid: bm.uuid ?? uuid(),
+                        id: bm.id ?? uuid(),
                         booqId: bm.booqId,
                         path: bm.path,
                     });
@@ -23,11 +23,11 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeBookmark(_, { uuid }, context) {
+        async removeBookmark(_, { id }, context) {
             if (context.user) {
                 return deleteBookmark(
                     context.user._id,
-                    { uuid },
+                    { id },
                 );
             } else {
                 return false;
@@ -38,7 +38,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return addHighlight(
                     context.user?._id,
                     {
-                        uuid: hl.uuid ?? uuid(),
+                        id: hl.id ?? uuid(),
                         booqId: hl.booqId,
                         range: {
                             start: hl.start,
@@ -50,11 +50,11 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeHighlight(_, { uuid }, context) {
+        async removeHighlight(_, { id }, context) {
             if (context.user) {
                 return deleteHighlight(
                     context.user._id,
-                    { uuid },
+                    { id },
                 );
             } else {
                 return false;
