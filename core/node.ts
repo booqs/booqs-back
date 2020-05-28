@@ -1,14 +1,4 @@
-import { BooqNode, BooqPath, Booq } from './common';
-
-export function nodeText(node: BooqNode): string {
-    if (node.children?.length) {
-        return node.children
-            .map(nodeText)
-            .join('');
-    } else {
-        return node.content ?? '';
-    }
-}
+import { BooqNode, BooqPath } from './common';
 
 export type BooqNodeIteratorValue = {
     node: BooqNode,
@@ -39,40 +29,4 @@ export function* iterateNodes(nodes: BooqNode[], path: BooqPath = [0], position 
         idx++;
     }
     return position;
-}
-
-export function booqLength(booq: Booq): number {
-    return nodesLength(booq.nodes);
-}
-
-export function nodeLength(node: BooqNode): number {
-    if (node.children?.length) {
-        return nodesLength(node.children);
-    } else if (node.content) {
-        return node.content.length;
-    } else {
-        return 1;
-    }
-}
-
-export function nodesLength(nodes: BooqNode[]) {
-    return nodes.reduce((len, n) => len + nodeLength(n), 0);
-}
-
-export function positionForPath(nodes: BooqNode[], path: BooqPath): number {
-    const [head, ...tail] = path;
-    if (head === undefined) {
-        return 0;
-    }
-    let position = 0;
-    for (let idx = 0; idx < Math.min(nodes.length, head); idx++) {
-        position += nodeLength(nodes[idx]);
-    }
-    const last = nodes[head];
-    if (last?.children) {
-        const after = positionForPath(last.children, tail);
-        return after + position;
-    } else {
-        return position;
-    }
 }

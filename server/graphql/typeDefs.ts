@@ -47,7 +47,7 @@ type Booq {
     tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
-    preview(path: [Int!], length: Int = 250): String
+    preview(path: [Int!], length: Int = 500): String
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
     tableOfContents: [TocItem!]
@@ -104,7 +104,7 @@ type BooqHistory {
     booq: Booq
     path: [Int!]
     source: String
-    preview(length: Int = 250): String
+    preview(length: Int = 500): String
     position: Int
 }
 type Collection {
