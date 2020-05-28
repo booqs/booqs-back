@@ -1,7 +1,15 @@
 import { BooqNode, findPathForId } from '../core';
+import { Result } from './result';
+import { resolveRefs } from './refs';
+import { markParagraphs } from './pph';
 
-export function resolveRefs(nodes: BooqNode[]): BooqNode[] {
-    return resolveNodesRefs(nodes, nodes);
+export function preprocess(nodes: BooqNode[]): Result<BooqNode[]> {
+    const resolved = resolveRefs(nodes);
+    const marked = markParagraphs(resolved);
+    return {
+        value: marked,
+        diags: [],
+    };
 }
 
 function resolveNodesRefs(root: BooqNode[], nodes: BooqNode[]): BooqNode[] {
