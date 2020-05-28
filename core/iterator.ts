@@ -55,7 +55,7 @@ export function findPath(iter: BooqNodeIterator, path: BooqPath): BooqNodeIterat
         const childrenIter = {
             parent: curr,
             index: 0,
-            nodes: [],
+            nodes: node.children,
         };
         return findPath(childrenIter, tail);
     }

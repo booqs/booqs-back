@@ -69,11 +69,11 @@ export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number
     while (iter) {
         const node = iteratorsNode(iter);
         preview += node.content ?? '';
-        if (preview.length >= length) {
-            return preview;
+        if (preview.trim().length >= length) {
+            return preview.trim();
         }
         iter = nextNode(iter);
         iter = iter && firstLeaf(iter);
     }
-    return preview;
+    return preview.trim();
 }
