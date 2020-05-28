@@ -66,6 +66,11 @@ export function pathFromString(pathString: string): BooqPath | undefined {
         : path;
 }
 
+export function samePath(first: BooqPath, second: BooqPath) {
+    return first.length === second.length
+        && first.every((p, idx) => p === second[idx]);
+}
+
 export function pathLessThan(first: BooqPath, second: BooqPath): boolean {
     const [firstHead, ...firstTail] = first;
     const [secondHead, ...secondTail] = second;
