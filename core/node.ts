@@ -15,16 +15,18 @@ export function* iterateNodes(nodes: BooqNode[], path: BooqPath = [0], position 
             position,
             path: nextPath,
         };
-        if (node.children) {
-            const children = iterateNodes(node.children, [...nextPath, 0], position);
+        if (node.kind === 'element') {
+            const children = iterateNodes(node.children ?? [], [...nextPath, 0], position);
             let child = children.next();
             while (!child.done) {
                 yield child.value;
                 child = children.next();
             }
             position += child.value;
+        } else if (node.kind === 'text') {
+            position += node.content.length;
         } else {
-            position += node.content?.length ?? 1;
+            position += node.length;
         }
         idx++;
     }

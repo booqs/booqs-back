@@ -1,4 +1,4 @@
-import { BooqNode, BooqNodeStyle } from '../core';
+import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core';
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
@@ -34,7 +34,7 @@ type Env = {
     resolveTextFile: (href: string) => Promise<string | undefined>,
 };
 
-async function processSectionContent(content: string, env: Env) {
+async function processSectionContent(content: string, env: Env): Promise<BooqNode | undefined> {
     const elements = xmlStringParser(content);
     const head = findByName(elements, 'head');
     const body = findByName(elements, 'body');
@@ -150,11 +150,13 @@ async function processStyleElement(style: XmlElement, env: Env) {
 
 function processBody(body: XmlElement, env: Env) {
     const node = processXml(body, env);
-    return {
-        ...node,
-        fileName: env.fileName,
-        name: 'div',
-    };
+    return node.kind === 'element'
+        ? {
+            ...node,
+            fileName: env.fileName,
+            name: 'div',
+        }
+        : node;
 }
 
 function processXmls(xmls: XmlElement[], env: Env) {
@@ -168,10 +170,11 @@ function processXml(element: XmlElement, env: Env): BooqNode {
         attributes,
     } = asObject(element);
     if (text !== undefined) {
-        return { content: text };
+        return { kind: 'text', content: text };
     } else if (name) {
         const { id, class: _, style: __, ...rest } = attributes ?? {};
-        const result: BooqNode = {
+        const result: BooqElementNode = {
+            kind: 'element',
             name,
             id: processId(id, env),
             style: processStyle(element, env),
@@ -182,7 +185,10 @@ function processXml(element: XmlElement, env: Env): BooqNode {
         };
         return result;
     } else {
-        return {};
+        return {
+            kind: 'stub',
+            length: 0,
+        };
     }
 }
 

@@ -15,18 +15,26 @@ export type BooqNodeAttrs = {
 export type BooqNodeStyle = {
     [name in string]?: string;
 };
-export type BooqNode = {
-    name?: string,
+export type BooqElementNode = {
+    kind: 'element',
+    name: string,
     id?: string,
     style?: BooqNodeStyle,
     children?: BooqNode[],
     attrs?: BooqNodeAttrs,
-    content?: string,
-    offset?: number,
     fileName?: string,
     ref?: BooqPath,
     pph?: boolean,
 }
+export type BooqTextNode = {
+    kind: 'text',
+    content: string,
+};
+export type BooqStubNode = {
+    kind: 'stub',
+    length: number,
+};
+export type BooqNode = BooqElementNode | BooqTextNode | BooqStubNode;
 
 export type TableOfContentsItem = {
     title: string | undefined,
@@ -97,12 +105,16 @@ export function pathInRange(path: BooqPath, range: BooqRange): boolean {
 }
 
 export function nodeLength(node: BooqNode): number {
-    if (node.children?.length) {
-        return nodesLength(node.children);
-    } else if (node.content) {
-        return node.content.length;
-    } else {
-        return 1;
+    switch (node.kind) {
+        case 'element':
+            return nodesLength(node.children ?? []);
+        case 'text':
+            return node.content.length;
+        case 'stub':
+            return node.length;
+        default:
+            assertNever(node);
+            return 0;
     }
 }
 
@@ -120,7 +132,7 @@ export function positionForPath(nodes: BooqNode[], path: BooqPath): number {
         position += nodeLength(nodes[idx]);
     }
     const last = nodes[head];
-    if (last?.children) {
+    if (last.kind === 'element' && last?.children) {
         const after = positionForPath(last.children, tail);
         return after + position;
     } else {
@@ -129,12 +141,16 @@ export function positionForPath(nodes: BooqNode[], path: BooqPath): number {
 }
 
 export function nodeText(node: BooqNode): string {
-    if (node.children?.length) {
-        return node.children
-            .map(nodeText)
-            .join('');
-    } else {
-        return node.content ?? '';
+    switch (node.kind) {
+        case 'element':
+            return node.children?.map(nodeText).join('') ?? '';
+        case 'text':
+            return node.content;
+        case 'stub':
+            return '';
+        default:
+            assertNever(node);
+            return '';
     }
 }
 
@@ -146,4 +162,8 @@ export function uuid() {
         const v = ch === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+}
+
+export function assertNever(x: never) {
+    return x;
 }
