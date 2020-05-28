@@ -1,10 +1,10 @@
 import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
+import { uuid } from '../../core';
 import {
     addBookmark, addHighlight, addBooqHistory,
     deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection,
 } from '../users';
-import { uuid } from '../utils';
 import { Context } from './context';
 import { uploadToSource } from '../books';
 

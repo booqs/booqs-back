@@ -2,9 +2,8 @@ import { createHash } from 'crypto';
 import { ReadStream } from 'fs';
 import { inspect } from 'util';
 import { parseEpub } from '../../parser';
-import { nodesLength, Booq } from '../../core';
+import { nodesLength, Booq, uuid } from '../../core';
 import { uploadAsset } from '../s3';
-import { uuid } from '../utils';
 import { addUpload } from '../users';
 import {
     uuCards, DbUuCard,

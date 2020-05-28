@@ -131,3 +131,13 @@ export function nodeText(node: BooqNode): string {
         return node.content ?? '';
     }
 }
+
+export function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, ch => {
+        // tslint:disable-next-line: no-bitwise
+        const r = Math.random() * 16 | 0;
+        // tslint:disable-next-line: no-bitwise
+        const v = ch === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
