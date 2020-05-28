@@ -9,9 +9,9 @@ type Query {
     featured(limit: Int!): [Booq]
 }
 type Mutation {
-    addBookmark(bm: BookmarkInput!): Boolean
+    addBookmark(bookmark: BookmarkInput!): Boolean
     removeBookmark(id: ID!): Boolean
-    addHighlight(hl: HighlightInput!): Boolean
+    addHighlight(highlight: HighlightInput!): Boolean
     removeHighlight(id: ID!): Boolean
     addBooqHistory(event: BooqHistoryInput!): Boolean
     removeBooqHistory(booqId: ID!): Boolean

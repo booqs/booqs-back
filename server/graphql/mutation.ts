@@ -10,14 +10,14 @@ import { uploadToSource } from '../books';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
-        async addBookmark(_, { bm }, context) {
+        async addBookmark(_, { bookmark }, context) {
             if (context.user) {
                 return addBookmark(
                     context.user?._id,
                     {
-                        id: bm.id ?? uuid(),
-                        booqId: bm.booqId,
-                        path: bm.path,
+                        id: bookmark.id ?? uuid(),
+                        booqId: bookmark.booqId,
+                        path: bookmark.path,
                     });
             } else {
                 return false;
@@ -33,18 +33,18 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async addHighlight(_, { hl }, context) {
+        async addHighlight(_, { highlight }, context) {
             if (context.user) {
                 return addHighlight(
                     context.user?._id,
                     {
-                        id: hl.id ?? uuid(),
-                        booqId: hl.booqId,
+                        id: highlight.id ?? uuid(),
+                        booqId: highlight.booqId,
                         range: {
-                            start: hl.start,
-                            end: hl.end,
+                            start: highlight.start,
+                            end: highlight.end,
                         },
-                        group: hl.group,
+                        group: highlight.group,
                     });
             } else {
                 return false;
