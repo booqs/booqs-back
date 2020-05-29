@@ -33,6 +33,12 @@ export function pathLessThan(first: BooqPath, second: BooqPath): boolean {
     }
 }
 
+export function comparePaths(first: BooqPath, second: BooqPath): number {
+    return pathLessThan(first, second) ? -1
+        : samePath(first, second) ? 0
+            : +1;
+}
+
 export function pathInRange(path: BooqPath, range: BooqRange): boolean {
     return pathLessThan(path, range.start)
         ? false
