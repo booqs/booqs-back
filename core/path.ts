@@ -1,13 +1,13 @@
 import { BooqPath, BooqRange } from './model';
 
-const separator = '-';
+const pathSeparator = '-';
 export function pathToString(path: BooqPath): string {
-    return path.join(separator);
+    return path.join(pathSeparator);
 }
 
 export function pathFromString(pathString: string): BooqPath | undefined {
     const path = pathString
-        .split(separator)
+        .split(pathSeparator)
         .map(c => parseInt(c, 10));
     return path.some(isNaN)
         ? undefined
@@ -47,4 +47,20 @@ export function pathInRange(path: BooqPath, range: BooqRange): boolean {
                 ? pathLessThan(path, range.end)
                 : true
         );
+}
+
+const rangeSeparator = 'to';
+export function rangeToString(range: BooqRange): string {
+    return range.end
+        ? `${pathToString(range.start)}${rangeSeparator}${pathToString(range.end)}`
+        : pathToString(range.start);
+}
+
+export function rangeFromString(rangeString: string): BooqRange | undefined {
+    const [startPart, endPart] = rangeString.split(rangeSeparator);
+    const start = startPart !== undefined ? pathFromString(startPart) : undefined;
+    const end = endPart !== undefined ? pathFromString(endPart) : undefined;
+    return start
+        ? { start, end }
+        : undefined;
 }
