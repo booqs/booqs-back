@@ -64,3 +64,19 @@ export function rangeFromString(rangeString: string): BooqRange | undefined {
         ? { start, end }
         : undefined;
 }
+
+export function isOverlapping(first: BooqRange, second: BooqRange): boolean {
+    if (pathLessThan(first.start, second.start)) {
+        if (first.end) {
+            return pathLessThan(second.start, first.end);
+        } else {
+            return true;
+        }
+    } else {
+        if (second.end) {
+            return pathLessThan(first.start, second.end);
+        } else {
+            return true;
+        }
+    }
+}
