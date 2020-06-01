@@ -68,11 +68,6 @@ type BooqAnchor {
     path: [Int!]!
 }
 
-type BooqRange {
-    start: [Int!]
-    end: [Int!]
-}
-
 type TocItem {
     path: [Int!]!
     position: Int
@@ -97,7 +92,8 @@ type Bookmark {
 type Highlight {
     booq: Booq
     id: ID
-    range: BooqRange
+    start: [Int!]!
+    end: [Int!]!
     group: String
 }
 type BooqHistory {

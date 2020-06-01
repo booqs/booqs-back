@@ -34,16 +34,16 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async addHighlight(_, { highlight }, context) {
+            console.log(context);
+            console.log(highlight);
             if (context.user) {
                 return addHighlight(
                     context.user?._id,
                     {
                         id: highlight.id ?? uuid(),
                         booqId: highlight.booqId,
-                        range: {
-                            start: highlight.start,
-                            end: highlight.end,
-                        },
+                        start: highlight.start,
+                        end: highlight.end,
                         group: highlight.group,
                     });
             } else {

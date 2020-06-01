@@ -1,4 +1,4 @@
-import { BooqPath, BooqRange } from '../../core';
+import { BooqPath } from '../../core';
 import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {
@@ -30,7 +30,8 @@ export type BookmarkData = {
 };
 export type HighlightData = {
     booqId: string,
-    range: BooqRange,
+    start: BooqPath,
+    end: BooqPath,
     group: string,
 };
 export type BooqHistoryData = {
