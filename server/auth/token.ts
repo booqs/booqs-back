@@ -15,6 +15,10 @@ export function userIdFromHeader(header: string) {
 }
 
 export function userIdFromToken(token: string) {
-    const { userId } = verify(token, secret, { issuer }) as any;
-    return userId;
+    try {
+        const { userId } = verify(token, secret, { issuer }) as any;
+        return userId;
+    } catch {
+        return undefined;
+    }
 }
