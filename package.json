@@ -5,6 +5,9 @@
   "description": "Booqs backend",
   "main": "dist/server/index.js",
   "types": "dist/server/index.d.ts",
+  "bin": {
+    "booqs": "dist/cli/index.js"
+  },
   "scripts": {
     "prepare": "npm run build",
     "lint": "eslint server/**/*.ts",

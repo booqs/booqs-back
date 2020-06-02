@@ -29,6 +29,7 @@
         "onopentag",
         "onopentagname",
         "ontext",
+        "pgprep",
         "pids",
         "prepocessed",
         "promisify",
