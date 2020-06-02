@@ -6,12 +6,17 @@ export async function search(query: string, limit: number): Promise<LibraryCard[
     if (!query) {
         return [];
     }
-    const cards = sources.map(
-        source => source.search(query, limit)
-            .then(
-                results => results.map(processCard(source)),
-            ),
+    const cards = Object.entries(sources).map(
+        async ([prefix, source]) => {
+            if (source) {
+                const results = await source.search(query, limit);
+                return results.map(processCard(prefix));
+            } else {
+                return [];
+            }
+        },
     );
 
-    return Promise.all(cards).then(flatten);
+    const all = await Promise.all(cards);
+    return flatten(all);
 }

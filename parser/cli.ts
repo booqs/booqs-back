@@ -1,9 +1,10 @@
 #! /usr/bin/env node
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { existsSync, lstat, readdir, writeFile, readFile } from 'fs';
-import { extname, join, dirname, basename } from 'path';
+import { extname, join } from 'path';
 import { promisify, inspect } from 'util';
-import { Booq, flatten } from '../core';
+import { flatten } from 'lodash';
+import { Booq } from '../core';
 import { parseEpub } from './index';
 
 exec();

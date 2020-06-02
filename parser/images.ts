@@ -45,6 +45,9 @@ function collectImgSrcs(nodes: BooqNode[]): string[] {
 }
 
 function collectImgSrcsFromNode(node: BooqNode): string[] {
+    if (node.kind !== 'element') {
+        return [];
+    }
     const fromChildren = collectImgSrcs(node.children ?? []);
     const src = node?.attrs?.src;
     return src ? [src, ...fromChildren] : fromChildren;

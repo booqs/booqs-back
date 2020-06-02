@@ -36,7 +36,7 @@ module.exports = {
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": ["error", {
-      "args": "after-used",
+      "args": "none",
       "ignoreRestSiblings": true,
     }],
     "no-unused-vars": "off",

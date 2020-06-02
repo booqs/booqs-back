@@ -16,18 +16,27 @@
         "Srcs",
         "Whitespaces",
         "booqs",
+        "colspan",
         "coverpage",
         "diagnoser",
+        "domutils",
         "epub",
         "epubs",
         "hacky",
         "kinesisvideomedia",
         "lucene",
+        "onclosetag",
+        "onopentag",
+        "onopentagname",
+        "ontext",
         "pids",
+        "prepocessed",
         "promisify",
         "readonly",
         "rgrove",
+        "rowspan",
         "upsert",
-        "xmls"
+        "xmls",
+        "yxxx"
     ]
 }

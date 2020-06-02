@@ -4,71 +4,78 @@ type Query {
     auth(token: String!, provider: String!): AuthResult
     booq(id: ID!): Booq
     search(query: String!): [Booq]
-    currents: [Current]
+    history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
 }
 type Mutation {
-    addBookmark(bm: BookmarkInput!): Boolean
-    removeBookmark(uuid: ID!): Boolean
-    addHighlight(hl: HighlightInput!): Boolean
-    removeHighlight(uuid: ID!): Boolean
-    addCurrent(current: CurrentInput!): Boolean
-    removeCurrent(booqId: ID!): Boolean
+    addBookmark(bookmark: BookmarkInput!): Boolean
+    removeBookmark(id: ID!): Boolean
+    addHighlight(highlight: HighlightInput!): Boolean
+    removeHighlight(id: ID!): Boolean
+    updateHighlight(id: ID!, group: String): Boolean
+    addBooqHistory(event: BooqHistoryInput!): Boolean
+    removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
     uploadEpub(file: Upload!): Booq
-}
-
-input BookmarkInput {
-    uuid: ID
-    booqId: ID!
-    path: [Int!]!
-}
-input HighlightInput {
-    uuid: ID
-    booqId: ID!
-    group: String!
-    start: [Int!]
-    end: [Int!]
-}
-input CurrentInput {
-    booqId: ID!
-    source: ID!
-    path: [Int!]!
-}
-
-type BooqRange {
-    start: [Int!]
-    end: [Int!]
-}
-scalar BooqNode
-type BooqNodeEdge {
-    node: BooqNode
-    cursor: String
-}
-type BooqNodePageInfo {
-    hasPreviousPage: Boolean!
-    hasNextPage: Boolean!
-    startCursor: String!
-    endCursor: String!
-}
-type BooqNodeConnection {
-    edges: [BooqNodeEdge]
-    pageInfo: BooqNodePageInfo
 }
 
 type Booq {
     id: ID!
     title: String
     author: String
+    length: Int
     cover(size: Int): String
     tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
-    preview(path: [Int!], length: Int = 1500): String
-    nodesConnection(first: Int, after: String): BooqNodeConnection
+    preview(path: [Int!], length: Int = 500): String
+    fragment(path: [Int!]): BooqFragment
+    nodes: [BooqNode]
+    tableOfContents: [TocItem!]
 }
+
+input BookmarkInput {
+    id: ID
+    booqId: ID!
+    path: [Int!]!
+}
+input HighlightInput {
+    id: ID
+    booqId: ID!
+    group: String!
+    start: [Int!]
+    end: [Int!]
+}
+input BooqHistoryInput {
+    booqId: ID!
+    source: ID!
+    path: [Int!]!
+}
+
+scalar BooqNode
+
+type BooqFragment {
+    previous: BooqAnchor
+    current: BooqAnchor!
+    next: BooqAnchor
+    position: Int!
+    nodes: [BooqNode]
+}
+
+type BooqAnchor {
+    title: String
+    path: [Int!]!
+}
+
+type TocItem {
+    path: [Int!]!
+    position: Int
+    title: String
+    level: Int
+}
+
 type Tag {
     tag: String!
     value: String
@@ -79,20 +86,23 @@ type AuthResult {
     profilePicture: String
 }
 type Bookmark {
-    uuid: ID
-    booqId: ID
+    booq: Booq
+    id: ID
     path: [Int!]
 }
 type Highlight {
-    uuid: ID
-    booqId: ID
-    range: BooqRange
+    booq: Booq
+    id: ID
+    start: [Int!]!
+    end: [Int!]!
     group: String
 }
-type Current {
-    booqId: ID
+type BooqHistory {
+    booq: Booq
     path: [Int!]
     source: String
+    preview(length: Int = 500): String
+    position: Int
 }
 type Collection {
     booqs: [Booq!]

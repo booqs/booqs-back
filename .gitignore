@@ -7,5 +7,8 @@ dist/**/*
 # secrets
 .env
 
+# local epub files
+epubs/**/*
+
 # temp files
 tmp/**/*

@@ -1,6 +1,6 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
-import { Booq, booqLength, filterUndefined } from '../../core';
+import { Booq, nodesLength, filterUndefined } from '../../core';
 import { parseEpub } from '../../parser';
 import { makeBatches } from '../utils';
 import { listObjects, downloadAsset, Asset } from '../s3';
@@ -77,7 +77,7 @@ async function insertRecord(booq: Booq, assetId: string) {
         title, creator: author, subject, language, description, cover,
         ...rest
     } = booq.meta;
-    const length = booqLength(booq);
+    const length = nodesLength(booq.nodes);
     const doc: DbPgCard = {
         assetId,
         index,

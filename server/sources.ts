@@ -1,3 +1,6 @@
+import { ReadStream } from 'fs';
+import { Booq } from '../core';
+
 export type LibraryCard = {
     id: string,
     length: number,
@@ -13,8 +16,11 @@ export type BookFile = {
     file: Buffer,
 };
 export type LibrarySource = {
-    prefix: string,
     search(query: string, limit: number): Promise<LibraryCard[]>,
     cards(ids: string[]): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,
+    uploadEpub?(fileStream: ReadStream, userId: string): Promise<{
+        card: LibraryCard,
+        booq?: Booq,
+    } | undefined>,
 };

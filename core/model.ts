@@ -15,14 +15,26 @@ export type BooqNodeAttrs = {
 export type BooqNodeStyle = {
     [name in string]?: string;
 };
-export type BooqNode = {
-    name?: string,
+export type BooqElementNode = {
+    kind: 'element',
+    name: string,
     id?: string,
     style?: BooqNodeStyle,
     children?: BooqNode[],
     attrs?: BooqNodeAttrs,
-    content?: string,
+    fileName?: string,
+    ref?: BooqPath,
+    pph?: boolean,
 }
+export type BooqTextNode = {
+    kind: 'text',
+    content: string,
+};
+export type BooqStubNode = {
+    kind: 'stub',
+    length: number,
+};
+export type BooqNode = BooqElementNode | BooqTextNode | BooqStubNode;
 
 export type TableOfContentsItem = {
     title: string | undefined,
@@ -40,7 +52,7 @@ export type BooqMeta = {
     [name in string]?: string | string[];
 };
 export type BooqImages = {
-    [src: string]: string;
+    [src: string]: string,
 };
 export type Booq = {
     nodes: BooqNode[],

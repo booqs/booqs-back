@@ -9,14 +9,22 @@ export async function parseEpub({ fileData, diagnoser }: {
     diagnoser?: Diagnoser,
 }): Promise<Booq | undefined> {
     diagnoser = diagnoser ?? (() => undefined);
-    const { value: file, diags: fileDiags } = await openEpub({ fileData });
-    fileDiags.forEach(diagnoser);
-    if (!file) {
+    try {
+        const { value: file, diags: fileDiags } = await openEpub({ fileData });
+        fileDiags.forEach(diagnoser);
+        if (!file) {
+            return undefined;
+        }
+        const { value: book, diags: bookDiags } = await processEpub(file);
+        bookDiags.forEach(diagnoser);
+        return book;
+    } catch (err) {
+        diagnoser({
+            diag: 'Unhandled exception on parsing',
+            data: err,
+        });
         return undefined;
     }
-    const { value: book, diags: bookDiags } = await processEpub(file);
-    bookDiags.forEach(diagnoser);
-    return book;
 }
 
 export type ExtractedMetadata = {

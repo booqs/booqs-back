@@ -1,82 +1,90 @@
 import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
+import { uuid } from '../../core';
 import {
-    addBookmark, addHighlight, addCurrent,
-    deleteBookmark, deleteHighlight, deleteCurrent, addToCollection, removeFromCollection,
+    addBookmark, addHighlight, addBooqHistory,
+    deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection, updateHighlight,
 } from '../users';
-import { uuid } from '../utils';
 import { Context } from './context';
-import { uploadEpub } from '../books';
+import { uploadToSource } from '../books';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
-        async addBookmark(_, { bm }, context) {
+        async addBookmark(_, { bookmark }, context) {
             if (context.user) {
                 return addBookmark(
                     context.user?._id,
                     {
-                        uuid: bm.uuid ?? uuid(),
-                        booqId: bm.booqId,
-                        path: bm.path,
+                        id: bookmark.id ?? uuid(),
+                        booqId: bookmark.booqId,
+                        path: bookmark.path,
                     });
             } else {
                 return false;
             }
         },
-        async removeBookmark(_, { uuid }, context) {
+        async removeBookmark(_, { id }, context) {
             if (context.user) {
                 return deleteBookmark(
                     context.user._id,
-                    { uuid },
+                    { id },
                 );
             } else {
                 return false;
             }
         },
-        async addHighlight(_, { hl }, context) {
+        async addHighlight(_, { highlight }, context) {
             if (context.user) {
                 return addHighlight(
                     context.user?._id,
                     {
-                        uuid: hl.uuid ?? uuid(),
-                        booqId: hl.booqId,
-                        range: {
-                            start: hl.start,
-                            end: hl.end,
-                        },
-                        group: hl.group,
+                        id: highlight.id ?? uuid(),
+                        booqId: highlight.booqId,
+                        start: highlight.start,
+                        end: highlight.end,
+                        group: highlight.group,
                     });
             } else {
                 return false;
             }
         },
-        async removeHighlight(_, { uuid }, context) {
+        async removeHighlight(_, { id }, context) {
             if (context.user) {
                 return deleteHighlight(
                     context.user._id,
-                    { uuid },
+                    { id },
                 );
             } else {
                 return false;
             }
         },
-        async addCurrent(_, { current }, context) {
+        async updateHighlight(_, { id, group }, context) {
+            if (context.user) {
+                return updateHighlight(
+                    context.user._id,
+                    { id, group },
+                );
+            } else {
+                return false;
+            }
+        },
+        async addBooqHistory(_, { event }, context) {
             if (context.user?._id) {
-                return addCurrent(
+                return addBooqHistory(
                     context.user?._id,
                     {
-                        booqId: current.booqId,
-                        path: current.path,
-                        source: current.source,
+                        booqId: event.booqId,
+                        path: event.path,
+                        source: event.source,
                         date: new Date(Date.now()),
                     });
             } else {
                 return false;
             }
         },
-        async removeCurrent(_, { booqId }, context) {
+        async removeBooqHistory(_, { booqId }, context) {
             if (context.user) {
-                return deleteCurrent(
+                return deleteBooqHistory(
                     context.user._id,
                     { booqId },
                 );
@@ -110,7 +118,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             if (user?._id) {
                 const actual = await file;
                 const stream: ReadStream = actual.createReadStream();
-                const card = await uploadEpub(stream, user._id);
+                const card = await uploadToSource('uu', stream, user._id);
                 return card;
             }
 

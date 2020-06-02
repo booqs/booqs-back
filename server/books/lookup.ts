@@ -4,6 +4,11 @@ import { LibraryCard } from '../sources';
 import { sources, processCard } from './libSources';
 import { pgCards } from '../gutenberg/schema';
 
+export async function forId(id: string) {
+    const [result] = await forIds([id]);
+    return result;
+}
+
 export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefined>> {
     const parsed = filterUndefined(
         ids.map(idString => {
@@ -18,10 +23,10 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
         id => id.source,
     );
     const groupedResults = Object.entries(grouped).map(async ([sourcePrefix, pids]) => {
-        const source = sources.find(s => s.prefix === sourcePrefix);
+        const source = sources[sourcePrefix];
         if (source) {
             const forSource = await source.cards(pids.map(p => p.id));
-            return forSource.map(processCard(source));
+            return forSource.map(processCard(sourcePrefix));
         } else {
             return undefined;
         }

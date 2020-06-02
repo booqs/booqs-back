@@ -1,4 +1,4 @@
-import { BooqNode, BooqPath } from '../model';
+import { BooqNode, BooqPath } from './model';
 
 export type BooqNodeIterator = {
     parent: BooqNodeIterator | undefined,
@@ -8,6 +8,14 @@ export type BooqNodeIterator = {
 
 export function iteratorsNode(iter: BooqNodeIterator): BooqNode {
     return iter.nodes[iter.index];
+}
+
+export function iteratorsPath(iter: BooqNodeIterator): BooqPath {
+    if (iter.parent) {
+        return [...iteratorsPath(iter.parent), iter.index];
+    } else {
+        return [iter.index];
+    }
 }
 
 export function rootIterator(nodes: BooqNode[]) {
@@ -20,7 +28,7 @@ export function rootIterator(nodes: BooqNode[]) {
 
 export function firstLeaf(iter: BooqNodeIterator): BooqNodeIterator {
     const node = iteratorsNode(iter);
-    if (node.children?.length) {
+    if (node.kind === 'element' && node.children?.length) {
         return firstLeaf({
             parent: iter,
             nodes: node.children,
@@ -41,13 +49,13 @@ export function findPath(iter: BooqNodeIterator, path: BooqPath): BooqNodeIterat
         return curr;
     } else {
         const node = iteratorsNode(curr);
-        if (!node?.children?.length) {
+        if (node.kind !== 'element' || !node?.children?.length) {
             return undefined;
         }
         const childrenIter = {
             parent: curr,
             index: 0,
-            nodes: [],
+            nodes: node.children,
         };
         return findPath(childrenIter, tail);
     }

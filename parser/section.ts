@@ -1,11 +1,12 @@
-import { BooqNode, flatten, BooqNodeStyle } from '../core';
+import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core';
 import {
-    xmlStringParser, xml2string, XmlElement, XmlDocument, Xml, isWhitespaces,
+    xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
 import { EpubSection, EpubFile } from './epubFile';
-import { parseCss, Stylesheet, StyleRule, parseInlineStyle } from './css';
+import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
 import { Result, Diagnostic } from './result';
-import { selectXml } from './selectors';
+import { transformHref } from './parserUtils';
+import { capitalize } from 'lodash';
 
 export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -33,67 +34,20 @@ type Env = {
     resolveTextFile: (href: string) => Promise<string | undefined>,
 };
 
-async function processSectionContent(content: string, env: Env) {
-    const { value, diags } = xmlStringParser({
-        xmlString: content,
-        removeTrailingWhitespaces: false,
-    });
-    diags.forEach(d => env.report(d));
-    return value && processDocument(value, env);
-}
-
-async function processDocument(document: XmlDocument, env: Env) {
-    let html: XmlElement | undefined = undefined;
-    for (const ch of document.children) {
-        if (ch.name === 'html') {
-            html = ch;
-        } else {
-            env.report({
-                diag: 'unexpected root element',
-                data: { xml: xml2string(ch) },
-            });
-        }
-    }
-    if (html === undefined) {
-        env.report({
-            diag: 'no html element',
-            data: { xml: xml2string(document) },
-        });
-        return undefined;
-    } else {
-        return processHtml(html, env);
-    }
-}
-
-
-async function processHtml(html: XmlElement, env: Env) {
-    let body: XmlElement | undefined = undefined;
-    let head: XmlElement | undefined = undefined;
-    for (const ch of html.children) {
-        switch (ch.name) {
-            case 'body':
-                body = ch;
-                break;
-            case 'head':
-                head = ch;
-                break;
-            default:
-                if (!isEmptyText(ch)) {
-                    env.report({
-                        diag: 'unexpected node in <html>',
-                        data: { xml: xml2string(ch) },
-                    });
-                }
-        }
-    }
+async function processSectionContent(content: string, env: Env): Promise<BooqNode | undefined> {
+    const elements = xmlStringParser(content);
+    const head = findByName(elements, 'head');
+    const body = findByName(elements, 'body');
     if (!body) {
         env.report({
             diag: 'missing body node',
-            data: { xml: xml2string(html) },
+            data: { xml: xml2string(...elements) },
         });
         return undefined;
     } else {
-        const stylesheet = head && await processHead(head, env);
+        const stylesheet = head?.name !== undefined
+            ? await processHead(head, env)
+            : undefined;
         return processBody(body, {
             ...env,
             stylesheet: stylesheet ?? env.stylesheet,
@@ -103,15 +57,15 @@ async function processHtml(html: XmlElement, env: Env) {
 
 async function processHead(head: XmlElement, env: Env) {
     const rules: StyleRule[] = [];
-    for (const ch of head.children) {
-        switch (ch.name) {
+    for (const ch of childrenOf(head)) {
+        switch (nameOf(ch)) {
             case 'link': {
                 const fromLink = await processLink(ch, env);
                 rules.push(...fromLink);
                 break;
             }
             case 'style': {
-                const fromStyle = await processStyle(ch, env);
+                const fromStyle = await processStyleElement(ch, env);
                 rules.push(...fromStyle);
                 break;
             }
@@ -132,7 +86,7 @@ async function processHead(head: XmlElement, env: Env) {
 }
 
 async function processLink(link: XmlElement, env: Env) {
-    const { rel, href, type } = link.attributes;
+    const { rel, href, type } = attributesOf(link);
     switch (rel?.toLowerCase()) {
         case 'stylesheet':
             break;
@@ -178,97 +132,140 @@ async function processLink(link: XmlElement, env: Env) {
     }
 }
 
-async function processStyle(style: XmlElement, env: Env) {
-    const content = style.children[0];
-    if (style.attributes.type !== 'text/css' || style.children.length !== 1 || content.type !== 'text') {
+async function processStyleElement(style: XmlElement, env: Env) {
+    const [content] = childrenOf(style);
+    const { type } = attributesOf(style);
+    const text = content && textOf(content);
+    if (type !== 'text/css' || text === undefined) {
         env.report({
             diag: 'unsupported style tag',
             data: { xml: xml2string(style) },
         });
         return [];
     }
-    const { value, diags } = parseCss(content.text, `${env.fileName}: <style>`);
+    const { value, diags } = parseCss(text, `${env.fileName}: <style>`);
     diags.forEach(d => env.report(d));
     return value?.rules ?? [];
 }
 
-async function processBody(body: XmlElement, env: Env) {
-    const node = await processXml(body, env);
-    node.id = env.fileName;
-    return node;
+function processBody(body: XmlElement, env: Env) {
+    const node = processXml(body, env);
+    return node.kind === 'element'
+        ? {
+            ...node,
+            fileName: env.fileName,
+            name: 'div',
+        }
+        : node;
 }
 
-async function processXmls(xmls: Xml[], env: Env) {
-    return Promise.all(
-        xmls.map(n => processXml(n, env)),
-    );
+function processXmls(xmls: XmlElement[], env: Env) {
+    return xmls.map(n => processXml(n, env));
 }
 
-async function processXml(xml: Xml, env: Env): Promise<BooqNode> {
-    switch (xml.type) {
-        case 'text':
-            return {
-                content: xml.text,
-            };
-        case 'element':
-            return processXmlElement(xml, env);
+function processXml(element: XmlElement, env: Env): BooqNode {
+    const {
+        text,
+        name, children,
+        attributes,
+    } = asObject(element);
+    if (text !== undefined) {
+        return { kind: 'text', content: text };
+    } else if (name) {
+        const { id, class: _, style: __, ...rest } = attributes ?? {};
+        const result: BooqElementNode = {
+            kind: 'element',
+            name,
+            id: processId(id, env),
+            style: processStyle(element, env),
+            attrs: processAttributes(rest, env),
+            children: children?.length
+                ? processXmls(children, env)
+                : undefined,
+        };
+        return result;
+    } else {
+        return {
+            kind: 'stub',
+            length: 0,
+        };
+    }
+}
+
+function processId(id: string | undefined, env: Env) {
+    return id
+        ? `${env.fileName}/${id}`
+        : undefined;
+}
+
+function processStyle(element: XmlElement, env: Env) {
+    const input = applyRules(element, env.stylesheet.rules);
+    const style: BooqNodeStyle = {};
+    for (const [property, value] of Object.entries(input)) {
+        switch (property) {
+            case 'background': case 'background-color':
+                if (isWhiteColor(value)) {
+                    continue;
+                }
+                break;
+            case 'color':
+                if (isBlackColor(value)) {
+                    continue;
+                }
+        }
+        style[translatePropertyName(property)] = value;
+    }
+    return Object.keys(style).length > 0
+        ? style
+        : undefined;
+}
+
+function isWhiteColor(color: string | undefined) {
+    switch (color) {
+        case 'white': case '#fff': case '#ffffff':
+            return true;
         default:
-            env.report({
-                diag: 'unexpected node',
-                data: { xml: xml2string(xml) },
-            });
-            return {};
+            return false;
     }
 }
 
-async function processXmlElement(element: XmlElement, env: Env): Promise<BooqNode> {
-    const result: BooqNode = {};
-    const { id, class: _, style: __, ...rest } = element.attributes;
-    if (id !== undefined) {
-        result.id = id;
+function isBlackColor(color: string | undefined) {
+    switch (color) {
+        case 'black': case '#000': case '#000000':
+            return true;
+        default:
+            return false;
     }
-    const style = getStyle(element, env);
-    if (style) {
-        result.style = style;
-    }
-    if (Object.keys(rest).length > 0) {
-        result.attrs = rest;
-    }
-    if (element.children) {
-        const children = await processXmls(element.children, env);
-        result.children = children;
-    }
+}
+
+function translatePropertyName(property: string): string {
+    const comps = property.split('-');
+    const result = comps.reduce((res, c) => res + capitalize(c));
     return result;
 }
 
-function getStyle(xml: Xml, env: Env) {
-    const rules = getRules(xml, env);
-    const declarations = flatten(rules.map(r => r.content));
-    if (declarations.length === 0) {
-        return undefined;
-    }
-    const style: BooqNodeStyle = {};
-    for (const decl of declarations) {
-        style[decl.property] = decl.value;
-    }
-    return style;
+function processAttributes(attrs: XmlAttributes, env: Env) {
+    const entries = Object
+        .entries(attrs)
+        .map(([key, value]): [string, string | undefined] => {
+            switch (key) {
+                case 'colspan':
+                    return ['colSpan', value];
+                case 'rowspan':
+                    return ['rowSpan', value];
+                case 'href':
+                    return ['href', value ? transformHref(value) : undefined];
+                default:
+                    return [key, value];
+            }
+        });
+    return entries.length
+        ? Object.fromEntries(entries)
+        : undefined;
 }
 
-function getRules(xml: Xml, env: Env) {
-    const cssRules = env.stylesheet.rules.filter(
-        rule => selectXml(xml, rule.selector),
-    );
-    const inline = xml.attributes?.style;
-    if (inline) {
-        const { value, diags } = parseInlineStyle(inline, `${env.fileName}: <${xml.name} style>`);
-        diags.forEach(d => env.report(d));
-        const inlineRules = value ?? [];
-        return [...cssRules, ...inlineRules];
-    } else {
-        return cssRules;
-    }
-}
-
-function isEmptyText(xml: Xml) {
-    return xml.type === 'text' && isWhitespaces(xml.text);
+function isEmptyText(xml: XmlElement) {
+    const text = textOf(xml);
+    return text !== undefined && text.match(/^\s*$/)
+        ? true : false;
 }

@@ -1,36 +1,32 @@
 import {
-    BooqNode, TableOfContentsItem, iterateNodes, TableOfContents, BooqNodeIteratorValue,
+    BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core';
 import { EpubFile } from './epubFile';
 import { Diagnostic, Result } from './result';
+import { transformHref } from './parserUtils';
 
 export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Result<TableOfContents>> {
     const diags: Diagnostic[] = [];
     const items: TableOfContentsItem[] = [];
-    let epubToc = Array.from(file.toc());
-    const iter = iterateNodes(nodes);
-    let next = iter.next();
-    while (!next.done) {
-        const { node, path, position } = next.value as BooqNodeIteratorValue;
-        const epubItem = epubToc.find(i => i.href === node.id);
-        if (epubItem) {
-            items.push({
-                title: epubItem.title,
-                level: epubItem.level ?? 0,
-                position,
-                path,
-            });
-            epubToc = epubToc.filter(i => i !== epubItem);
+    for (const epubTocItem of file.toc()) {
+        if (epubTocItem.href) {
+            const targetId = transformHref(epubTocItem.href).substr(1);
+            const path = findPathForId(nodes, targetId);
+            if (path) {
+                items.push({
+                    title: epubTocItem.title,
+                    level: epubTocItem.level ?? 0,
+                    position: positionForPath(nodes, path),
+                    path,
+                });
+            } else {
+                diags.push({
+                    diag: 'Unresolved toc item',
+                    data: epubTocItem,
+                });
+            }
         }
-        next = iter.next();
     }
-    if (epubToc.length) {
-        diags.push({
-            diag: 'Unresolved toc items',
-            data: { epubToc },
-        });
-    }
-    const length = next.value;
     const title = typeof file.metadata.title === 'string'
         ? file.metadata.title
         : undefined;
@@ -39,8 +35,9 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
         value: {
             title,
             items,
-            length,
+            length: nodesLength(nodes), // TODO: implement
         },
         diags,
     };
 }
+

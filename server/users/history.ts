@@ -1,12 +1,12 @@
 import { flatten } from 'lodash';
-import { CurrentData, collection, DbUser } from './schema';
+import { BooqHistoryData, collection, DbUser } from './schema';
 
-export type DbCurrent = CurrentData & {
+export type DbBooqHistory = BooqHistoryData & {
     booqId: string,
     source: string,
 };
-export function userCurrents(user: DbUser): DbCurrent[] {
-    const results = Object.entries(user.currents ?? {}).map(
+export function userBooqHistory(user: DbUser): DbBooqHistory[] {
+    const results = Object.entries(user.history ?? {}).map(
         ([booqId, sourceData]) => Object.entries(sourceData).map(([source, data]) => ({
             booqId, source,
             ...data,
@@ -15,29 +15,29 @@ export function userCurrents(user: DbUser): DbCurrent[] {
     return flatten(flatten(results));
 }
 
-export async function addCurrent(
+export async function addBooqHistory(
     userId: string,
-    { booqId, source, ...data }: DbCurrent,
+    { booqId, source, ...data }: DbBooqHistory,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            [`currents.${booqId}.${source}`]: data,
+            [`history.${booqId}.${source}`]: data,
         },
     ).exec();
 
     return result ? true : false;
 }
 
-export async function deleteCurrent(
+export async function deleteBooqHistory(
     userId: string,
-    { booqId }: Pick<DbCurrent, 'booqId'>,
+    { booqId }: Pick<DbBooqHistory, 'booqId'>,
 ) {
     const result = await collection.findByIdAndUpdate(
         userId,
         {
             $unset: {
-                [`currents.${booqId}`]: '',
+                [`history.${booqId}`]: '',
             },
         },
     ).exec();

@@ -1,16 +1,17 @@
 import { ReadStream } from 'fs';
-import { userUploadsLib } from '../uploads';
-import { userUploads, processCard } from './libSources';
+import { processCard, sources } from './libSources';
 import { uploadBooqImages } from '../images';
 
-export async function uploadEpub(fileStream: ReadStream, userId: string) {
-    const result = await userUploadsLib.uploadEpub(fileStream, userId);
-    if (result) {
-        if (result.booq) {
-            uploadBooqImages(`uu/${result.card.id}`, result.booq);
+export async function uploadToSource(sourcePrefix: string, fileStream: ReadStream, userId: string) {
+    const uploadEpub = sources[sourcePrefix]?.uploadEpub;
+    if (uploadEpub) {
+        const result = await uploadEpub(fileStream, userId);
+        if (result) {
+            if (result.booq) {
+                uploadBooqImages(`${sourcePrefix}/${result.card.id}`, result.booq);
+            }
+            return processCard(sourcePrefix)(result.card);
         }
-        return processCard(userUploads)(result.card);
-    } else {
-        return undefined;
     }
+    return undefined;
 }

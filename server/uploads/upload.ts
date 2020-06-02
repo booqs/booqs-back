@@ -2,9 +2,8 @@ import { createHash } from 'crypto';
 import { ReadStream } from 'fs';
 import { inspect } from 'util';
 import { parseEpub } from '../../parser';
-import { booqLength, Booq } from '../../core';
+import { nodesLength, Booq, uuid } from '../../core';
 import { uploadAsset } from '../s3';
-import { uuid } from '../utils';
 import { addUpload } from '../users';
 import {
     uuCards, DbUuCard,
@@ -51,7 +50,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
     const subjects = typeof subject === 'string' ? [subject]
         : Array.isArray(subject) ? subject
             : [];
-    const length = booqLength(booq);
+    const length = nodesLength(booq.nodes);
     const doc: DbUuCard = {
         assetId,
         length,
