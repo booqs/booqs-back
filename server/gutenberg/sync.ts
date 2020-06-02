@@ -21,14 +21,20 @@ export async function* syncWithS3() {
 }
 
 async function processAsset(asset: Asset) {
-    if (!asset.Key) {
-        report('bad asset', asset);
-        return;
-    } else if (await recordExists(asset.Key)) {
-        report(`Skipping ${asset.Key}`);
+    try {
+        if (!asset.Key) {
+            report('bad asset', asset);
+            return;
+        } else if (await recordExists(asset.Key)) {
+            report(`Skipping ${asset.Key}`);
+            return;
+        }
+        const result = await downloadAndInsert(asset.Key);
+        return result;
+    } catch (e) {
+        report(`Promise rejection ${asset.Key}: ${e}`);
         return;
     }
-    return downloadAndInsert(asset.Key);
 }
 
 async function recordExists(assetId: string) {
