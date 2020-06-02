@@ -13,6 +13,7 @@ type Mutation {
     removeBookmark(id: ID!): Boolean
     addHighlight(highlight: HighlightInput!): Boolean
     removeHighlight(id: ID!): Boolean
+    updateHighlight(id: ID!, group: String): Boolean
     addBooqHistory(event: BooqHistoryInput!): Boolean
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean

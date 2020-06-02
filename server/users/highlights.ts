@@ -29,7 +29,21 @@ export async function deleteHighlight(
     const result = await collection.findByIdAndUpdate(
         userId,
         {
-            $unset: { [`highlights.${id}`]: '' },
+            $set: { [`highlights.${id}`]: '' },
+        },
+    ).exec();
+
+    return result ? true : false;
+}
+
+export async function updateHighlight(
+    userId: string,
+    { id, group }: Pick<DbHighlight, 'id' | 'group'>,
+) {
+    const result = await collection.findByIdAndUpdate(
+        userId,
+        {
+            $set: { [`highlights.${id}.group`]: group },
         },
     ).exec();
 

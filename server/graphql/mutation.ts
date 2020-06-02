@@ -3,7 +3,7 @@ import { IResolvers } from 'apollo-server';
 import { uuid } from '../../core';
 import {
     addBookmark, addHighlight, addBooqHistory,
-    deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection,
+    deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection, updateHighlight,
 } from '../users';
 import { Context } from './context';
 import { uploadToSource } from '../books';
@@ -34,8 +34,6 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async addHighlight(_, { highlight }, context) {
-            console.log(context);
-            console.log(highlight);
             if (context.user) {
                 return addHighlight(
                     context.user?._id,
@@ -55,6 +53,16 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return deleteHighlight(
                     context.user._id,
                     { id },
+                );
+            } else {
+                return false;
+            }
+        },
+        async updateHighlight(_, { id, group }, context) {
+            if (context.user) {
+                return updateHighlight(
+                    context.user._id,
+                    { id, group },
                 );
             } else {
                 return false;
