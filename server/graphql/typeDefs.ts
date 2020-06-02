@@ -98,11 +98,11 @@ type Highlight {
     group: String
 }
 type BooqHistory {
-    booq: Booq
-    path: [Int!]
+    booq: Booq!
+    path: [Int!]!
     source: String
     preview(length: Int = 500): String
-    position: Int
+    position: Int!
 }
 type Collection {
     booqs: [Booq!]
