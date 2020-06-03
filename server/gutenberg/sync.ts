@@ -26,7 +26,6 @@ async function processAsset(asset: Asset) {
             report('bad asset', asset);
             return;
         } else if (await recordExists(asset.Key)) {
-            report(`Skipping ${asset.Key}`);
             return;
         }
         const result = await downloadAndInsert(asset.Key);
