@@ -3,7 +3,7 @@ export const typeDefs = gql`
 type Query {
     auth(token: String!, provider: String!): AuthResult
     booq(id: ID!): Booq
-    search(query: String!): [Booq]
+    search(query: String!, limit: Int): [Booq]
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
