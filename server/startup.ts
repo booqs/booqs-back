@@ -21,7 +21,7 @@ export async function startup() {
 
 async function runWorkers() {
     // eslint-disable-next-line no-constant-condition
-    if (false) {
+    if (true) {
         booqsWorker();
     }
 }
