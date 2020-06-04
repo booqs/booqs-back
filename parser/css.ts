@@ -230,7 +230,11 @@ function parseSelector(selector: string): Result<Selector> {
     }
 }
 
+const ignorePseudo = [
+    ':after', ':before',
+    ':focus',
+    ':first-letter', ':first-line',
+];
 function supportedSelector(selector: string): boolean {
-    return !selector.endsWith(':after') && !selector.endsWith(':before')
-        && !selector.endsWith(':focus');
+    return !ignorePseudo.some(pseudo => selector.endsWith(pseudo));
 }
