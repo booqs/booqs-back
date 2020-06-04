@@ -155,6 +155,7 @@ function processBody(body: XmlElement, env: Env) {
             ...node,
             fileName: env.fileName,
             name: 'div',
+            style: undefined, // Note: ignore body-level styles
         }
         : node;
 }
