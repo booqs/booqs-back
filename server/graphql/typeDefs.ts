@@ -3,7 +3,7 @@ export const typeDefs = gql`
 type Query {
     auth(token: String!, provider: String!): AuthResult
     booq(id: ID!): Booq
-    search(query: String!): [Booq]
+    search(query: String!, limit: Int): [Booq]
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
@@ -98,11 +98,11 @@ type Highlight {
     group: String
 }
 type BooqHistory {
-    booq: Booq
-    path: [Int!]
+    booq: Booq!
+    path: [Int!]!
     source: String
     preview(length: Int = 500): String
-    position: Int
+    position: Int!
 }
 type Collection {
     booqs: [Booq!]

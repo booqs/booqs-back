@@ -11,8 +11,8 @@ export const queryResolver: IResolvers<any, Context> = {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id);
         },
-        async search(_, { query }): Promise<BooqParent[]> {
-            const results = await search(query, 100);
+        async search(_, { query, limit }): Promise<BooqParent[]> {
+            const results = await search(query, limit ?? 100);
             return results;
         },
         async auth(_, { token, provider }) {

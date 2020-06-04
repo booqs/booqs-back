@@ -155,6 +155,7 @@ function processBody(body: XmlElement, env: Env) {
             ...node,
             fileName: env.fileName,
             name: 'div',
+            style: undefined, // Note: ignore body-level styles
         }
         : node;
 }
@@ -249,6 +250,8 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
         .entries(attrs)
         .map(([key, value]): [string, string | undefined] => {
             switch (key) {
+                case 'xml:space':
+                    return ['xmlSpace', value];
                 case 'colspan':
                     return ['colSpan', value];
                 case 'rowspan':

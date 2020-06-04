@@ -1,8 +1,7 @@
 import { groupBy, flatten } from 'lodash';
-import { parseId, filterUndefined, makeId } from '../../core';
+import { parseId, filterUndefined } from '../../core';
 import { LibraryCard } from '../sources';
 import { sources, processCard } from './libSources';
-import { pgCards } from '../gutenberg/schema';
 
 export async function forId(id: string) {
     const [result] = await forIds([id]);
@@ -40,10 +39,21 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
 }
 
 export async function featuredIds(limit: number) {
-    return pgCards
-        .find()
-        .limit(limit)
-        .select('index')
-        .exec()
-        .then(rs => rs.map(r => makeId('pg', r.index)));
+    return [
+        'pg/55201',
+        'pg/1635',
+        'pg/3207',
+        'pg/2680',
+        'pg/11',
+        'pg/1661',
+        'pg/98',
+        'pg/174',
+        'pg/844',
+        'pg/203',
+        'pg/28054',
+        'pg/5740',
+        'pg/135',
+        'pg/1727',
+        'pg/4363',
+    ];
 }

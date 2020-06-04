@@ -4,6 +4,8 @@ import { openEpub } from './epubFile';
 import { processEpub } from './book';
 import { getMetadata } from './metadata';
 
+export * from './result';
+
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
     diagnoser?: Diagnoser,

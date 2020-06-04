@@ -135,7 +135,8 @@ function parseInlineStyle(style: string, fileName: string) {
 }
 
 function buildRule(rule: Rule): Result<StyleRule> {
-    const { value, diags } = combineResults(rule.selectors?.map(parseSelector) ?? []);
+    const supported = rule.selectors?.filter(supportedSelector) ?? [];
+    const { value, diags } = combineResults(supported.map(parseSelector));
     const selectors = filterUndefined(value ?? []);
     if (selectors.length === 0) {
         return { diags };
@@ -208,14 +209,32 @@ function isSelect(xml: XmlElement, selector: Selector) {
 }
 
 function parseSelector(selector: string): Result<Selector> {
-    const compiled = compile(selector);
-    const [specificity] = calculate(selector);
-    return {
-        value: {
-            selector,
-            compiled,
-            specificity: specificity.specificityArray,
-        },
-        diags: [],
-    };
+    try {
+        const compiled = compile(selector);
+        const [specificity] = calculate(selector);
+        return {
+            value: {
+                selector,
+                compiled,
+                specificity: specificity.specificityArray,
+            },
+            diags: [],
+        };
+    } catch (err) {
+        return {
+            diags: [{
+                diag: `Couldn't parse selector: ${selector}`,
+                data: err,
+            }],
+        };
+    }
+}
+
+const ignorePseudo = [
+    ':after', ':before',
+    ':focus',
+    ':first-letter', ':first-line',
+];
+function supportedSelector(selector: string): boolean {
+    return !ignorePseudo.some(pseudo => selector.endsWith(pseudo));
 }
