@@ -10,7 +10,7 @@ import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
 export async function* syncWithS3() {
     report('Syncing with S3');
 
-    const batches = makeBatches(listEpubObjects(), 1);
+    const batches = makeBatches(assetsToProcess(), 5);
     for await (const batch of batches) {
         const added = await Promise.all(
             batch.map(processAsset),
@@ -21,17 +21,27 @@ export async function* syncWithS3() {
     report('done syncing with S3');
 }
 
+async function* assetsToProcess() {
+    for await (const asset of listEpubObjects()) {
+        if (!asset.Key) {
+            report('bad asset', asset);
+            continue;
+        } if (await recordExists(asset.Key)) {
+            continue;
+        } else if (await hasProblems(asset.Key)) {
+            report('skipping asset with problems', asset.Key);
+            continue;
+        }
+        yield asset;
+    }
+}
+
 async function processAsset(asset: Asset) {
     if (!asset.Key) {
         report('bad asset', asset);
         return;
     }
     try {
-        if (await recordExists(asset.Key)) {
-            return;
-        } else if (await hasProblems(asset.Key)) {
-            return;
-        }
         const result = await downloadAndInsert(asset.Key);
         return result;
     } catch (e) {
