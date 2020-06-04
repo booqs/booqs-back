@@ -5,6 +5,7 @@ import { parseEpub } from '../../parser';
 import { makeBatches } from '../utils';
 import { listObjects, downloadAsset, Asset } from '../s3';
 import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
+import { logExists, logItem } from '../log';
 
 export async function* syncWithS3() {
     report('Syncing with S3');
@@ -21,23 +22,43 @@ export async function* syncWithS3() {
 }
 
 async function processAsset(asset: Asset) {
+    if (!asset.Key) {
+        report('bad asset', asset);
+        return;
+    }
     try {
-        if (!asset.Key) {
-            report('bad asset', asset);
+        if (await recordExists(asset.Key)) {
             return;
-        } else if (await recordExists(asset.Key)) {
+        } else if (await hasProblems(asset.Key)) {
             return;
         }
         const result = await downloadAndInsert(asset.Key);
         return result;
     } catch (e) {
         report(`Promise rejection ${asset.Key}: ${e}`);
+        logException(asset.Key, e);
         return;
     }
 }
 
 async function recordExists(assetId: string) {
     return pgCards.exists({ assetId });
+}
+
+async function hasProblems(assetId: string) {
+    return logExists({
+        kind: 'pg-sync',
+        id: assetId,
+    });
+}
+
+async function logException(assetId: string, err: object) {
+    return logItem({
+        kind: 'pg-sync',
+        id: assetId,
+        message: 'Exception while parsing',
+        data: err,
+    });
 }
 
 async function* listEpubObjects() {
