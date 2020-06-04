@@ -9,7 +9,7 @@ import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
 export async function* syncWithS3() {
     report('Syncing with S3');
 
-    const batches = makeBatches(listEpubObjects(), 5);
+    const batches = makeBatches(listEpubObjects(), 1);
     for await (const batch of batches) {
         const added = await Promise.all(
             batch.map(processAsset),
