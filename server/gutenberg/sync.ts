@@ -22,11 +22,12 @@ export async function* syncWithS3() {
 }
 
 async function* assetsToProcess() {
+    const existing = await existingAssetIds();
     for await (const asset of listEpubObjects()) {
         if (!asset.Key) {
             report('bad asset', asset);
             continue;
-        } if (await recordExists(asset.Key)) {
+        } if (existing.some(id => id === asset.Key)) {
             continue;
         } else if (await hasProblems(asset.Key)) {
             report('skipping asset with problems', asset.Key);
@@ -51,8 +52,12 @@ async function processAsset(asset: Asset) {
     }
 }
 
-async function recordExists(assetId: string) {
-    return pgCards.exists({ assetId });
+async function existingAssetIds() {
+    const all = await pgCards
+        .find()
+        .select('assetId')
+        .exec();
+    return all.map(d => d.assetId);
 }
 
 async function hasProblems(assetId: string) {
