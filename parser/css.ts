@@ -231,5 +231,6 @@ function parseSelector(selector: string): Result<Selector> {
 }
 
 function supportedSelector(selector: string): boolean {
-    return !selector.endsWith(':after') && !selector.endsWith(':before');
+    return !selector.endsWith(':after') && !selector.endsWith(':before')
+        && !selector.endsWith(':focus');
 }
