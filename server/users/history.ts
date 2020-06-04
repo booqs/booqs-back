@@ -12,7 +12,9 @@ export function userBooqHistory(user: DbUser): DbBooqHistory[] {
             ...data,
         })),
     );
-    return flatten(flatten(results));
+    const flat = flatten(flatten(results));
+    const sorted = flat.sort((a, b) => b.date.valueOf() - a.date.valueOf());
+    return sorted;
 }
 
 export async function addBooqHistory(
