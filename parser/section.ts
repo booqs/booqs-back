@@ -250,6 +250,8 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
         .entries(attrs)
         .map(([key, value]): [string, string | undefined] => {
             switch (key) {
+                case 'xml:space':
+                    return ['xmlSpace', value];
                 case 'colspan':
                     return ['colSpan', value];
                 case 'rowspan':
