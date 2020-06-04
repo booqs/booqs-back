@@ -40,7 +40,10 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
 
 export async function featuredIds(limit: number) {
     return [
+        'pg/55201',
         'pg/1635',
+        'pg/3207',
+        'pg/2680',
         'pg/11',
         'pg/1661',
         'pg/98',
@@ -50,7 +53,6 @@ export async function featuredIds(limit: number) {
         'pg/28054',
         'pg/5740',
         'pg/135',
-        'pg/2680',
         'pg/1727',
         'pg/4363',
     ];
