@@ -1,11 +1,11 @@
 import { inspect } from 'util';
 import { flatten, uniq } from 'lodash';
 import { Booq, nodesLength, filterUndefined } from '../../core';
-import { parseEpub } from '../../parser';
+import { parseEpub, Diagnostic } from '../../parser';
 import { makeBatches } from '../utils';
 import { listObjects, downloadAsset, Asset } from '../s3';
-import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
 import { logExists, logItem } from '../log';
+import { pgCards, DbPgCard, pgEpubsBucket } from './schema';
 
 export async function* syncWithS3() {
     report('Syncing with S3');
@@ -36,7 +36,7 @@ async function processAsset(asset: Asset) {
         return result;
     } catch (e) {
         report(`Promise rejection ${asset.Key}: ${e}`);
-        logException(asset.Key, e);
+        logProblem(asset.Key, 'Unhandled exception', e);
         return;
     }
 }
@@ -52,11 +52,11 @@ async function hasProblems(assetId: string) {
     });
 }
 
-async function logException(assetId: string, err: object) {
+async function logProblem(assetId: string, message: string, err: any) {
     return logItem({
         kind: 'pg-sync',
+        message,
         id: assetId,
-        message: 'Exception while parsing',
         data: err,
     });
 }
@@ -69,17 +69,17 @@ async function downloadAndInsert(assetId: string) {
     report(`Processing ${assetId}`);
     const asset = await downloadAsset(pgEpubsBucket, assetId);
     if (!asset) {
-        report(`Couldn't load pg asset: ${asset}`);
+        report(`Couldn't load pg asset: ${assetId}`);
         return;
     }
+    const diags: Diagnostic[] = [];
     const booq = await parseEpub({
         fileData: asset as any,
-        diagnoser: diag => {
-            report(diag.diag, diag.data);
-        },
+        diagnoser: diag => diags.push(diag),
     });
     if (!booq) {
         report(`Couldn't parse epub: ${assetId}`);
+        await logProblem(assetId, 'Parsing errors', diags);
         return;
     }
     const document = await insertRecord(booq, assetId);
@@ -96,7 +96,8 @@ async function downloadAndInsert(assetId: string) {
 async function insertRecord(booq: Booq, assetId: string) {
     const index = indexFromAssetId(assetId);
     if (index === undefined) {
-        report(`Invalid asset ig: ${assetId}`);
+        report(`Invalid asset id: ${assetId}`);
+        await logProblem(assetId, 'Bad asset id', assetId);
         return undefined;
     }
     const {
