@@ -27,7 +27,7 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
 }
 
 export async function fileForId(id: string) {
-    const doc = await uuCards.findOne({ index: id }).exec();
+    const doc = await uuCards.findOne({ _id: id }).exec();
     if (!doc) {
         return undefined;
     } else {
