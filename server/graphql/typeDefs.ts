@@ -18,7 +18,7 @@ type Mutation {
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
-    uploadEpub(file: Upload!): Booq
+    uploadEpub(file: Upload!, source: String!): Booq
 }
 
 type Booq {

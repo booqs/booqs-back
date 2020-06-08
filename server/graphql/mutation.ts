@@ -10,10 +10,10 @@ import { uploadToSource } from '../books';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
-        async addBookmark(_, { bookmark }, context) {
-            if (context.user) {
+        async addBookmark(_, { bookmark }, { user }) {
+            if (user) {
                 return addBookmark(
-                    context.user?._id,
+                    user._id,
                     {
                         id: bookmark.id ?? uuid(),
                         booqId: bookmark.booqId,
@@ -23,20 +23,20 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeBookmark(_, { id }, context) {
-            if (context.user) {
+        async removeBookmark(_, { id }, { user }) {
+            if (user) {
                 return deleteBookmark(
-                    context.user._id,
+                    user._id,
                     { id },
                 );
             } else {
                 return false;
             }
         },
-        async addHighlight(_, { highlight }, context) {
-            if (context.user) {
+        async addHighlight(_, { highlight }, { user }) {
+            if (user) {
                 return addHighlight(
-                    context.user?._id,
+                    user._id,
                     {
                         id: highlight.id ?? uuid(),
                         booqId: highlight.booqId,
@@ -48,30 +48,30 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeHighlight(_, { id }, context) {
-            if (context.user) {
+        async removeHighlight(_, { id }, { user }) {
+            if (user) {
                 return deleteHighlight(
-                    context.user._id,
+                    user._id,
                     { id },
                 );
             } else {
                 return false;
             }
         },
-        async updateHighlight(_, { id, group }, context) {
-            if (context.user) {
+        async updateHighlight(_, { id, group }, { user }) {
+            if (user) {
                 return updateHighlight(
-                    context.user._id,
+                    user._id,
                     { id, group },
                 );
             } else {
                 return false;
             }
         },
-        async addBooqHistory(_, { event }, context) {
-            if (context.user?._id) {
+        async addBooqHistory(_, { event }, { user }) {
+            if (user) {
                 return addBooqHistory(
-                    context.user?._id,
+                    user._id,
                     {
                         booqId: event.booqId,
                         path: event.path,
@@ -82,10 +82,10 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async removeBooqHistory(_, { booqId }, context) {
-            if (context.user) {
+        async removeBooqHistory(_, { booqId }, { user }) {
+            if (user) {
                 return deleteBooqHistory(
-                    context.user._id,
+                    user._id,
                     { booqId },
                 );
             } else {
@@ -114,12 +114,23 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return false;
             }
         },
-        async uploadEpub(_, { file }, { user }) {
+        async uploadEpub(_, { file, source }, { user }) {
             if (user?._id) {
                 const actual = await file;
                 const stream: ReadStream = actual.createReadStream();
                 const card = await uploadToSource('uu', stream, user._id);
-                return card;
+                if (card) {
+                    addBooqHistory(
+                        user?._id,
+                        {
+                            booqId: card.id,
+                            path: [0],
+                            source: source,
+                            date: new Date(Date.now()),
+                        },
+                    );
+                    return card;
+                }
             }
 
             return undefined;
