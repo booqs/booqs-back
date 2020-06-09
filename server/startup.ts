@@ -10,7 +10,10 @@ export async function startup() {
         typeDefs,
         resolvers,
         context,
-        cors: true,
+        cors: {
+            origin: '*',
+            credentials: true,
+        },
     });
     const { url } = await server.listen({
         port: process.env.PORT || 4000,

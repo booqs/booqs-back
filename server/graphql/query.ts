@@ -15,12 +15,13 @@ export const queryResolver: IResolvers<any, Context> = {
             const results = await search(query, limit ?? 100);
             return results;
         },
-        async auth(_, { token, provider }) {
+        async auth(_, { token, provider }, { setAuthToken }) {
             const result = await authWithToken({
                 provider,
                 token,
             });
             if (result) {
+                setAuthToken(result.token);
                 return {
                     token: result.token,
                     name: result.user.name,

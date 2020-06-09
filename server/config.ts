@@ -4,5 +4,6 @@ export function config() {
         awsAccessKeyId: process.env.BOOQS_AWS_ACCESS_KEY_ID,
         awsSecretKey: process.env.BOOQS_AWS_SECRET_ACCESS_KEY,
         mongodbUri: process.env.BOOQS_BACKEND_MONGODB_URI,
+        https: process.env.NODE_ENV !== 'development',
     };
 }
