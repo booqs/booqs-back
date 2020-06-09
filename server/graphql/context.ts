@@ -5,6 +5,7 @@ type CookieOptions = {
     httpOnly?: boolean,
     domain?: string,
     secure?: boolean,
+    maxAge?: number,
 };
 type ExpressContext = {
     req: {
@@ -21,7 +22,7 @@ type ExpressContext = {
 };
 export type Context = {
     user?: DbUser & { _id: string },
-    setAuthToken(token: string): void,
+    setAuthToken(token: string | undefined): void,
 };
 export async function context(context: ExpressContext): Promise<Context> {
     const header = context.req.cookies.token ?? '';
@@ -30,11 +31,21 @@ export async function context(context: ExpressContext): Promise<Context> {
     return {
         user,
         setAuthToken(token) {
-            context.res.cookie('token', token, {
-                httpOnly: true,
-                // TODO: set 'domain' property
-            });
-            context.res.cookie('signed', 'true', {});
+            if (token) {
+                context.res.cookie('token', token, {
+                    httpOnly: true,
+                    // TODO: set 'domain' property
+                });
+                context.res.cookie('signed', 'true', {});
+            } else {
+                context.res.cookie('token', '', {
+                    httpOnly: true,
+                    maxAge: 0,
+                });
+                context.res.cookie('signed', 'false', {
+                    maxAge: 0,
+                });
+            }
         },
     };
 }

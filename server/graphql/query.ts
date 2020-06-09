@@ -31,6 +31,10 @@ export const queryResolver: IResolvers<any, Context> = {
                 return undefined;
             }
         },
+        logout(_, __, { setAuthToken }) {
+            setAuthToken(undefined);
+            return true;
+        },
         history(_, __, { user }): BooqHistoryParent[] {
             const result = user
                 ? userBooqHistory(user)

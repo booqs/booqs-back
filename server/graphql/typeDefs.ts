@@ -2,6 +2,7 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
 type Query {
     auth(token: String!, provider: String!): AuthResult
+    logout: Boolean
     booq(id: ID!): Booq
     search(query: String!, limit: Int): [Booq]
     history: [BooqHistory]
