@@ -153,7 +153,7 @@ function processBody(body: XmlElement, env: Env) {
     return node.kind === 'element'
         ? {
             ...node,
-            fileName: env.fileName,
+            id: env.fileName,
             name: 'div',
             style: undefined, // Note: ignore body-level styles
         }
