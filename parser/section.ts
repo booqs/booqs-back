@@ -252,6 +252,8 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
             switch (key) {
                 case 'xml:space':
                     return ['xmlSpace', value];
+                case 'xml:lang':
+                    return ['xmlLang', value];
                 case 'colspan':
                     return ['colSpan', value];
                 case 'rowspan':
