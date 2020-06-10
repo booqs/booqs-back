@@ -11,7 +11,7 @@ export async function startup() {
         resolvers,
         context,
         cors: {
-            origin: '*',
+            origin: true,
             credentials: true,
         },
     });

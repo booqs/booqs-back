@@ -12,12 +12,13 @@ type ExpressContext = {
         headers: {
             authorization?: string,
         },
-        cookies: {
+        cookies?: {
             token?: string,
         },
     },
     res: {
         cookie(name: string, val: string, options?: CookieOptions): void,
+        clearCookie(name: string, options?: any): void,
     },
 };
 export type Context = {
@@ -25,8 +26,8 @@ export type Context = {
     setAuthToken(token: string | undefined): void,
 };
 export async function context(context: ExpressContext): Promise<Context> {
-    const header = context.req.cookies.token ?? '';
-    const user = await fromCookie(header) ?? undefined;
+    const cookie = context.req.cookies?.token ?? '';
+    const user = await fromCookie(cookie) ?? undefined;
 
     return {
         user,
@@ -38,13 +39,8 @@ export async function context(context: ExpressContext): Promise<Context> {
                 });
                 context.res.cookie('signed', 'true', {});
             } else {
-                context.res.cookie('token', '', {
-                    httpOnly: true,
-                    maxAge: 0,
-                });
-                context.res.cookie('signed', 'false', {
-                    maxAge: 0,
-                });
+                context.res.clearCookie('token');
+                context.res.clearCookie('signed');
             }
         },
     };
