@@ -11,9 +11,7 @@ type ExpressContext = {
     req: {
         headers: {
             authorization?: string,
-        },
-        cookies?: {
-            token?: string,
+            cookie?: string,
         },
     },
     res: {
@@ -26,7 +24,8 @@ export type Context = {
     setAuthToken(token: string | undefined): void,
 };
 export async function context(context: ExpressContext): Promise<Context> {
-    const cookie = context.req.cookies?.token ?? '';
+    const parsed = parseCookies(context.req.headers.cookie ?? '');
+    const cookie = parsed.token ?? '';
     const user = await fromCookie(cookie) ?? undefined;
 
     return {
@@ -44,5 +43,18 @@ export async function context(context: ExpressContext): Promise<Context> {
             }
         },
     };
+}
+
+function parseCookies(cookie: string) {
+    const pairs = cookie.split('; ');
+    const result = pairs.reduce<{ [key: string]: string | undefined }>(
+        (res, pair) => {
+            const [name, value] = pair.split('=');
+            res[name] = value;
+            return res;
+        },
+        {},
+    );
+    return result;
 }
 
