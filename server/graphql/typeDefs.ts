@@ -97,6 +97,7 @@ type Highlight {
     start: [Int!]!
     end: [Int!]!
     group: String
+    text: String
 }
 type BooqHistory {
     booq: Booq!

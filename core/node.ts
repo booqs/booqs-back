@@ -1,9 +1,20 @@
 import { BooqNode, BooqRange, BooqPath } from './model';
-import {
-    findPath, rootIterator, firstLeaf, iteratorsNode, nextNode,
-} from './iterator';
 import { nodeLength } from './position';
-import { assertNever } from './misc';
+
+export function nodeForPath(nodes: BooqNode[], path: BooqPath): BooqNode | undefined {
+    const [head, ...tail] = path;
+    if (!head || head >= nodes.length) {
+        return undefined;
+    }
+    const node = nodes[head];
+    if (tail.length === 0) {
+        return node;
+    } else if (node.kind === 'element') {
+        return nodeForPath(node.children ?? [], tail);
+    } else {
+        return undefined;
+    }
+}
 
 export function nodesForRange(nodes: BooqNode[], range: BooqRange): BooqNode[] {
     const [startHead, ...startTail] = range.start;
@@ -72,39 +83,4 @@ export function findPathForId(nodes: BooqNode[], targetId: string): BooqPath | u
         }
     }
     return undefined;
-}
-
-export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number) {
-    let iter = findPath(rootIterator(nodes), path);
-    if (!iter) {
-        return undefined;
-    }
-    iter = firstLeaf(iter);
-    let preview = '';
-    while (iter) {
-        const node = iteratorsNode(iter);
-        preview += node.kind === 'text'
-            ? node.content
-            : '';
-        if (preview.trim().length >= length) {
-            return preview.trim();
-        }
-        iter = nextNode(iter);
-        iter = iter && firstLeaf(iter);
-    }
-    return preview.trim();
-}
-
-export function nodeText(node: BooqNode): string {
-    switch (node.kind) {
-        case 'element':
-            return node.children?.map(nodeText).join('') ?? '';
-        case 'text':
-            return node.content;
-        case 'stub':
-            return '';
-        default:
-            assertNever(node);
-            return '';
-    }
 }
