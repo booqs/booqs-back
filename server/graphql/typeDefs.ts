@@ -72,9 +72,9 @@ type BooqAnchor {
 
 type TocItem {
     path: [Int!]!
-    position: Int
-    title: String
-    level: Int
+    position: Int!
+    title: String!
+    level: Int!
 }
 
 type Tag {
