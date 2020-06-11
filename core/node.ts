@@ -37,7 +37,7 @@ export function nodesForRange(nodes: BooqNode[], range: BooqRange): BooqNode[] {
                         start: startTail,
                         end: actualEnd === idx && endTail.length > 0
                             ? endTail
-                            : undefined,
+                            : [node.children.length],
                     }),
                 });
             } else {
