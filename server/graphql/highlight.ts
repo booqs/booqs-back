@@ -1,8 +1,8 @@
 import { IResolvers } from 'apollo-server';
+import { textForRange } from '../../core';
 import { DbHighlight } from '../users';
 import { forId, booqForId } from '../books';
 import { BooqParent } from './booq';
-import { textForRange } from '../../core';
 
 export type HighlightParent = DbHighlight;
 export const highlightResolver: IResolvers<HighlightParent> = {
@@ -13,12 +13,13 @@ export const highlightResolver: IResolvers<HighlightParent> = {
         async text(parent) {
             const booq = await booqForId(parent.booqId);
             if (booq) {
-                return textForRange(booq.nodes, {
+                const text = textForRange(booq.nodes, {
                     start: parent.start,
                     end: parent.end,
                 });
+                return text ?? '<no-text>';
             }
-            return '<error>';
+            return '<no-booq>';
         },
     },
 };

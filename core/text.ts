@@ -1,6 +1,6 @@
 import { BooqNode, BooqRange, BooqPath } from './model';
 import {
-    findPath, rootIterator, firstLeaf, iteratorsNode, nextNode,
+    findPath, rootIterator, firstLeaf, iteratorsNode, nextLeaf,
 } from './iterator';
 import { assertNever } from './misc';
 
@@ -18,6 +18,10 @@ export function nodeText(node: BooqNode): string {
     }
 }
 
+export function nodesText(nodes: BooqNode[]): string {
+    return nodes.map(nodeText).join('');
+}
+
 export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number) {
     let iter = findPath(rootIterator(nodes), path);
     if (!iter) {
@@ -33,13 +37,65 @@ export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number
         if (preview.trim().length >= length) {
             return preview.trim();
         }
-        iter = nextNode(iter);
-        iter = iter && firstLeaf(iter);
+        iter = nextLeaf(iter);
     }
     return preview.trim();
 }
 
-export function textForRange(nodes: BooqNode[], { start, end }: BooqRange): string {
-    // TODO: implement
-    return '';
+export function textForRange(nodes: BooqNode[], { start, end }: BooqRange): string | undefined {
+    const [startHead, ...startTail] = start;
+    const [endHead, ...endTail] = end;
+    if (startHead === undefined || endHead === undefined || startHead >= nodes.length || endHead < startHead) {
+        return undefined;
+    }
+
+    let result = '';
+    const startNode = nodes[startHead];
+    if (startNode.kind === 'element') {
+        const startText = textForRange(startNode.children ?? [], {
+            start: startTail,
+            end: startHead === endHead
+                ? endTail
+                : [startNode.children?.length ?? 1],
+        });
+        if (startText) {
+            result += startText;
+        } else {
+            return undefined;
+        }
+    } else if (startNode.kind === 'text') {
+        if (startTail.length <= 1) {
+            result += startNode.content.substring(
+                startTail[0] ?? 0,
+                startHead === endHead && endTail.length > 0
+                    ? endTail[0]
+                    : startNode.content.length,
+            );
+        } else {
+            return undefined;
+        }
+    } else {
+        return undefined;
+    }
+    for (let idx = startHead + 1; idx < endHead; idx++) {
+        result += nodeText(nodes[idx]);
+    }
+    const endNode = nodes[endHead];
+    if (startHead !== endHead && endNode) {
+        if (endNode.kind === 'element') {
+            const endText = textForRange(endNode.children ?? [], {
+                start: [0],
+                end: endTail,
+            });
+            if (endText) {
+                result += endText;
+            }
+        } else if (endNode.kind === 'text') {
+            if (endTail.length === 1) {
+                result += endNode.content.substring(0, endTail[0]);
+            }
+        }
+    }
+
+    return result;
 }

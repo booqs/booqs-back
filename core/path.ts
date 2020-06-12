@@ -60,7 +60,7 @@ export function rangeFromString(rangeString: string): BooqRange | undefined {
     const [startPart, endPart] = rangeString.split(rangeSeparator);
     const start = startPart !== undefined ? pathFromString(startPart) : undefined;
     const end = endPart !== undefined ? pathFromString(endPart) : undefined;
-    return start
+    return start && end
         ? { start, end }
         : undefined;
 }

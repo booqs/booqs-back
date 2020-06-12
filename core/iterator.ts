@@ -94,3 +94,8 @@ export function prevNode(iter: BooqNodeIterator): BooqNodeIterator | undefined {
         return undefined;
     }
 }
+
+export function nextLeaf(iter: BooqNodeIterator): BooqNodeIterator | undefined {
+    const node = nextNode(iter);
+    return node && firstLeaf(node);
+}
