@@ -52,7 +52,7 @@ function fragmentForPath(booq: Booq, path: BooqPath): BooqFragment {
     }
     const nodes = nodesForRange(booq.nodes, {
         start: current.path,
-        end: next?.path,
+        end: next?.path ?? [booq.nodes.length],
     });
 
     return {

@@ -6,7 +6,7 @@ export type BooqId = {
 export type BooqPath = number[];
 export type BooqRange = {
     start: BooqPath,
-    end?: BooqPath,
+    end: BooqPath,
 };
 
 export type BooqNodeAttrs = {
