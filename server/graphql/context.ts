@@ -1,5 +1,6 @@
 import { fromCookie } from '../auth';
 import { DbUser } from '../users';
+import { config } from '../config';
 
 type CookieOptions = {
     httpOnly?: boolean,
@@ -37,6 +38,7 @@ export async function context(context: ExpressContext): Promise<Context> {
             if (token) {
                 context.res.cookie('token', token, {
                     httpOnly: true,
+                    secure: config().https ? true : false,
                     // TODO: set 'domain' property
                 });
                 context.res.cookie('signed', 'true', {});
