@@ -27,6 +27,8 @@ export async function context(context: ExpressContext): Promise<Context> {
     const parsed = parseCookies(context.req.headers.cookie ?? '');
     const cookie = parsed.token ?? '';
     const user = await fromCookie(cookie) ?? undefined;
+    console.log(cookie ? 'cookie set' : 'cookie is not set');
+    console.log(user);
 
     return {
         user,
