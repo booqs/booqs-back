@@ -1,6 +1,6 @@
 import { IResolvers } from 'apollo-server';
 import { textForRange } from '../../core';
-import { DbHighlight } from '../users';
+import { DbHighlight } from '../highlights';
 import { forId, booqForId } from '../books';
 import { BooqParent } from './booq';
 

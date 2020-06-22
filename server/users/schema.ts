@@ -13,7 +13,6 @@ const schema = {
     },
     pictureUrl: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
-    highlights: taggedObject<StringMap<HighlightData>>(),
     history: taggedObject<StringMap<StringMap<BooqHistoryData>>>(),
     collections: [String],
 } as const;
