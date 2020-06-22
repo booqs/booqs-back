@@ -83,8 +83,11 @@ type Tag {
 }
 type AuthResult {
     token: String!
+    user: User
+}
+type User {
     name: String!
-    profilePicture: String
+    pictureUrl: String
 }
 type Bookmark {
     booq: Booq

@@ -24,8 +24,7 @@ export const queryResolver: IResolvers<any, Context> = {
                 setAuthToken(result.token);
                 return {
                     token: result.token,
-                    name: result.user.name,
-                    profilePicture: result.user.pictureUrl,
+                    user: result.user,
                 };
             } else {
                 return undefined;
