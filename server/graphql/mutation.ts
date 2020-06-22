@@ -1,6 +1,6 @@
 import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
-import { uuid } from '../../core';
+import { uniqueId } from '../../core';
 import {
     addBookmark, deleteBookmark,
     addToCollection, removeFromCollection,
@@ -17,7 +17,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return addBookmark(
                     user._id,
                     {
-                        id: bookmark.id ?? uuid(),
+                        id: bookmark.id ?? uniqueId(),
                         booqId: bookmark.booqId,
                         path: bookmark.path,
                     });
@@ -39,7 +39,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             if (user?._id) {
                 return highlights.add({
                     userId: user._id,
-                    uuid: highlight.id,
+                    id: highlight.id,
                     booqId: highlight.booqId,
                     start: highlight.start,
                     end: highlight.end,
@@ -53,7 +53,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             if (user) {
                 return highlights.remove({
                     userId: user._id,
-                    uuid: id,
+                    id: id,
                 });
             } else {
                 return false;
@@ -63,7 +63,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             if (user) {
                 return highlights.update({
                     userId: user._id,
-                    uuid: id,
+                    id: id,
                     group,
                 });
             } else {

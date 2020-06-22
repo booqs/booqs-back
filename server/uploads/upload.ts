@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { ReadStream } from 'fs';
 import { inspect } from 'util';
 import { parseEpub } from '../../parser';
-import { nodesLength, Booq, uuid } from '../../core';
+import { nodesLength, Booq, uniqueId } from '../../core';
 import { uploadAsset } from '../s3';
 import { addUpload } from '../users';
 import {
@@ -28,7 +28,7 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
         report('Can\'t parse upload');
         return undefined;
     }
-    const assetId = uuid();
+    const assetId = uniqueId();
     const uploadResult = await uploadAsset(userUploadedEpubsBucket, assetId, buffer);
     if (!uploadResult.$response) {
         report('Can\'t upload file to S3');

@@ -1,7 +1,7 @@
 import { typedModel, TypeFromSchema } from '../mongoose';
 
 const schema = {
-    uuid: {
+    id: {
         type: String,
         required: true,
     },

@@ -1,8 +1,8 @@
 import { DbHighlight, collection } from './schema';
 
 
-export async function forId(uuid: string): Promise<DbHighlight | undefined> {
-    const highlight = await collection.findOne({ uuid }).exec();
+export async function forId(id: string): Promise<DbHighlight | undefined> {
+    const highlight = await collection.findOne({ id }).exec();
     return highlight ?? undefined;
 }
 
@@ -19,21 +19,21 @@ export async function add(highlight: DbHighlight) {
 }
 
 export async function remove({
-    userId, uuid,
-}: Pick<DbHighlight, 'userId' | 'uuid'>) {
+    userId, id,
+}: Pick<DbHighlight, 'userId' | 'id'>) {
     const result = await collection
-        .findOneAndDelete({ userId, uuid })
+        .findOneAndDelete({ userId, id })
         .exec();
 
     return result ? true : false;
 }
 
 export async function update({
-    userId, uuid, group,
-}: Pick<DbHighlight, 'userId' | 'uuid' | 'group'>) {
+    userId, id, group,
+}: Pick<DbHighlight, 'userId' | 'id' | 'group'>) {
     const result = await collection
         .findOneAndUpdate(
-            { userId, uuid },
+            { userId, id },
             { group },
         )
         .exec();

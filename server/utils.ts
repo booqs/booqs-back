@@ -1,7 +1,7 @@
 import { promisify, inspect } from 'util';
 import { writeFile, exists, mkdir } from 'fs';
 import { join } from 'path';
-import { uuid } from '../core';
+import { uniqueId } from '../core';
 
 export function pretty(obj: any, depth?: number) {
     return inspect(obj, false, depth ?? 8, true);
@@ -42,7 +42,7 @@ export async function tempPath() {
     if (!await promisify(exists)(temp)) {
         await promisify(mkdir)(temp, { recursive: true });
     }
-    return join(temp, uuid());
+    return join(temp, uniqueId());
 }
 
 export function afterPrefix(str: string, prefix: string): string | undefined {
