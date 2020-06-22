@@ -1,6 +1,6 @@
 import { IResolvers } from 'apollo-server';
 import { authWithToken } from '../auth';
-import { userBooqHistory, userCollection } from '../users';
+import { users } from '../users';
 import { search, forId, forIds, featuredIds } from '../books';
 import { Context } from './context';
 import { BooqParent } from './booq';
@@ -36,13 +36,13 @@ export const queryResolver: IResolvers<any, Context> = {
         },
         history(_, __, { user }): BooqHistoryParent[] {
             const result = user
-                ? userBooqHistory(user)
+                ? users.userBooqHistory(user)
                 : [];
             return result;
         },
         async collection(_, { name }, { user }) {
             return user
-                ? userCollection(user, name)
+                ? users.userCollection(user, name)
                 : [];
         },
         async featured(_, { limit }): Promise<Array<BooqParent | undefined>> {

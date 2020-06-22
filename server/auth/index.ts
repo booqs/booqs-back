@@ -1,4 +1,4 @@
-import { forFacebook, forId } from '../users';
+import { users } from '../users';
 import { fetchFbUser } from './facebook';
 import { generateToken, userIdFromHeader, userIdFromToken } from './token';
 
@@ -10,7 +10,7 @@ export async function authWithToken(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token);
-            const user = fb && await forFacebook(fb);
+            const user = fb && await users.forFacebook(fb);
             if (user) {
                 const token = generateToken(user._id);
                 return {
@@ -29,13 +29,13 @@ export async function authWithToken(input: AuthInput) {
 export async function fromHeader(header: string) {
     const userId = userIdFromHeader(header);
     return userId
-        ? forId(userId)
+        ? users.forId(userId)
         : undefined;
 }
 
 export async function fromCookie(cookie: string) {
     const userId = userIdFromToken(cookie);
     return userId
-        ? forId(userId)
+        ? users.forId(userId)
         : undefined;
 }

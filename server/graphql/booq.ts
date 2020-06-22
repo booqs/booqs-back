@@ -1,7 +1,7 @@
 import { IResolvers } from 'apollo-server';
 import { previewForPath, filterUndefined } from '../../core';
 import { booqForId } from '../books';
-import { userBookmarks } from '../users';
+import { users } from '../users';
 import { LibraryCard } from '../sources';
 import { booqImageUrl } from '../images';
 import { buildFragment } from './fragment';
@@ -22,7 +22,7 @@ export const booqResolver: IResolvers<BooqParent> = {
         },
         async bookmarks(parent, _, { user }): Promise<BookmarkParent[]> {
             return user
-                ? userBookmarks(user, parent.id)
+                ? users.userBookmarks(user, parent.id)
                 : [];
         },
         async highlights(parent): Promise<HighlightParent[]> {
