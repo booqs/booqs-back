@@ -1,4 +1,5 @@
 import { collection, DbUser, HighlightData } from './schema';
+import { highlights } from '../highlights';
 
 export type DbHighlight = HighlightData & { id: string };
 export function userHighlights(user: DbUser, booqId: string): DbHighlight[] {
@@ -48,4 +49,24 @@ export async function updateHighlight(
     ).exec();
 
     return result ? true : false;
+}
+
+export async function migrateAllHighlights() {
+    const allUsers = await collection.find();
+    for (const user of allUsers) {
+        console.log(`Migrating highlights for ${user.name}`);
+        const highlightsObject = user.highlights ?? {};
+        for (const [id, data] of Object.entries(highlightsObject)) {
+            console.log(`Highlight id: ${id}`);
+            console.log(data);
+            await highlights.add({
+                userId: user._id,
+                id: id,
+                booqId: data.booqId,
+                start: data.start,
+                end: data.end,
+                group: data.group,
+            });
+        }
+    }
 }
