@@ -95,6 +95,7 @@ type Bookmark {
     path: [Int!]
 }
 type Highlight {
+    author: User
     booq: Booq
     id: ID
     start: [Int!]!

@@ -3,10 +3,14 @@ import { textForRange } from '../../core';
 import { DbHighlight } from '../highlights';
 import { forId, booqForId } from '../books';
 import { BooqParent } from './booq';
+import { DbUser, forId as userForId } from '../users';
 
 export type HighlightParent = DbHighlight;
 export const highlightResolver: IResolvers<HighlightParent> = {
     Highlight: {
+        async author(parent): Promise<DbUser | null> {
+            return userForId(parent.userId);
+        },
         async booq(parent): Promise<BooqParent | undefined> {
             return forId(parent.booqId);
         },
