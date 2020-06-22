@@ -2,11 +2,13 @@ import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
 import { uuid } from '../../core';
 import {
-    addBookmark, addHighlight, addBooqHistory,
-    deleteBookmark, deleteHighlight, deleteBooqHistory, addToCollection, removeFromCollection, updateHighlight,
+    addBookmark, deleteBookmark,
+    addToCollection, removeFromCollection,
+    addBooqHistory, deleteBooqHistory,
 } from '../users';
-import { Context } from './context';
 import { uploadToSource } from '../books';
+import { highlights } from '../highlights';
+import { Context } from './context';
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
@@ -34,36 +36,36 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async addHighlight(_, { highlight }, { user }) {
-            if (user) {
-                return addHighlight(
-                    user._id,
-                    {
-                        id: highlight.id ?? uuid(),
-                        booqId: highlight.booqId,
-                        start: highlight.start,
-                        end: highlight.end,
-                        group: highlight.group,
-                    });
+            if (user?._id) {
+                return highlights.add({
+                    userId: user._id,
+                    uuid: highlight.id,
+                    booqId: highlight.booqId,
+                    start: highlight.start,
+                    end: highlight.end,
+                    group: highlight.group,
+                });
             } else {
                 return false;
             }
         },
         async removeHighlight(_, { id }, { user }) {
             if (user) {
-                return deleteHighlight(
-                    user._id,
-                    { id },
-                );
+                return highlights.remove({
+                    userId: user._id,
+                    uuid: id,
+                });
             } else {
                 return false;
             }
         },
         async updateHighlight(_, { id, group }, { user }) {
             if (user) {
-                return updateHighlight(
-                    user._id,
-                    { id, group },
-                );
+                return highlights.update({
+                    userId: user._id,
+                    uuid: id,
+                    group,
+                });
             } else {
                 return false;
             }
