@@ -86,6 +86,7 @@ type AuthResult {
     user: User
 }
 type User {
+    id: ID!
     name: String!
     pictureUrl: String
 }

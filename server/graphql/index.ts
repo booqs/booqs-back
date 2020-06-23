@@ -7,6 +7,7 @@ import { booqResolver } from './booq';
 import { booqHistoryResolver } from './history';
 import { bookmarkResolver } from './bookmark';
 import { highlightResolver } from './highlight';
+import { userResolver } from './user';
 
 export { typeDefs } from './typeDefs';
 export { context } from './context';
@@ -19,5 +20,6 @@ export const resolvers: IResolvers = {
     ...booqHistoryResolver,
     ...bookmarkResolver,
     ...highlightResolver,
+    ...userResolver,
     BooqNode: GraphQLJSON,
 };
