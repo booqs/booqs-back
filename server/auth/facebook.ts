@@ -11,7 +11,7 @@ export async function fetchFbUser(token: string): Promise<UserInfo | undefined> 
         if (id && name) {
             return {
                 id, name,
-                profilePicture: picture?.data?.url,
+                pictureUrl: picture?.data?.url,
             };
         } else {
             return undefined;
