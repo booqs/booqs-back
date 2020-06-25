@@ -4,7 +4,7 @@ import { inspect } from 'util';
 import { parseEpub } from '../../parser';
 import { nodesLength, Booq, uniqueId } from '../../core';
 import { uploadAsset } from '../s3';
-import { addUpload } from '../users';
+import { users } from '../users';
 import {
     uuCards, DbUuCard,
     userUploadedEpubsBucket, toLibraryCard,
@@ -69,7 +69,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
 }
 
 async function addToRegistry(cardId: string, userId: string) {
-    return addUpload(userId, cardId);
+    return users.addUpload(userId, cardId);
 }
 
 type File = {

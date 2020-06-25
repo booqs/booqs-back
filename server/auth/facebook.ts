@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserInfo } from '../users';
+import type { UserInfo } from '../users';
 
 export async function fetchFbUser(token: string): Promise<UserInfo | undefined> {
     const url = `https://graph.facebook.com/me?fields=name,picture
@@ -11,7 +11,7 @@ export async function fetchFbUser(token: string): Promise<UserInfo | undefined> 
         if (id && name) {
             return {
                 id, name,
-                profilePicture: picture?.data?.url,
+                pictureUrl: picture?.data?.url,
             };
         } else {
             return undefined;

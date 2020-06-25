@@ -8,7 +8,7 @@ export async function forId(id: string) {
 export type UserInfo = {
     id: string,
     name: string,
-    profilePicture?: string,
+    pictureUrl?: string,
 }
 export async function forFacebook(facebookUser: UserInfo) {
     const result = await collection
@@ -18,14 +18,14 @@ export async function forFacebook(facebookUser: UserInfo) {
     let doc: typeof result;
     if (result) {
         result.name = facebookUser.name;
-        result.pictureUrl = facebookUser.profilePicture;
+        result.pictureUrl = facebookUser.pictureUrl;
         await result.save();
         doc = result;
     } else {
         const toAdd: DbUser = {
             facebookId: facebookUser.id,
             name: facebookUser.name,
-            pictureUrl: facebookUser.profilePicture,
+            pictureUrl: facebookUser.pictureUrl,
             joined: new Date(),
         };
         const [insertResult] = await collection.insertMany([toAdd]);

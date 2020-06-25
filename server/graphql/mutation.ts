@@ -1,11 +1,7 @@
 import { ReadStream } from 'fs';
 import { IResolvers } from 'apollo-server';
 import { uniqueId } from '../../core';
-import {
-    addBookmark, deleteBookmark,
-    addToCollection, removeFromCollection,
-    addBooqHistory, deleteBooqHistory,
-} from '../users';
+import { users } from '../users';
 import { uploadToSource } from '../books';
 import { highlights } from '../highlights';
 import { Context } from './context';
@@ -14,7 +10,7 @@ export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
         async addBookmark(_, { bookmark }, { user }) {
             if (user) {
-                return addBookmark(
+                return users.addBookmark(
                     user._id,
                     {
                         id: bookmark.id ?? uniqueId(),
@@ -27,7 +23,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async removeBookmark(_, { id }, { user }) {
             if (user) {
-                return deleteBookmark(
+                return users.deleteBookmark(
                     user._id,
                     { id },
                 );
@@ -72,7 +68,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async addBooqHistory(_, { event }, { user }) {
             if (user) {
-                return addBooqHistory(
+                return users.addBooqHistory(
                     user._id,
                     {
                         booqId: event.booqId,
@@ -86,7 +82,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async removeBooqHistory(_, { booqId }, { user }) {
             if (user) {
-                return deleteBooqHistory(
+                return users.deleteBooqHistory(
                     user._id,
                     { booqId },
                 );
@@ -96,7 +92,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async addToCollection(_, { booqId, name }, { user }) {
             if (user) {
-                return addToCollection(
+                return users.addToCollection(
                     user._id,
                     name,
                     booqId,
@@ -107,7 +103,7 @@ export const mutationResolver: IResolvers<any, Context> = {
         },
         async removeFromCollection(_, { booqId, name }, { user }) {
             if (user) {
-                return removeFromCollection(
+                return users.removeFromCollection(
                     user._id,
                     name,
                     booqId,
@@ -122,7 +118,7 @@ export const mutationResolver: IResolvers<any, Context> = {
                 const stream: ReadStream = actual.createReadStream();
                 const card = await uploadToSource('uu', stream, user._id);
                 if (card) {
-                    addBooqHistory(
+                    users.addBooqHistory(
                         user?._id,
                         {
                             booqId: card.id,
