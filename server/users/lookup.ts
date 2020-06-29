@@ -8,6 +8,7 @@ export async function forId(id: string) {
 export type UserInfo = {
     id: string,
     name: string,
+    email?: string,
     pictureUrl?: string,
 }
 export async function forFacebook(facebookUser: UserInfo) {
