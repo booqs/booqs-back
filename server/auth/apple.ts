@@ -1,5 +1,6 @@
 import { verify, decode } from 'jsonwebtoken';
 import * as createJwksClient from 'jwks-rsa';
+import { config } from '../config';
 
 export async function verifyAppleIdToken(token: string) {
     try {
@@ -10,7 +11,7 @@ export async function verifyAppleIdToken(token: string) {
         const jwk = await getApplePublicKey(kid);
         const { email, sub } = verify(token, jwk, {
             issuer: 'https://appleid.apple.com',
-            audience: 'app.booqs.back', // TODO: move to 'env'
+            audience: config().appleClientId,
         }) as any;
         return {
             email,
