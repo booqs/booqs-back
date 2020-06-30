@@ -46,7 +46,7 @@ export async function forFacebook(facebookUser: UserInfo) {
 
 export async function forApple({ id, name, email }: {
     id: string,
-    name: string,
+    name?: string,
     email?: string,
 }) {
     const result = await collection
@@ -55,13 +55,19 @@ export async function forApple({ id, name, email }: {
 
     let doc: typeof result;
     if (result) {
-        result.name = name;
+        if (name) {
+            result.name = name;
+        }
+        if (email) {
+            result.email = email;
+        }
         await result.save();
         doc = result;
     } else {
         const toAdd: DbUser = {
             appleId: id,
-            name, email,
+            name: name ?? 'Anonymous',
+            email,
             joined: new Date(),
         };
         const [insertResult] = await collection.insertMany([toAdd]);

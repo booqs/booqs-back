@@ -6,6 +6,7 @@ import { verifyAppleIdToken } from './apple';
 export type AuthInput = {
     provider: string,
     token: string,
+    name?: string,
 };
 export async function authWithToken(input: AuthInput) {
     const user = await getUser(input);
@@ -31,7 +32,7 @@ async function getUser(input: AuthInput) {
             if (userInfo) {
                 return users.forApple({
                     id: userInfo.userId,
-                    name: 'not implemented',
+                    name: input.name,
                     email: userInfo.email,
                 });
             }
