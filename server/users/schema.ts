@@ -3,6 +3,7 @@ import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {
     facebookId: String,
+    appleId: String,
     name: {
         type: String,
         required: true,
