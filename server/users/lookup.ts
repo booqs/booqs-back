@@ -20,6 +20,7 @@ export async function forFacebook(facebookUser: UserInfo) {
     if (result) {
         result.name = facebookUser.name;
         result.pictureUrl = facebookUser.pictureUrl;
+        result.email = facebookUser.email;
         await result.save();
         doc = result;
     } else {
@@ -27,6 +28,7 @@ export async function forFacebook(facebookUser: UserInfo) {
             facebookId: facebookUser.id,
             name: facebookUser.name,
             pictureUrl: facebookUser.pictureUrl,
+            email: facebookUser.email,
             joined: new Date(),
         };
         const [insertResult] = await collection.insertMany([toAdd]);
@@ -37,11 +39,12 @@ export async function forFacebook(facebookUser: UserInfo) {
         _id: doc._id.toString() as string,
         name: doc.name,
         pictureUrl: doc.pictureUrl,
+        email: doc.email,
         joined: doc.joined,
     };
 }
 
-export async function forApple({ id, name }: {
+export async function forApple({ id, name, email }: {
     id: string,
     name: string,
     email?: string,
@@ -58,7 +61,7 @@ export async function forApple({ id, name }: {
     } else {
         const toAdd: DbUser = {
             appleId: id,
-            name,
+            name, email,
             joined: new Date(),
         };
         const [insertResult] = await collection.insertMany([toAdd]);
@@ -69,6 +72,7 @@ export async function forApple({ id, name }: {
         _id: doc._id.toString() as string,
         name: doc.name,
         pictureUrl: doc.pictureUrl,
+        email: doc.email,
         joined: doc.joined,
     };
 }

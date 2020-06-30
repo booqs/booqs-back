@@ -13,6 +13,7 @@ const schema = {
         required: true,
     },
     pictureUrl: String,
+    email: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
     history: taggedObject<StringMap<StringMap<BooqHistoryData>>>(),
     collections: [String],
