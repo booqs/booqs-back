@@ -29,6 +29,9 @@ export const queryResolver: IResolvers<any, Context> = {
                 return undefined;
             }
         },
+        async me(_, __, { user }) {
+            return user;
+        },
         logout(_, __, { setAuthToken }) {
             setAuthToken(undefined);
             return true;
