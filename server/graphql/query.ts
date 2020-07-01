@@ -15,10 +15,9 @@ export const queryResolver: IResolvers<any, Context> = {
             const results = await search(query, limit ?? 100);
             return results;
         },
-        async auth(_, { token, provider }, { setAuthToken }) {
+        async auth(_, { token, provider, name }, { setAuthToken }) {
             const result = await authWithToken({
-                provider,
-                token,
+                provider, token, name,
             });
             if (result) {
                 setAuthToken(result.token);
@@ -29,6 +28,9 @@ export const queryResolver: IResolvers<any, Context> = {
             } else {
                 return undefined;
             }
+        },
+        async me(_, __, { user }) {
+            return user;
         },
         logout(_, __, { setAuthToken }) {
             setAuthToken(undefined);

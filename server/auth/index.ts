@@ -1,25 +1,42 @@
 import { users } from '../users';
 import { fetchFbUser } from './facebook';
 import { generateToken, userIdFromHeader, userIdFromToken } from './token';
+import { verifyAppleIdToken } from './apple';
 
 export type AuthInput = {
-    provider: 'facebook',
+    provider: string,
     token: string,
+    name?: string,
 };
 export async function authWithToken(input: AuthInput) {
+    const user = await getUser(input);
+    if (user) {
+        const token = generateToken(user._id);
+        return {
+            token,
+            user,
+        };
+    } else {
+        return undefined;
+    }
+}
+
+async function getUser(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token);
-            const user = fb && await users.forFacebook(fb);
-            if (user) {
-                const token = generateToken(user._id);
-                return {
-                    token,
-                    user,
-                };
-            } else {
-                return undefined;
+            return fb && users.forFacebook(fb);
+        }
+        case 'apple': {
+            const userInfo = await verifyAppleIdToken(input.token);
+            if (userInfo) {
+                return users.forApple({
+                    id: userInfo.userId,
+                    name: input.name,
+                    email: userInfo.email,
+                });
             }
+            return undefined;
         }
         default:
             return undefined;
