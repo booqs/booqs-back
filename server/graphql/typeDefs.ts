@@ -40,7 +40,7 @@ type Booq {
 
 type User {
     id: ID!
-    name: String!
+    name: String
     pictureUrl: String
 }
 

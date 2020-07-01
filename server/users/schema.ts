@@ -2,16 +2,13 @@ import { BooqPath } from '../../core';
 import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
 
 const schema = {
-    facebookId: String,
-    appleId: String,
-    name: {
-        type: String,
-        required: true,
-    },
     joined: {
         type: Date,
         required: true,
     },
+    facebookId: String,
+    appleId: String,
+    name: String,
     pictureUrl: String,
     email: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),

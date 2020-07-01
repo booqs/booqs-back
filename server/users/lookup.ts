@@ -7,7 +7,7 @@ export async function forId(id: string) {
 
 export type UserInfo = {
     id: string,
-    name: string,
+    name?: string,
     email?: string,
     pictureUrl?: string,
 }
@@ -66,8 +66,7 @@ export async function forApple({ id, name, email }: {
     } else {
         const toAdd: DbUser = {
             appleId: id,
-            name: name ?? 'Anonymous',
-            email,
+            name, email,
             joined: new Date(),
         };
         const [insertResult] = await collection.insertMany([toAdd]);
