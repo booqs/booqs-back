@@ -13,7 +13,7 @@
     "lint": "eslint server/**/*.ts",
     "build-ts": "tsc",
     "build": "npm run build-ts && npm run lint",
-    "debug": "tsc -w & cross-env NODE_ENV=development nodemon dist/server/index.js",
+    "dev": "tsc -w & cross-env NODE_ENV=development nodemon dist/server/index.js",
     "start": "node dist/server/index.js"
   },
   "repository": {
