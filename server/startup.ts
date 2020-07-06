@@ -14,6 +14,9 @@ export async function startup() {
             origin: true,
             credentials: true,
         },
+        engine: {
+            graphVariant: 'current',
+        },
     });
     const { url } = await server.listen({
         port: process.env.PORT || 4000,
