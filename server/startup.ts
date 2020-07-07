@@ -15,7 +15,9 @@ export async function startup() {
             credentials: true,
         },
         engine: {
-            graphVariant: 'current',
+            graphVariant: process.env.NODE_ENV !== 'development'
+                ? 'current' : 'dev',
+            reportSchema: true,
         },
     });
     const { url } = await server.listen({
@@ -26,8 +28,7 @@ export async function startup() {
 }
 
 async function runWorkers() {
-    // eslint-disable-next-line no-constant-condition
-    if (false) {
+    if (process.env.RUN_WORKERS) {
         booqsWorker();
     }
 }
