@@ -67,7 +67,7 @@
     "htmlparser2": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.8.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mongoose": "^5.9.10",
     "sharp": "^0.25.2",
     "specificity": "^0.4.1"
