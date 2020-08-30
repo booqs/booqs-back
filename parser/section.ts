@@ -71,6 +71,7 @@ async function processHead(head: XmlElement, env: Env) {
             }
             case 'title':
             case 'meta':
+            case 'script':
                 // TODO: handle ?
                 break;
             default:

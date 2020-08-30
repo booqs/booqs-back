@@ -7,6 +7,7 @@ export type XmlAttributes = {
 export type XmlElement = ReturnType<typeof parseDOM>[number];
 export function xmlStringParser(input: string) {
     return parseDOM(input, {
+        xmlMode: true,
         recognizeSelfClosing: true,
     });
 }
