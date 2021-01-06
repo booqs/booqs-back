@@ -55,7 +55,7 @@
     "apollo-server": "^2.15.1",
     "apollo-server-micro": "^2.15.1",
     "aws-sdk": "^2.664.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "css": "^2.2.4",
     "css-select": "^2.1.0",
     "domutils": "^2.1.0",
