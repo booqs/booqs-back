@@ -52,7 +52,7 @@
   "dependencies": {
     "@types/htmlparser2": "^3.10.1",
     "apollo": "^2.28.3",
-    "apollo-server": "^2.15.1",
+    "apollo-server": "^2.25.4",
     "apollo-server-micro": "^2.15.1",
     "aws-sdk": "^2.664.0",
     "axios": "^0.19.2",
