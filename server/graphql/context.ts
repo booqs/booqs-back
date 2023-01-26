@@ -21,7 +21,7 @@ type ExpressContext = {
     },
 };
 export type Context = {
-    user?: DbUser & { _id: string },
+    user?: DbUser & { _id?: string },
     setAuthToken(token: string | undefined): void,
 };
 export async function context(context: ExpressContext): Promise<Context> {

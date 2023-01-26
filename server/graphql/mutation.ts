@@ -9,7 +9,7 @@ import { Context } from './context';
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
         async addBookmark(_, { bookmark }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.addBookmark(
                     user._id,
                     {
@@ -22,7 +22,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async removeBookmark(_, { id }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.deleteBookmark(
                     user._id,
                     { id },
@@ -46,7 +46,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async removeHighlight(_, { id }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return highlights.remove({
                     userId: user._id,
                     id: id,
@@ -56,7 +56,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async updateHighlight(_, { id, group }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return highlights.update({
                     userId: user._id,
                     id: id,
@@ -67,7 +67,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async addBooqHistory(_, { event }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.addBooqHistory(
                     user._id,
                     {
@@ -81,7 +81,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async removeBooqHistory(_, { booqId }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.deleteBooqHistory(
                     user._id,
                     { booqId },
@@ -91,7 +91,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async addToCollection(_, { booqId, name }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.addToCollection(
                     user._id,
                     name,
@@ -102,7 +102,7 @@ export const mutationResolver: IResolvers<any, Context> = {
             }
         },
         async removeFromCollection(_, { booqId, name }, { user }) {
-            if (user) {
+            if (user?._id) {
                 return users.removeFromCollection(
                     user._id,
                     name,
