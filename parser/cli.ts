@@ -101,5 +101,5 @@ async function saveBook(path: string, book: Booq) {
 }
 
 async function wait(n: number) {
-    return new Promise(res => setTimeout(() => res(), n));
+    return new Promise<void>(res => setTimeout(() => res(), n));
 }
