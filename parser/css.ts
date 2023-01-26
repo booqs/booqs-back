@@ -224,7 +224,7 @@ function parseSelector(selector: string): Result<Selector> {
         return {
             diags: [{
                 diag: `Couldn't parse selector: ${selector}`,
-                data: err,
+                data: err as object,
             }],
         };
     }
