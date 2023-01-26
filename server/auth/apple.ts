@@ -4,10 +4,17 @@ import { config } from '../config';
 
 export async function verifyAppleIdToken(token: string) {
     try {
-        const { header: { kid } } = decode(token, {
+        const jwt = decode(token, {
             complete: true,
             json: true,
-        }) ?? {};
+        });
+        if (jwt === null) {
+            return undefined;
+        }
+        const { header: { kid } } = jwt;
+        if (kid === undefined) {
+            return undefined;
+        }
         const jwk = await getApplePublicKey(kid);
         const { email, sub } = verify(token, jwk, {
             issuer: 'https://appleid.apple.com',
