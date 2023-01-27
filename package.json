@@ -34,7 +34,6 @@
     "@types/graphql-type-json": "^0.3.2",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/lodash": "^4.14.150",
-    "@types/mongoose": "^5.7.14",
     "@types/node": "^13.13.2",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
@@ -68,7 +67,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.8.1",
     "lodash": "^4.17.19",
-    "mongoose": "^5.9.10",
+    "mongoose": "^6.9.0",
     "sharp": "^0.31.3",
     "specificity": "^0.4.1"
   }

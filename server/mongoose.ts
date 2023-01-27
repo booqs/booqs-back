@@ -9,12 +9,7 @@ export async function connectDb() {
         const dbUri = config().mongodbUri;
         if (dbUri) {
             console.log('Connecting to db...');
-            db = await connect(dbUri, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                useCreateIndex: true,
-                useFindAndModify: false,
-            });
+            db = await connect(dbUri);
             console.log('Connected');
         } else {
             console.warn('BOOQS_BACKEND_MONGODB_URI is not set');

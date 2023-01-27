@@ -3,7 +3,7 @@ import { LibraryCard } from '../sources';
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
     return uuCards.aggregate([{
-        $searchBeta: {
+        $search: {
             compound: {
                 should: [
                     {
