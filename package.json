@@ -15,7 +15,7 @@
     "prepare": "npm run build",
     "lint": "eslint server/**/*.ts",
     "build-ts": "tsc",
-    "build": "clear && npm run build-ts && npm run lint",
+    "build": "npm run build-ts && npm run lint",
     "dev": "tsc -w & cross-env NODE_ENV=development nodemon dist/server/index.js",
     "start": "node dist/server/index.js"
   },
