@@ -23,7 +23,7 @@ export async function parseEpub({ fileData, diagnoser }: {
     } catch (err) {
         diagnoser({
             diag: 'Unhandled exception on parsing',
-            data: err,
+            data: err as object,
         });
         return undefined;
     }

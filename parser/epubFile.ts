@@ -94,7 +94,7 @@ export async function openEpub({ fileData }: {
         return {
             diags: [{
                 diag: 'exception on epub open',
-                data: e,
+                data: e as object,
             }],
         };
     }

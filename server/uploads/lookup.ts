@@ -6,7 +6,7 @@ import { LibraryCard } from '../sources';
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
     return uuCards
         .find(
-            { _id: { $in: ids.map(id => mongoose.Types.ObjectId(id)) } },
+            { _id: { $in: ids.map(id => new mongoose.Types.ObjectId(id)) } },
             {
                 index: true,
                 title: true, author: true,
