@@ -17,7 +17,8 @@
     "build-ts": "tsc",
     "build": "npm run build-ts && npm run lint",
     "dev": "tsc -w & cross-env NODE_ENV=development nodemon dist/server/index.js",
-    "start": "node dist/server/index.js"
+    "start": "node dist/server/index.js",
+    "https": "tsc -w & cross-env NODE_ENV=development & cross-env PORT=4001 nodemon dist/server/index.js & npx local-ssl-proxy --source 4000 --target 4001"
   },
   "repository": {
     "type": "git",
