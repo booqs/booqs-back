@@ -24,3 +24,13 @@ Create a certificate for the "localhost" domain:
 Run local ssl proxy:
 
 ```npm run https```
+
+# Fetch secrets from Heroku
+
+Install heroku cli:
+
+```brew install heroku/brew/heroku```
+
+Get config:
+
+```heroku config -a booqs-back --shell > .env```
