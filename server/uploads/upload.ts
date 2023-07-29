@@ -30,7 +30,7 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
     }
     const assetId = uniqueId();
     const uploadResult = await uploadAsset(userUploadedEpubsBucket, assetId, buffer);
-    if (!uploadResult.$response) {
+    if (!uploadResult.$metadata) {
         report('Can\'t upload file to S3');
         return undefined;
     }

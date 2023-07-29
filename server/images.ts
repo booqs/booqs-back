@@ -36,7 +36,7 @@ async function uploadImage(base64: string, booqId: string, src: string, size?: n
         ? await resizeImage(buffer, size)
         : buffer;
     const result = await uploadAsset(bucket, id, toUpload);
-    return result.$response
+    return result.$metadata
         ? id
         : undefined;
 }

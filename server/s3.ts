@@ -1,22 +1,32 @@
-import { S3 } from 'aws-sdk';
-import { ListObjectsV2Output } from 'aws-sdk/clients/s3';
-import { ContinuationToken } from 'aws-sdk/clients/kinesisvideomedia';
-import { config } from './config';
+import AWS_S3, {
+    S3Client,
+    PutObjectCommandInput, PutObjectCommand,
+    GetObjectCommand,
+    ListObjectsV2Command,
+} from '@aws-sdk/client-s3';
 
-const service = new S3();
-service.config.update({
-    accessKeyId: config().awsAccessKeyId,
-    secretAccessKey: config().awsSecretKey,
-});
+let _service: S3Client | undefined;
+function service() {
+    if (!_service) {
+        const s3 = new S3Client({
+            region: 'us-east-1',
+        });
+        _service = s3;
+        return s3;
+    } else {
+        return _service;
+    }
+}
 
-export type Asset = S3.Object;
-export type AssetBody = S3.Body;
+export type Asset = AWS_S3._Object;
+export type AssetBody = PutObjectCommandInput['Body'];
 export async function downloadAsset(bucket: string, assetId: string): Promise<AssetBody | undefined> {
     try {
-        const result = await service.getObject({
+        const command = new GetObjectCommand({
             Bucket: bucket,
             Key: assetId,
-        }).promise();
+        });
+        const result = await service().send(command);
         return result.Body;
     } catch (e) {
         return undefined;
@@ -24,11 +34,12 @@ export async function downloadAsset(bucket: string, assetId: string): Promise<As
 }
 
 export async function uploadAsset(bucket: string, assetId: string, body: AssetBody) {
-    return service.putObject({
+    const command = new PutObjectCommand({
         Bucket: bucket,
         Key: assetId,
         Body: body,
-    }).promise();
+    });
+    return service().send(command);
 }
 
 export async function* listObjects(bucket: string) {
@@ -37,14 +48,16 @@ export async function* listObjects(bucket: string) {
     }
 }
 
+type ContinuationToken = string;
 async function* listObjectBatches(bucket: string) {
-    let objects: ListObjectsV2Output;
+    let objects: AWS_S3.ListObjectsV2CommandOutput;
     let token: ContinuationToken | undefined = undefined;
     do {
-        objects = await service.listObjectsV2({
+        const command = new ListObjectsV2Command({
             Bucket: bucket,
             ContinuationToken: token,
-        }).promise();
+        });
+        objects = await service().send(command);
         token = objects.NextContinuationToken;
         yield objects.Contents
             ? objects.Contents
