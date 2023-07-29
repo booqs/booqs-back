@@ -10,7 +10,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 
 export async function startup() {
-    connectDb()
+    const db = connectDb()
 
     // Required logic for integrating with Express
     const app = express()
@@ -51,6 +51,7 @@ export async function startup() {
         }),
     )
 
+    await db
     // Modified server startup
     const port = process.env.PORT
         ? parseInt(process.env.PORT)

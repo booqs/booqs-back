@@ -78,7 +78,7 @@
     "jsonwebtoken": "^9.0.1",
     "jwks-rsa": "^3.0.1",
     "lodash": "^4.17.19",
-    "mongoose": "^6.9.0",
+    "mongoose": "^7.4.1",
     "sharp": "^0.31.3",
     "specificity": "^0.4.1"
   }
