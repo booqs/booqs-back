@@ -4,6 +4,8 @@ import { connectDb } from './mongoose'
 import { booqsWorker } from './books'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
+import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
 import http from 'http'
 import cors from 'cors'
 import express from 'express'
@@ -24,13 +26,15 @@ export async function startup() {
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        // TODO: migrate to Apollo Studio
-        // engine: {
-        //     graphVariant: process.env.NODE_ENV !== 'development'
-        //         ? 'current' : 'dev',
-        //     reportSchema: true,
-        // },
-        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+        apollo: {
+            graphVariant: process.env.NODE_ENV !== 'development'
+                ? 'current' : 'dev',
+        },
+        plugins: [
+            ApolloServerPluginDrainHttpServer({ httpServer }),
+            ApolloServerPluginUsageReporting(),
+            ApolloServerPluginSchemaReporting(),
+        ],
     })
     // Ensure we wait for our server to start
     await server.start()
