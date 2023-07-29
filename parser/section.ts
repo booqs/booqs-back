@@ -1,4 +1,4 @@
-import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core';
+import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core'
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
