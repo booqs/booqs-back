@@ -1,4 +1,4 @@
-import * as sharp from 'sharp'
+import sharp from 'sharp'
 import { Booq } from '../core'
 import { uploadAsset } from './s3'
 

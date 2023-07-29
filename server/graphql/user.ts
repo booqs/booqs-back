@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { DbUser } from '../users'
 
 export type UserParent = DbUser & { _id: string };

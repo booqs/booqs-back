@@ -1,8 +1,6 @@
-import { ReadStream } from 'fs'
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { uniqueId } from '../../core'
 import { users } from '../users'
-import { uploadToSource } from '../books'
 import { highlights } from '../highlights'
 import { Context } from './context'
 
@@ -111,27 +109,6 @@ export const mutationResolver: IResolvers<any, Context> = {
             } else {
                 return false
             }
-        },
-        async uploadEpub(_, { file, source }, { user }) {
-            if (user?._id) {
-                const actual = await file
-                const stream: ReadStream = actual.createReadStream()
-                const card = await uploadToSource('uu', stream, user._id)
-                if (card) {
-                    users.addBooqHistory(
-                        user?._id,
-                        {
-                            booqId: card.id,
-                            path: [0],
-                            source: source,
-                            date: new Date(Date.now()),
-                        },
-                    )
-                    return card
-                }
-            }
-
-            return undefined
         },
     },
 }

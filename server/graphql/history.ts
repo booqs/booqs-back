@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { previewForPath, positionForPath } from '../../core'
 import { DbBooqHistory } from '../users'
 import { forId, booqForId } from '../books'

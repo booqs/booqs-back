@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import GraphQLJSON from 'graphql-type-json'
 import { queryResolver } from './query'
 import { mutationResolver } from './mutation'

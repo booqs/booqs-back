@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { DbBookmark } from '../users'
 import { forId } from '../books'
 import { BooqParent } from './booq'

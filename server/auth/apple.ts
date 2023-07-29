@@ -1,5 +1,5 @@
 import { verify, decode } from 'jsonwebtoken'
-import * as createJwksClient from 'jwks-rsa'
+import createJwksClient from 'jwks-rsa'
 import { config } from '../config'
 
 export async function verifyAppleIdToken(token: string) {

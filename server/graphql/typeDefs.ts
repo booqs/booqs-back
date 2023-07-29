@@ -1,5 +1,4 @@
-import { gql } from 'apollo-server'
-export const typeDefs = gql`
+export const typeDefs = `#graphql
 type Query {
     auth(token: String!, provider: String!, name: String): AuthResult
     logout: Boolean
@@ -20,7 +19,6 @@ type Mutation {
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
-    uploadEpub(file: Upload!, source: String!): Booq
 }
 
 type Booq {

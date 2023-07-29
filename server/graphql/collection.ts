@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { filterUndefined } from '../../core'
 import { forIds } from '../books'
 import { BooqParent } from './booq'

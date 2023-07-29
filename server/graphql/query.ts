@@ -1,4 +1,4 @@
-import { IResolvers } from 'apollo-server'
+import { IResolvers } from '@graphql-tools/utils'
 import { authWithToken } from '../auth'
 import { users } from '../users'
 import { search, forId, forIds, featuredIds } from '../books'

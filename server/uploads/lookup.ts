@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose'
+import mongoose from 'mongoose'
 import { uuCards, userUploadedEpubsBucket } from './schema'
 import { downloadAsset } from '../s3'
 import { LibraryCard } from '../sources'
