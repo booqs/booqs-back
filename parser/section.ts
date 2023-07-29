@@ -45,7 +45,7 @@ async function processSectionContent(content: string, env: Env): Promise<BooqNod
         });
         return undefined;
     } else {
-        const stylesheet = head?.name !== undefined
+        const stylesheet = head && (head as any).name !== undefined
             ? await processHead(head, env)
             : undefined;
         return processBody(body, {
