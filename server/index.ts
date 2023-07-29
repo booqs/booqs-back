@@ -1,5 +1,5 @@
-import { config as configEnv } from 'dotenv';
-import { startup } from './startup';
+import { config as configEnv } from 'dotenv'
+import { startup } from './startup'
 
-configEnv();
-startup();
+configEnv()
+startup()

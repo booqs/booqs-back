@@ -36,8 +36,8 @@ const jwksClient = createJwksClient({
 async function getApplePublicKey(kid: string) {
     return new Promise<any>((resolve, reject) => {
         jwksClient.getSigningKey(kid, (err, key) => {
-            if (err) {
-                reject(err)
+            if (err || !key) {
+                reject(err || new Error('No key found'))
             } else {
                 resolve(key.getPublicKey())
             }

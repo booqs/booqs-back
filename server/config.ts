@@ -4,5 +4,5 @@ export function config() {
         mongodbUri: process.env.BOOQS_BACKEND_MONGODB_URI,
         appleClientId: 'app.booqs.back',
         https: process.env.NODE_ENV !== 'development',
-    };
+    }
 }

@@ -1,4 +1,4 @@
-import { BooqNode, BooqPath } from './model';
+import { BooqNode, BooqPath } from './model'
 
 export type BooqNodeIterator = {
     parent: BooqNodeIterator | undefined,
@@ -7,14 +7,14 @@ export type BooqNodeIterator = {
 };
 
 export function iteratorsNode(iter: BooqNodeIterator): BooqNode {
-    return iter.nodes[iter.index];
+    return iter.nodes[iter.index]
 }
 
 export function iteratorsPath(iter: BooqNodeIterator): BooqPath {
     if (iter.parent) {
-        return [...iteratorsPath(iter.parent), iter.index];
+        return [...iteratorsPath(iter.parent), iter.index]
     } else {
-        return [iter.index];
+        return [iter.index]
     }
 }
 
@@ -23,79 +23,79 @@ export function rootIterator(nodes: BooqNode[]) {
         nodes,
         index: 0,
         parent: undefined,
-    };
+    }
 }
 
 export function firstLeaf(iter: BooqNodeIterator): BooqNodeIterator {
-    const node = iteratorsNode(iter);
+    const node = iteratorsNode(iter)
     if (node.kind === 'element' && node.children?.length) {
         return firstLeaf({
             parent: iter,
             nodes: node.children,
             index: 0,
-        });
+        })
     } else {
-        return iter;
+        return iter
     }
 }
 
 export function findPath(iter: BooqNodeIterator, path: BooqPath): BooqNodeIterator | undefined {
-    const [head, ...tail] = path;
+    const [head, ...tail] = path
     if (head === undefined || head >= iter.nodes.length) {
-        return undefined;
+        return undefined
     }
-    const curr = { ...iter, index: head };
+    const curr = { ...iter, index: head }
     if (!tail?.length) {
-        return curr;
+        return curr
     } else {
-        const node = iteratorsNode(curr);
+        const node = iteratorsNode(curr)
         if (node.kind !== 'element' || !node?.children?.length) {
-            return undefined;
+            return undefined
         }
         const childrenIter = {
             parent: curr,
             index: 0,
             nodes: node.children,
-        };
-        return findPath(childrenIter, tail);
+        }
+        return findPath(childrenIter, tail)
     }
 }
 
 export function nextSibling(iter: BooqNodeIterator) {
     return iter.index < iter.nodes.length - 1
         ? { ...iter, index: iter.index + 1 }
-        : undefined;
+        : undefined
 }
 
 export function prevSibling(iter: BooqNodeIterator) {
     return iter.index > 0
         ? { ...iter, index: iter.index - 1 }
-        : undefined;
+        : undefined
 }
 
 export function nextNode(iter: BooqNodeIterator): BooqNodeIterator | undefined {
-    const sibling = nextSibling(iter);
+    const sibling = nextSibling(iter)
     if (sibling) {
-        return sibling;
+        return sibling
     } else if (iter.parent) {
-        return nextNode(iter.parent);
+        return nextNode(iter.parent)
     } else {
-        return undefined;
+        return undefined
     }
 }
 
 export function prevNode(iter: BooqNodeIterator): BooqNodeIterator | undefined {
-    const sibling = prevSibling(iter);
+    const sibling = prevSibling(iter)
     if (sibling) {
-        return sibling;
+        return sibling
     } else if (iter.parent) {
-        return prevNode(iter.parent);
+        return prevNode(iter.parent)
     } else {
-        return undefined;
+        return undefined
     }
 }
 
 export function nextLeaf(iter: BooqNodeIterator): BooqNodeIterator | undefined {
-    const node = nextNode(iter);
-    return node && firstLeaf(node);
+    const node = nextNode(iter)
+    return node && firstLeaf(node)
 }

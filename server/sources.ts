@@ -1,5 +1,5 @@
-import { ReadStream } from 'fs';
-import { Booq } from '../core';
+import { ReadStream } from 'fs'
+import { Booq } from '../core'
 
 export type LibraryCard = {
     id: string,

@@ -1,54 +1,54 @@
-import { promisify, inspect } from 'util';
-import { writeFile, exists, mkdir } from 'fs';
-import { join } from 'path';
-import { uniqueId } from '../core';
+import { promisify, inspect } from 'util'
+import { writeFile, exists, mkdir } from 'fs'
+import { join } from 'path'
+import { uniqueId } from '../core'
 
 export function pretty(obj: any, depth?: number) {
-    return inspect(obj, false, depth ?? 8, true);
+    return inspect(obj, false, depth ?? 8, true)
 }
 
 export async function logTime<T>(f: () => Promise<T>, label?: string) {
-    console.log(`Start: ${label}`);
-    const start = Date.now();
-    const result = await f();
-    const end = Date.now();
-    console.log(`End: ${label}, time: ${end - start}`);
-    return result;
+    console.log(`Start: ${label}`)
+    const start = Date.now()
+    const result = await f()
+    const end = Date.now()
+    console.log(`End: ${label}, time: ${end - start}`)
+    return result
 }
 
 export async function* makeBatches<T>(generator: AsyncGenerator<T>, size: number) {
-    let batch: T[] = [];
+    let batch: T[] = []
     for await (const item of generator) {
         if (batch.length < size) {
-            batch.push(item);
+            batch.push(item)
         } else {
-            yield batch;
-            batch = [item];
+            yield batch
+            batch = [item]
         }
     }
     if (batch.length > 0) {
-        yield batch;
+        yield batch
     }
 }
 
 export async function writeTempFile(body: any) {
-    const filePath = await tempPath();
-    await promisify(writeFile)(filePath, body);
-    return filePath;
+    const filePath = await tempPath()
+    await promisify(writeFile)(filePath, body)
+    return filePath
 }
 
 export async function tempPath() {
-    const temp = 'tmp';
+    const temp = 'tmp'
     if (!await promisify(exists)(temp)) {
-        await promisify(mkdir)(temp, { recursive: true });
+        await promisify(mkdir)(temp, { recursive: true })
     }
-    return join(temp, uniqueId());
+    return join(temp, uniqueId())
 }
 
 export function afterPrefix(str: string, prefix: string): string | undefined {
     if (str.startsWith(prefix)) {
-        return str.substr(prefix.length);
+        return str.substr(prefix.length)
     } else {
-        return undefined;
+        return undefined
     }
 }
