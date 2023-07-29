@@ -15,7 +15,7 @@ function resolveNodeRefs(root: BooqNode[], node: BooqNode): BooqNode {
         return node
     }
     const { href, ...rest } = node.attrs ?? {}
-    const ref = href?.startsWith('#') ? findPathForId(root, href.substr(1))
+    const ref = href?.startsWith('#') ? findPathForId(root, href.substring(1))
         : href !== undefined ? findPathForId(root, href)
             : undefined
     const attrs = ref

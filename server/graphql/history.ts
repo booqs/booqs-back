@@ -16,7 +16,7 @@ export const booqHistoryResolver: IResolvers<BooqHistoryParent> = {
                 return undefined
             }
             const preview = previewForPath(booq.nodes, parent.path, length)
-            return preview?.trim()?.substr(0, length)
+            return preview?.trim()?.substring(0, length)
         },
         async position(parent) {
             const booq = await booqForId(parent.booqId)

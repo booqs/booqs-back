@@ -29,7 +29,7 @@ export async function openEpub({ fileData }: {
     let epub: FixedEpub
     function resolveHref(href: string) {
         href = href.startsWith('../')
-            ? href.substr('../'.length)
+            ? href.substring('../'.length)
             : href
         const items = listItems(epub)
         const idItem = items

@@ -34,7 +34,7 @@ export const booqResolver: IResolvers<BooqParent> = {
                 return undefined
             }
             const preview = previewForPath(booq.nodes, path, length)
-            return preview?.trim()?.substr(0, length)
+            return preview?.trim()?.substring(0, length)
         },
         async nodes(parent) {
             const booq = await booqForId(parent.id)
@@ -79,7 +79,7 @@ function buildTags(card: BooqParent): Tag[] {
         !card.id.startsWith('pg/') ? undefined :
             {
                 tag: 'pg-index',
-                value: card.id.substr('pg/'.length),
+                value: card.id.substring('pg/'.length),
             },
     ])
 }

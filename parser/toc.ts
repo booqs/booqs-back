@@ -10,7 +10,7 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
     const items: TableOfContentsItem[] = []
     for (const epubTocItem of file.toc()) {
         if (epubTocItem.href) {
-            const targetId = transformHref(epubTocItem.href).substr(1)
+            const targetId = transformHref(epubTocItem.href).substring(1)
             const path = findPathForId(nodes, targetId)
             if (path) {
                 items.push({
