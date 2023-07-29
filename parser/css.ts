@@ -91,6 +91,7 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
         switch (parsedRule.type) {
             case 'comment':
             case 'font-face':
+            case 'page':
                 break
             case 'charset': {
                 const charset = (parsedRule as Charset).charset
