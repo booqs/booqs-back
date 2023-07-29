@@ -1,7 +1,7 @@
 import AWS_S3, {
     S3Client,
-    PutObjectCommandInput, PutObjectCommand,
-    GetObjectCommand,
+    PutObjectCommand,
+    GetObjectCommand, GetObjectCommandOutput,
     ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
 
@@ -18,22 +18,33 @@ function service() {
     }
 }
 
+type AssetBody = Exclude<GetObjectCommandOutput['Body'], undefined>;
+async function bodyToBuffer(body: AssetBody): Promise<Buffer> {
+    const array = await body.transformToByteArray();
+    const buffer = Buffer.from(array);
+    return buffer;
+}
+
 export type Asset = AWS_S3._Object;
-export type AssetBody = PutObjectCommandInput['Body'];
-export async function downloadAsset(bucket: string, assetId: string): Promise<AssetBody | undefined> {
+export type AssetContent = Buffer;
+export async function downloadAsset(bucket: string, assetId: string): Promise<AssetContent | undefined> {
     try {
         const command = new GetObjectCommand({
             Bucket: bucket,
             Key: assetId,
         });
         const result = await service().send(command);
-        return result.Body;
+        if (result.Body) {
+            return bodyToBuffer(result.Body);
+        } else {
+            return undefined;
+        }
     } catch (e) {
         return undefined;
     }
 }
 
-export async function uploadAsset(bucket: string, assetId: string, body: AssetBody) {
+export async function uploadAsset(bucket: string, assetId: string, body: AssetContent) {
     const command = new PutObjectCommand({
         Bucket: bucket,
         Key: assetId,
