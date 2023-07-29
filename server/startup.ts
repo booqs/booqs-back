@@ -1,5 +1,5 @@
 import { ApolloServer } from '@apollo/server'
-import { typeDefs, resolvers, context } from './graphql'
+import { readTypeDefs, resolvers, context } from './graphql'
 import { connectDb } from './mongoose'
 import { booqsWorker } from './books'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -24,7 +24,7 @@ export async function startup() {
     // Same ApolloServer initialization as before, plus the drain plugin
     // for our httpServer.
     const server = new ApolloServer({
-        typeDefs,
+        typeDefs: await readTypeDefs(),
         resolvers,
         apollo: {
             graphVariant: process.env.NODE_ENV !== 'development'

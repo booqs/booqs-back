@@ -9,7 +9,7 @@ import { bookmarkResolver } from './bookmark'
 import { highlightResolver } from './highlight'
 import { userResolver } from './user'
 
-export { typeDefs } from './typeDefs'
+export { readTypeDefs } from './typeDefs'
 export { context } from './context'
 
 export const resolvers: IResolvers = {
