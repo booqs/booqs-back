@@ -261,6 +261,10 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
                     return ['rowSpan', value];
                 case 'href':
                     return ['href', value ? transformHref(value) : undefined];
+                case 'cellspacing':
+                    return ['cellSpacing', value];
+                case 'cellpadding':
+                    return ['cellPadding', value];
                 default:
                     return [key, value];
             }
