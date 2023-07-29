@@ -44,7 +44,14 @@ export async function startup() {
     app.use(
         '/graphql',
         cors<cors.CorsRequest>({
-            origin: '*',
+            origin(origin, callback) {
+                // TODO: disallow undefined origin?
+                if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
+                    callback(null, true)
+                } else {
+                    callback(new Error(`${origin} is not allowed by CORS'`))
+                }
+            },
             credentials: true,
         }),
         bodyParser.json(),
