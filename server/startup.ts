@@ -1,34 +1,80 @@
-import { ApolloServer } from 'apollo-server';
-import { typeDefs, resolvers, context } from './graphql';
-import { connectDb } from './mongoose';
-import { booqsWorker } from './books';
+import { ApolloServer } from '@apollo/server'
+import { readTypeDefs, resolvers, context } from './graphql'
+import { connectDb } from './mongoose'
+import { booqsWorker } from './books'
+import { expressMiddleware } from '@apollo/server/express4'
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
+import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
+import http from 'http'
+import cors from 'cors'
+import express from 'express'
+import bodyParser from 'body-parser'
 
 export async function startup() {
-    connectDb();
+    const db = connectDb()
 
+    // Required logic for integrating with Express
+    const app = express()
+    // Our httpServer handles incoming requests to our Express app.
+    // Below, we tell Apollo Server to "drain" this httpServer,
+    // enabling our servers to shut down gracefully.
+    const httpServer = http.createServer(app)
+
+    // Same ApolloServer initialization as before, plus the drain plugin
+    // for our httpServer.
     const server = new ApolloServer({
-        typeDefs,
+        typeDefs: await readTypeDefs(),
         resolvers,
-        context,
-        cors: {
-            origin: true,
-            credentials: true,
-        },
-        engine: {
+        apollo: {
             graphVariant: process.env.NODE_ENV !== 'development'
                 ? 'current' : 'dev',
-            reportSchema: true,
         },
-    });
-    const { url } = await server.listen({
-        port: process.env.PORT || 4000,
-    });
-    console.info(`Server ready at ${url}`);
-    runWorkers();
+        plugins: [
+            ApolloServerPluginDrainHttpServer({ httpServer }),
+            ApolloServerPluginUsageReporting(),
+            ApolloServerPluginSchemaReporting(),
+        ],
+    })
+    // Ensure we wait for our server to start
+    await server.start()
+
+    // Set up our Express middleware to handle CORS, body parsing,
+    // and our expressMiddleware function.
+    app.use(
+        '/graphql',
+        cors<cors.CorsRequest>({
+            origin(origin, callback) {
+                // TODO: disallow undefined origin?
+                if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
+                    callback(null, true)
+                } else {
+                    callback(new Error(`${origin} is not allowed by CORS'`))
+                }
+            },
+            credentials: true,
+        }),
+        bodyParser.json(),
+        // expressMiddleware accepts the same arguments:
+        // an Apollo Server instance and optional configuration options
+        expressMiddleware(server, {
+            context,
+        }),
+    )
+
+    await db
+    // Modified server startup
+    const port = process.env.PORT
+        ? parseInt(process.env.PORT)
+        : 4000
+    await new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+    console.log(`🚀 Server ready at http://localhost:${port}/`)
+
+    runWorkers()
 }
 
 async function runWorkers() {
     if (process.env.RUN_WORKERS) {
-        booqsWorker();
+        booqsWorker()
     }
 }

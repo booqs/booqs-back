@@ -1,21 +1,21 @@
 import {
     BooqNode, Booq, BooqPath, nodesForRange, pathLessThan,
-} from '../../core';
-import { LibraryCard } from '../sources';
-import { booqForId } from '../books';
+} from '../../core'
+import { LibraryCard } from '../sources'
+import { booqForId } from '../books'
 
 export async function buildFragment({ card, path }: {
     card: LibraryCard,
     path?: BooqPath,
 }): Promise<BooqFragment | undefined> {
-    const booq = await booqForId(card.id);
+    const booq = await booqForId(card.id)
     if (!booq) {
-        return undefined;
+        return undefined
     }
 
     return path
         ? fragmentForPath(booq, path)
-        : fullBooqFragment(booq);
+        : fullBooqFragment(booq)
 }
 
 function fullBooqFragment(booq: Booq): BooqFragment {
@@ -29,50 +29,50 @@ function fullBooqFragment(booq: Booq): BooqFragment {
         },
         position: 0,
         nodes: booq.nodes,
-    };
+    }
 }
 
 function fragmentForPath(booq: Booq, path: BooqPath): BooqFragment {
-    let previous: BooqAnchor | undefined;
-    let next: BooqAnchor | undefined;
+    let previous: BooqAnchor | undefined
+    let next: BooqAnchor | undefined
     let current: BooqAnchor = {
         path: [0],
         title: booq.toc.title,
         position: 0,
-    };
+    }
 
     for (const anchor of generateAnchors(booq, fragmentLength)) {
         if (!pathLessThan(path, anchor.path)) {
-            previous = current;
-            current = anchor;
+            previous = current
+            current = anchor
         } else {
-            next = anchor;
-            break;
+            next = anchor
+            break
         }
     }
     const nodes = nodesForRange(booq.nodes, {
         start: current.path,
         end: next?.path ?? [booq.nodes.length],
-    });
+    })
 
     return {
         previous, current, next,
         position: current.position,
         nodes,
-    };
+    }
 }
 
-const fragmentLength = 4500;
+const fragmentLength = 4500
 function* generateAnchors(booq: Booq, length: number) {
-    let position = 0;
+    let position = 0
     for (const item of booq.toc.items) {
         if (item.position - position > length) {
             yield {
                 position: item.position,
                 title: item.title,
                 path: item.path,
-            };
-            position = item.position;
+            }
+            position = item.position
         }
     }
 }

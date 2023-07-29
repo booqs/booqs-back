@@ -1,4 +1,4 @@
-import { flatten } from 'lodash';
+import { flatten } from 'lodash'
 
 export type Diagnostic = {
     diag: string,
@@ -21,5 +21,5 @@ export function combineResults<T>(results: Array<Result<T>>): Result<Array<T | u
     return {
         value: results.map(r => r.value),
         diags: flatten(results.map(r => r.diags)),
-    };
+    }
 }

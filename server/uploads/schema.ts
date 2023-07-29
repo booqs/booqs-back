@@ -1,7 +1,7 @@
-import { typedModel, TypeFromSchema, taggedObject, DocumentType } from '../mongoose';
-import { LibraryCard } from '../sources';
+import { typedModel, TypeFromSchema, taggedObject, DocumentType } from '../mongoose'
+import { LibraryCard } from '../sources'
 
-export const userUploadedEpubsBucket = 'uu-epubs';
+export const userUploadedEpubsBucket = 'uu-epubs'
 
 const cardsSchema = {
     assetId: {
@@ -23,10 +23,10 @@ const cardsSchema = {
     subjects: [String],
     cover: String,
     meta: taggedObject<object>(),
-} as const;
+} as const
 
 export type DbUuCard = TypeFromSchema<typeof cardsSchema>;
-export const uuCards = typedModel('uu-cards', cardsSchema);
+export const uuCards = typedModel('uu-cards', cardsSchema)
 
 export function toLibraryCard(doc: DocumentType<typeof cardsSchema>): LibraryCard {
     return {
@@ -38,5 +38,5 @@ export function toLibraryCard(doc: DocumentType<typeof cardsSchema>): LibraryCar
         description: doc.description,
         subjects: doc.subjects,
         cover: doc.cover,
-    };
+    }
 }

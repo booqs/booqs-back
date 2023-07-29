@@ -1,29 +1,29 @@
 #! /usr/bin/env node
-import { prepPgLib } from './pgprep';
-import { parseEpubs } from './parse';
+import { prepPgLib } from './pgprep'
+import { parseEpubs } from './parse'
 
-exec();
+exec()
 
 async function exec() {
-    const [_, __, cmd, ...args] = process.argv;
+    const [_, __, cmd, ...args] = process.argv
     switch (cmd) {
         case 'pgprep': {
-            const [from, to] = args;
+            const [from, to] = args
             if (from && to) {
-                await prepPgLib(from, to);
+                await prepPgLib(from, to)
             }
-            break;
+            break
         }
         case 'parse': {
-            const [path] = args;
+            const [path] = args
             if (path) {
-                await parseEpubs(path);
+                await parseEpubs(path)
             }
-            break;
+            break
         }
         default: {
-            console.log(`Unknown command: ${cmd}`);
-            break;
+            console.log(`Unknown command: ${cmd}`)
+            break
         }
     }
 }

@@ -1,7 +1,7 @@
-import * as mongoose from 'mongoose';
-import { uuCards, userUploadedEpubsBucket } from './schema';
-import { downloadAsset } from '../s3';
-import { LibraryCard } from '../sources';
+import mongoose from 'mongoose'
+import { uuCards, userUploadedEpubsBucket } from './schema'
+import { downloadAsset } from '../s3'
+import { LibraryCard } from '../sources'
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
     return uuCards
@@ -23,17 +23,17 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
             id: _id,
             title, author, language, subjects, description, meta,
             cover, length,
-        })));
+        })))
 }
 
 export async function fileForId(id: string) {
-    const doc = await uuCards.findOne({ _id: id }).exec();
+    const doc = await uuCards.findOne({ _id: id }).exec()
     if (!doc) {
-        return undefined;
+        return undefined
     } else {
-        const asset = await downloadAsset(userUploadedEpubsBucket, doc.assetId);
+        const asset = await downloadAsset(userUploadedEpubsBucket, doc.assetId)
         return Buffer.isBuffer(asset)
             ? { kind: 'epub', file: asset } as const
-            : undefined;
+            : undefined
     }
 }

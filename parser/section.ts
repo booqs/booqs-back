@@ -1,4 +1,4 @@
-import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core';
+import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core'
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
@@ -45,7 +45,7 @@ async function processSectionContent(content: string, env: Env): Promise<BooqNod
         });
         return undefined;
     } else {
-        const stylesheet = head?.name !== undefined
+        const stylesheet = head && (head as any).name !== undefined
             ? await processHead(head, env)
             : undefined;
         return processBody(body, {
@@ -261,6 +261,10 @@ function processAttributes(attrs: XmlAttributes, env: Env) {
                     return ['rowSpan', value];
                 case 'href':
                     return ['href', value ? transformHref(value) : undefined];
+                case 'cellspacing':
+                    return ['cellSpacing', value];
+                case 'cellpadding':
+                    return ['cellPadding', value];
                 default:
                     return [key, value];
             }

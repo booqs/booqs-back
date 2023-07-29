@@ -10,7 +10,7 @@ export async function connectDb() {
         if (dbUri) {
             console.log('Connecting to db...');
             db = await connect(dbUri);
-            console.log('Connected');
+            console.log('Connected to db');
         } else {
             console.warn('BOOQS_BACKEND_MONGODB_URI is not set');
         }

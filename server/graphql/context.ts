@@ -1,62 +1,54 @@
-import { fromCookie } from '../auth';
-import { DbUser } from '../users';
-import { config } from '../config';
+import { StartStandaloneServerOptions } from '@apollo/server/standalone'
+import { fromCookie } from '../auth'
+import { DbUser } from '../users'
+import { config } from '../config'
+import { serialize } from 'cookie'
 
-type CookieOptions = {
-    httpOnly?: boolean,
-    domain?: string,
-    secure?: boolean,
-    maxAge?: number,
-};
-type ExpressContext = {
-    req: {
-        headers: {
-            authorization?: string,
-            cookie?: string,
-        },
-    },
-    res: {
-        cookie(name: string, val: string, options?: CookieOptions): void,
-        clearCookie(name: string, options?: any): void,
-    },
-};
 export type Context = {
     user?: DbUser & { _id?: string },
     setAuthToken(token: string | undefined): void,
 };
-export async function context(context: ExpressContext): Promise<Context> {
-    const parsed = parseCookies(context.req.headers.cookie ?? '');
-    const cookie = parsed.token ?? '';
-    const user = await fromCookie(cookie) ?? undefined;
+type StandaloneServerContext = StartStandaloneServerOptions<{}>['context'];
+export const context: StandaloneServerContext = async (context): Promise<Context> => {
+    const parsed = parseCookies(context.req.headers.cookie ?? '')
+    const cookie = parsed.token ?? ''
+    const user = await fromCookie(cookie) ?? undefined
 
     return {
         user,
         setAuthToken(token) {
             if (token) {
-                context.res.cookie('token', token, {
+                context.res.setHeader('Set-Cookie', serialize('token', token, {
                     httpOnly: true,
                     secure: config().https ? true : false,
-                    // TODO: set 'domain' property
-                });
-                context.res.cookie('signed', 'true', {});
+                }))
+                context.res.setHeader('Set-Cookie', serialize('signed', 'true', {
+                    httpOnly: false,
+                }))
             } else {
-                context.res.clearCookie('token');
-                context.res.clearCookie('signed');
+                context.res.setHeader('Set-Cookie', serialize('token', '', {
+                    httpOnly: true,
+                    maxAge: 0,
+                }))
+                context.res.setHeader('Set-Cookie', serialize('signed', '', {
+                    httpOnly: true,
+                    maxAge: 0,
+                }))
             }
         },
-    };
+    }
 }
 
 function parseCookies(cookie: string) {
-    const pairs = cookie.split('; ');
+    const pairs = cookie.split('; ')
     const result = pairs.reduce<{ [key: string]: string | undefined }>(
         (res, pair) => {
-            const [name, value] = pair.split('=');
-            res[name] = value;
-            return res;
+            const [name, value] = pair.split('=')
+            res[name] = value
+            return res
         },
         {},
-    );
-    return result;
+    )
+    return result
 }
 

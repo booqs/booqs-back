@@ -1,7 +1,7 @@
-import { users } from '../users';
-import { fetchFbUser } from './facebook';
-import { generateToken, userIdFromHeader, userIdFromToken } from './token';
-import { verifyAppleIdToken } from './apple';
+import { users } from '../users'
+import { fetchFbUser } from './facebook'
+import { generateToken, userIdFromHeader, userIdFromToken } from './token'
+import { verifyAppleIdToken } from './apple'
 
 export type AuthInput = {
     provider: string,
@@ -9,50 +9,50 @@ export type AuthInput = {
     name?: string,
 };
 export async function authWithToken(input: AuthInput) {
-    const user = await getUser(input);
+    const user = await getUser(input)
     if (user) {
-        const token = generateToken(user._id);
+        const token = generateToken(user._id)
         return {
             token,
             user,
-        };
+        }
     } else {
-        return undefined;
+        return undefined
     }
 }
 
 async function getUser(input: AuthInput) {
     switch (input.provider) {
         case 'facebook': {
-            const fb = await fetchFbUser(input.token);
-            return fb && users.forFacebook(fb);
+            const fb = await fetchFbUser(input.token)
+            return fb && users.forFacebook(fb)
         }
         case 'apple': {
-            const userInfo = await verifyAppleIdToken(input.token);
+            const userInfo = await verifyAppleIdToken(input.token)
             if (userInfo) {
                 return users.forApple({
                     id: userInfo.userId,
                     name: input.name,
                     email: userInfo.email,
-                });
+                })
             }
-            return undefined;
+            return undefined
         }
         default:
-            return undefined;
+            return undefined
     }
 }
 
 export async function fromHeader(header: string) {
-    const userId = userIdFromHeader(header);
+    const userId = userIdFromHeader(header)
     return userId
         ? users.forId(userId)
-        : undefined;
+        : undefined
 }
 
 export async function fromCookie(cookie: string) {
-    const userId = userIdFromToken(cookie);
+    const userId = userIdFromToken(cookie)
     return userId
         ? users.forId(userId)
-        : undefined;
+        : undefined
 }

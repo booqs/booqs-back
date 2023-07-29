@@ -1,5 +1,5 @@
-import { flatten } from 'lodash';
-import { BooqHistoryData, collection, DbUser } from './schema';
+import { flatten } from 'lodash'
+import { BooqHistoryData, collection, DbUser } from './schema'
 
 export type DbBooqHistory = BooqHistoryData & {
     booqId: string,
@@ -11,10 +11,10 @@ export function userBooqHistory(user: DbUser): DbBooqHistory[] {
             booqId, source,
             ...data,
         })),
-    );
-    const flat = flatten(flatten(results));
-    const sorted = flat.sort((a, b) => b.date.valueOf() - a.date.valueOf());
-    return sorted;
+    )
+    const flat = flatten(flatten(results))
+    const sorted = flat.sort((a, b) => b.date.valueOf() - a.date.valueOf())
+    return sorted
 }
 
 export async function addBooqHistory(
@@ -26,9 +26,9 @@ export async function addBooqHistory(
         {
             [`history.${booqId}.${source}`]: data,
         },
-    ).exec();
+    ).exec()
 
-    return result ? true : false;
+    return result ? true : false
 }
 
 export async function deleteBooqHistory(
@@ -42,7 +42,7 @@ export async function deleteBooqHistory(
                 [`history.${booqId}`]: '',
             },
         },
-    ).exec();
+    ).exec()
 
-    return result ? true : false;
+    return result ? true : false
 }

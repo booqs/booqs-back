@@ -1,6 +1,6 @@
-import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
+import { typedModel, TypeFromSchema, taggedObject } from '../mongoose'
 
-export const pgEpubsBucket = 'pg-epubs';
+export const pgEpubsBucket = 'pg-epubs'
 
 const schema = {
     assetId: {
@@ -24,7 +24,7 @@ const schema = {
     subjects: [String],
     cover: String,
     meta: taggedObject<object>(),
-} as const;
+} as const
 
 export type DbPgCard = TypeFromSchema<typeof schema>;
-export const pgCards = typedModel('pg-cards', schema);
+export const pgCards = typedModel('pg-cards', schema)

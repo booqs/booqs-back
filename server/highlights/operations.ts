@@ -1,21 +1,21 @@
-import { DbHighlight, collection } from './schema';
+import { DbHighlight, collection } from './schema'
 
 
 export async function forId(id: string): Promise<DbHighlight | undefined> {
-    const highlight = await collection.findOne({ id }).exec();
-    return highlight ?? undefined;
+    const highlight = await collection.findOne({ id }).exec()
+    return highlight ?? undefined
 }
 
 export async function forBooqId(booqId: string): Promise<DbHighlight[]> {
     return collection
         .find({ booqId })
-        .exec();
+        .exec()
 }
 
 export async function add(highlight: DbHighlight) {
-    const result = await collection.insertMany([highlight]);
+    const result = await collection.insertMany([highlight])
 
-    return result?.length ? true : false;
+    return result?.length ? true : false
 }
 
 export async function remove({
@@ -23,9 +23,9 @@ export async function remove({
 }: Pick<DbHighlight, 'userId' | 'id'>) {
     const result = await collection
         .findOneAndDelete({ userId, id })
-        .exec();
+        .exec()
 
-    return result ? true : false;
+    return result ? true : false
 }
 
 export async function update({
@@ -36,7 +36,7 @@ export async function update({
             { userId, id },
             { group },
         )
-        .exec();
+        .exec()
 
-    return result ? true : false;
+    return result ? true : false
 }
