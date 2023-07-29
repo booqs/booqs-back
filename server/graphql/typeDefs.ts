@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server';
+import { gql } from 'apollo-server'
 export const typeDefs = gql`
 type Query {
     auth(token: String!, provider: String!, name: String): AuthResult
@@ -117,4 +117,4 @@ type BooqHistory {
 type Collection {
     booqs: [Booq!]
 }
-`;
+`

@@ -1,7 +1,7 @@
-import { uniq } from 'lodash';
-import { filterUndefined } from '../../core';
-import { collection, DbUser } from './schema';
-import { afterPrefix } from '../utils';
+import { uniq } from 'lodash'
+import { filterUndefined } from '../../core'
+import { collection, DbUser } from './schema'
+import { afterPrefix } from '../utils'
 
 export type DbCollection = string[];
 export function userCollection(user: DbUser, name: string): DbCollection {
@@ -10,23 +10,23 @@ export function userCollection(user: DbUser, name: string): DbCollection {
             return combineCollections([
                 namedCollection(user, 'my-books'),
                 namedCollection(user, 'uploads'),
-            ]);
+            ])
         default:
-            return namedCollection(user, name);
+            return namedCollection(user, name)
     }
 }
 
 function namedCollection(user: DbUser, name: string): DbCollection {
     const result = filterUndefined(
         user.collections?.map(c => afterPrefix(c, `${name}:`)) ?? [],
-    );
-    return result;
+    )
+    return result
 }
 
 function combineCollections(collections: DbCollection[]): DbCollection {
-    const all = collections.reduce((res, curr) => res.concat(curr));
-    const result = uniq(all);
-    return result;
+    const all = collections.reduce((res, curr) => res.concat(curr))
+    const result = uniq(all)
+    return result
 }
 
 export async function addToCollection(
@@ -41,8 +41,8 @@ export async function addToCollection(
                 collections: `${name}:${booqId}`,
             },
         },
-    );
-    return result ? true : false;
+    )
+    return result ? true : false
 }
 
 export async function removeFromCollection(
@@ -57,10 +57,10 @@ export async function removeFromCollection(
                 collections: `${name}:${booqId}`,
             },
         },
-    );
-    return result ? true : false;
+    )
+    return result ? true : false
 }
 
 export async function addUpload(userId: string, uploadId: string) {
-    return addToCollection(userId, 'uploads', `uu/${uploadId}`);
+    return addToCollection(userId, 'uploads', `uu/${uploadId}`)
 }

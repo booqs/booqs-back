@@ -1,7 +1,7 @@
-import { forBooqId, add, remove, update } from './operations';
-import { DbHighlight } from './schema';
+import { forBooqId, add, remove, update } from './operations'
+import { DbHighlight } from './schema'
 
-export { DbHighlight };
+export { DbHighlight }
 export const highlights = {
     forBooqId, add, update, remove,
-};
+}

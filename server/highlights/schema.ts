@@ -1,4 +1,4 @@
-import { typedModel, TypeFromSchema } from '../mongoose';
+import { typedModel, TypeFromSchema } from '../mongoose'
 
 const schema = {
     id: {
@@ -25,7 +25,7 @@ const schema = {
         type: String,
         required: true,
     },
-} as const;
-export const collection = typedModel('highlights', schema);
+} as const
+export const collection = typedModel('highlights', schema)
 
 export type DbHighlight = TypeFromSchema<typeof schema>;

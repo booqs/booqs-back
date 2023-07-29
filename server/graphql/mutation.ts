@@ -1,10 +1,10 @@
-import { ReadStream } from 'fs';
-import { IResolvers } from 'apollo-server';
-import { uniqueId } from '../../core';
-import { users } from '../users';
-import { uploadToSource } from '../books';
-import { highlights } from '../highlights';
-import { Context } from './context';
+import { ReadStream } from 'fs'
+import { IResolvers } from 'apollo-server'
+import { uniqueId } from '../../core'
+import { users } from '../users'
+import { uploadToSource } from '../books'
+import { highlights } from '../highlights'
+import { Context } from './context'
 
 export const mutationResolver: IResolvers<any, Context> = {
     Mutation: {
@@ -16,9 +16,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                         id: bookmark.id ?? uniqueId(),
                         booqId: bookmark.booqId,
                         path: bookmark.path,
-                    });
+                    })
             } else {
-                return false;
+                return false
             }
         },
         async removeBookmark(_, { id }, { user }) {
@@ -26,9 +26,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return users.deleteBookmark(
                     user._id,
                     { id },
-                );
+                )
             } else {
-                return false;
+                return false
             }
         },
         async addHighlight(_, { highlight }, { user }) {
@@ -40,9 +40,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                     start: highlight.start,
                     end: highlight.end,
                     group: highlight.group,
-                });
+                })
             } else {
-                return false;
+                return false
             }
         },
         async removeHighlight(_, { id }, { user }) {
@@ -50,9 +50,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return highlights.remove({
                     userId: user._id,
                     id: id,
-                });
+                })
             } else {
-                return false;
+                return false
             }
         },
         async updateHighlight(_, { id, group }, { user }) {
@@ -61,9 +61,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                     userId: user._id,
                     id: id,
                     group,
-                });
+                })
             } else {
-                return false;
+                return false
             }
         },
         async addBooqHistory(_, { event }, { user }) {
@@ -75,9 +75,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                         path: event.path,
                         source: event.source,
                         date: new Date(Date.now()),
-                    });
+                    })
             } else {
-                return false;
+                return false
             }
         },
         async removeBooqHistory(_, { booqId }, { user }) {
@@ -85,9 +85,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                 return users.deleteBooqHistory(
                     user._id,
                     { booqId },
-                );
+                )
             } else {
-                return false;
+                return false
             }
         },
         async addToCollection(_, { booqId, name }, { user }) {
@@ -96,9 +96,9 @@ export const mutationResolver: IResolvers<any, Context> = {
                     user._id,
                     name,
                     booqId,
-                );
+                )
             } else {
-                return false;
+                return false
             }
         },
         async removeFromCollection(_, { booqId, name }, { user }) {
@@ -107,16 +107,16 @@ export const mutationResolver: IResolvers<any, Context> = {
                     user._id,
                     name,
                     booqId,
-                );
+                )
             } else {
-                return false;
+                return false
             }
         },
         async uploadEpub(_, { file, source }, { user }) {
             if (user?._id) {
-                const actual = await file;
-                const stream: ReadStream = actual.createReadStream();
-                const card = await uploadToSource('uu', stream, user._id);
+                const actual = await file
+                const stream: ReadStream = actual.createReadStream()
+                const card = await uploadToSource('uu', stream, user._id)
                 if (card) {
                     users.addBooqHistory(
                         user?._id,
@@ -126,12 +126,12 @@ export const mutationResolver: IResolvers<any, Context> = {
                             source: source,
                             date: new Date(Date.now()),
                         },
-                    );
-                    return card;
+                    )
+                    return card
                 }
             }
 
-            return undefined;
+            return undefined
         },
     },
-};
+}

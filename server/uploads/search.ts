@@ -1,5 +1,5 @@
-import { uuCards } from './schema';
-import { LibraryCard } from '../sources';
+import { uuCards } from './schema'
+import { LibraryCard } from '../sources'
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
     return uuCards.aggregate([{
@@ -41,5 +41,5 @@ export async function search(query: string, limit: number): Promise<LibraryCard[
             id: '$index',
         },
     },
-    ]).exec();
+    ]).exec()
 }

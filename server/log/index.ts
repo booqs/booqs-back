@@ -1,4 +1,4 @@
-import { typedModel, TypeFromSchema } from '../mongoose';
+import { typedModel, TypeFromSchema } from '../mongoose'
 
 const schema = {
     id: {
@@ -11,18 +11,18 @@ const schema = {
     },
     message: String,
     data: Object,
-} as const;
+} as const
 
 export type DbLog = TypeFromSchema<typeof schema>;
-const logModel = typedModel('log', schema);
+const logModel = typedModel('log', schema)
 
 export async function logItem(item: DbLog) {
-    return logModel.insertMany([item]);
+    return logModel.insertMany([item])
 }
 
 export async function logExists({ kind, id }: {
     kind: string,
     id: string,
 }) {
-    return logModel.exists({ kind, id });
+    return logModel.exists({ kind, id })
 }

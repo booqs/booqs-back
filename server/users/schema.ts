@@ -1,5 +1,5 @@
-import { BooqPath } from '../../core';
-import { typedModel, TypeFromSchema, taggedObject } from '../mongoose';
+import { BooqPath } from '../../core'
+import { typedModel, TypeFromSchema, taggedObject } from '../mongoose'
 
 const schema = {
     joined: {
@@ -14,8 +14,8 @@ const schema = {
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
     history: taggedObject<StringMap<StringMap<BooqHistoryData>>>(),
     collections: [String],
-} as const;
-export const collection = typedModel('users', schema);
+} as const
+export const collection = typedModel('users', schema)
 
 export type DbUser = TypeFromSchema<typeof schema>;
 

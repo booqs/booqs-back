@@ -45,7 +45,7 @@ module.exports = {
     "no-inner-declarations": "off",
     "space-before-function-paren": "off",
     "indent": "off",
-    "semi": ["error", "always"],
+    "semi": ["error", "never"],
     "quotes": ["error", "single"],
     "generator-star-spacing": ["error", "after"],
     "comma-dangle": ["error", "always-multiline"],

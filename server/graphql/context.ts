@@ -1,6 +1,6 @@
-import { fromCookie } from '../auth';
-import { DbUser } from '../users';
-import { config } from '../config';
+import { fromCookie } from '../auth'
+import { DbUser } from '../users'
+import { config } from '../config'
 
 type CookieOptions = {
     httpOnly?: boolean,
@@ -25,9 +25,9 @@ export type Context = {
     setAuthToken(token: string | undefined): void,
 };
 export async function context(context: ExpressContext): Promise<Context> {
-    const parsed = parseCookies(context.req.headers.cookie ?? '');
-    const cookie = parsed.token ?? '';
-    const user = await fromCookie(cookie) ?? undefined;
+    const parsed = parseCookies(context.req.headers.cookie ?? '')
+    const cookie = parsed.token ?? ''
+    const user = await fromCookie(cookie) ?? undefined
 
     return {
         user,
@@ -37,26 +37,26 @@ export async function context(context: ExpressContext): Promise<Context> {
                     httpOnly: true,
                     secure: config().https ? true : false,
                     // TODO: set 'domain' property
-                });
-                context.res.cookie('signed', 'true', {});
+                })
+                context.res.cookie('signed', 'true', {})
             } else {
-                context.res.clearCookie('token');
-                context.res.clearCookie('signed');
+                context.res.clearCookie('token')
+                context.res.clearCookie('signed')
             }
         },
-    };
+    }
 }
 
 function parseCookies(cookie: string) {
-    const pairs = cookie.split('; ');
+    const pairs = cookie.split('; ')
     const result = pairs.reduce<{ [key: string]: string | undefined }>(
         (res, pair) => {
-            const [name, value] = pair.split('=');
-            res[name] = value;
-            return res;
+            const [name, value] = pair.split('=')
+            res[name] = value
+            return res
         },
         {},
-    );
-    return result;
+    )
+    return result
 }
 

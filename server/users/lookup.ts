@@ -1,8 +1,8 @@
-import { DbUser, collection } from './schema';
+import { DbUser, collection } from './schema'
 
 
 export async function forId(id: string) {
-    return collection.findById(id).exec();
+    return collection.findById(id).exec()
 }
 
 export type UserInfo = {
@@ -14,15 +14,15 @@ export type UserInfo = {
 export async function forFacebook(facebookUser: UserInfo) {
     const result = await collection
         .findOne({ facebookId: facebookUser.id })
-        .exec();
+        .exec()
 
-    let doc: typeof result;
+    let doc: typeof result
     if (result) {
-        result.name = facebookUser.name;
-        result.pictureUrl = facebookUser.pictureUrl;
-        result.email = facebookUser.email;
-        await result.save();
-        doc = result;
+        result.name = facebookUser.name
+        result.pictureUrl = facebookUser.pictureUrl
+        result.email = facebookUser.email
+        await result.save()
+        doc = result
     } else {
         const toAdd: DbUser = {
             facebookId: facebookUser.id,
@@ -30,9 +30,9 @@ export async function forFacebook(facebookUser: UserInfo) {
             pictureUrl: facebookUser.pictureUrl,
             email: facebookUser.email,
             joined: new Date(),
-        };
-        const [insertResult] = await collection.insertMany([toAdd]);
-        doc = insertResult;
+        }
+        const [insertResult] = await collection.insertMany([toAdd])
+        doc = insertResult
     }
 
     return {
@@ -41,7 +41,7 @@ export async function forFacebook(facebookUser: UserInfo) {
         pictureUrl: doc.pictureUrl,
         email: doc.email,
         joined: doc.joined,
-    };
+    }
 }
 
 export async function forApple({ id, name, email }: {
@@ -51,26 +51,26 @@ export async function forApple({ id, name, email }: {
 }) {
     const result = await collection
         .findOne({ appleId: id })
-        .exec();
+        .exec()
 
-    let doc: typeof result;
+    let doc: typeof result
     if (result) {
         if (name) {
-            result.name = name;
+            result.name = name
         }
         if (email) {
-            result.email = email;
+            result.email = email
         }
-        await result.save();
-        doc = result;
+        await result.save()
+        doc = result
     } else {
         const toAdd: DbUser = {
             appleId: id,
             name, email,
             joined: new Date(),
-        };
-        const [insertResult] = await collection.insertMany([toAdd]);
-        doc = insertResult;
+        }
+        const [insertResult] = await collection.insertMany([toAdd])
+        doc = insertResult
     }
 
     return {
@@ -79,5 +79,5 @@ export async function forApple({ id, name, email }: {
         pictureUrl: doc.pictureUrl,
         email: doc.email,
         joined: doc.joined,
-    };
+    }
 }

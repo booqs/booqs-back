@@ -6,4 +6,4 @@ module.exports = {
             url: 'https://api.booqs.app/graphql',
         },
     },
-};
+}
