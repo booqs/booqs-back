@@ -91,6 +91,7 @@ async function processLink(link: XmlElement, env: Env) {
         case 'stylesheet':
             break;
         case 'coverpage':
+        case 'icon':
             return [];
         default:
             env.report({
@@ -107,10 +108,14 @@ async function processLink(link: XmlElement, env: Env) {
             return [];
         // Note: unknown unsupported
         default:
-            env.report({
-                message: `unexpected link type: ${type}`,
-            });
-            return [];
+            if (rel !== 'stylesheet') {
+                env.report({
+                    message: `unexpected link type: ${type}`,
+                    data: { xml: xml2string(link) },
+                });
+                return [];
+            }
+            break
     }
     if (href === undefined) {
         env.report({

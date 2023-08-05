@@ -4,26 +4,32 @@ import { join } from 'path'
 import { parseEpub } from '../parser'
 import { pretty } from '../server/utils'
 
-export async function parseEpubs(path: string) {
+export async function parseEpubs(path: string, options: {
+    verbose?: boolean,
+}) {
     if (!await promisify(exists)(path)) {
         console.log(`No such file or directory: ${path}`)
         return
     }
 
     for await (const filePath of listEpubs([path])) {
-        await processFile(filePath)
+        await processFile(filePath, options.verbose)
     }
 }
 
-async function processFile(filePath: string) {
+async function processFile(filePath: string, verbose?: boolean) {
     try {
-        console.log(pretty(`Processing ${filePath}`))
+        if (verbose) {
+            console.log(pretty(`Processing ${filePath}`))
+        }
         const file = await promisify(readFile)(filePath)
         const result = await parseEpub({
             fileData: file,
             diagnoser: diag => console.log(pretty(diag)),
         })
-        console.log(pretty(result?.meta))
+        if (verbose) {
+            console.log(pretty(result?.meta))
+        }
     } catch (err) {
         console.log(pretty(err))
     }

@@ -16,9 +16,11 @@ async function exec() {
             break
         }
         case 'parse': {
-            const [path] = args
+            const [path, verbose] = args
             if (path) {
-                await parseEpubs(path)
+                await parseEpubs(path, {
+                    verbose: verbose === '--verbose',
+                })
             }
             break
         }
