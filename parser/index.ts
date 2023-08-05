@@ -1,6 +1,6 @@
 import { Booq, BooqMeta } from '../core'
 import { Diagnoser } from './result'
-import { openEpub } from './epubFile'
+import { openEpub } from './epub'
 import { processEpub } from './book'
 import { getMetadata } from './metadata'
 

@@ -16,13 +16,17 @@ export async function parseEpubs(path: string) {
 }
 
 async function processFile(filePath: string) {
-    console.log(pretty(`Processing ${filePath}`))
-    const file = await promisify(readFile)(filePath)
-    const result = await parseEpub({
-        fileData: file,
-        diagnoser: diag => console.log(pretty(diag)),
-    })
-    console.log(pretty(result?.meta))
+    try {
+        console.log(pretty(`Processing ${filePath}`))
+        const file = await promisify(readFile)(filePath)
+        const result = await parseEpub({
+            fileData: file,
+            diagnoser: diag => console.log(pretty(diag)),
+        })
+        console.log(pretty(result?.meta))
+    } catch (err) {
+        console.log(pretty(err))
+    }
 }
 
 async function* listEpubs(paths: string[]): AsyncGenerator<string> {

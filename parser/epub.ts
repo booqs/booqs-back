@@ -1,0 +1,1 @@
+export { openEpub } from './epubNew'
