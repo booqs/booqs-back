@@ -1,7 +1,7 @@
 import { flatten } from 'lodash'
 
 export type Diagnostic = {
-    diag: string,
+    message: string,
     severity?: 'error' | 'warning' | 'info',
     data?: object,
 };

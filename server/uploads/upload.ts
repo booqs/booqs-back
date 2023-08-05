@@ -22,7 +22,7 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
 
     const booq = await parseEpub({
         fileData: buffer,
-        diagnoser: diag => report(diag.diag, diag.data),
+        diagnoser: diag => report(diag.message, diag.data),
     })
     if (!booq) {
         report('Can\'t parse upload')

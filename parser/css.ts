@@ -4,7 +4,7 @@ import {
 import { compile, is } from 'css-select'
 import { SpecificityArray, calculate, compare } from 'specificity'
 import { flatten } from 'lodash'
-import { Result, combineResults, Diagnostic } from './result'
+import { Result, combineResults, Diagnostic, Success } from './result'
 import { filterUndefined } from '../core'
 import { XmlElement, attributesOf } from './xmlTree'
 
@@ -34,7 +34,7 @@ export function parseCss(css: string, fileName: string): Result<Stylesheet> {
     })
     if (parsed.stylesheet?.parsingErrors?.length) {
         diags.push({
-            diag: 'css parsing error',
+            message: 'css parsing error',
             data: {
                 errors: parsed.stylesheet.parsingErrors.map(
                     e => ({ ...e, message: undefined }),
@@ -97,7 +97,7 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
                 const charset = (parsedRule as Charset).charset
                 if (charset !== '"utf-8"') {
                     diags.push({
-                        diag: `unsupported charset: ${charset}`,
+                        message: `unsupported charset: ${charset}`,
                     })
                 }
                 break
@@ -118,7 +118,7 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
             }
             default:
                 diags.push({
-                    diag: `unsupported css rule: ${parsedRule.type}`,
+                    message: `unsupported css rule: ${parsedRule.type}`,
                 })
                 break
         }
@@ -158,7 +158,7 @@ function buildRule(rule: Rule): Result<StyleRule> {
     }
 }
 
-function processMedia(media: Media) {
+function processMedia(media: Media): Success<StyleRule[]> {
     switch (media.media) {
         case 'all':
         case 'screen':
@@ -170,7 +170,7 @@ function processMedia(media: Media) {
             return {
                 value: [],
                 diags: [{
-                    diag: `unsupported media rule: ${media.media}`,
+                    message: `unsupported media rule: ${media.media}`,
                 }],
             }
     }
@@ -225,7 +225,7 @@ function parseSelector(selector: string): Result<Selector> {
     } catch (err) {
         return {
             diags: [{
-                diag: `Couldn't parse selector: ${selector}`,
+                message: `Couldn't parse selector: ${selector}`,
                 data: err as object,
             }],
         }

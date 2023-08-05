@@ -39,7 +39,7 @@ async function processSectionContent(content: string, env: Env): Promise<BooqNod
     const body = findByName(elements, 'body');
     if (!body) {
         env.report({
-            diag: 'missing body node',
+            message: 'missing body node',
             data: { xml: xml2string(...elements) },
         });
         return undefined;
@@ -76,7 +76,7 @@ async function processHead(head: XmlElement, env: Env) {
             default:
                 if (!isEmptyText(ch)) {
                     env.report({
-                        diag: 'unexpected head node',
+                        message: 'unexpected head node',
                         data: { xml: xml2string(ch) },
                     });
                 }
@@ -94,7 +94,7 @@ async function processLink(link: XmlElement, env: Env) {
             return [];
         default:
             env.report({
-                diag: `unexpected link rel: ${rel}`,
+                message: `unexpected link rel: ${rel}`,
                 data: { xml: xml2string(link) },
             });
             return [];
@@ -108,13 +108,13 @@ async function processLink(link: XmlElement, env: Env) {
         // Note: unknown unsupported
         default:
             env.report({
-                diag: `unexpected link type: ${type}`,
+                message: `unexpected link type: ${type}`,
             });
             return [];
     }
     if (href === undefined) {
         env.report({
-            diag: 'missing href on link',
+            message: 'missing href on link',
             data: { xml: xml2string(link) },
         });
         return [];
@@ -122,7 +122,7 @@ async function processLink(link: XmlElement, env: Env) {
     const content = await env.resolveTextFile(href);
     if (content === undefined) {
         env.report({
-            diag: `couldn't load css: ${href}`,
+            message: `couldn't load css: ${href}`,
         });
         return [];
     } else {
@@ -138,7 +138,7 @@ async function processStyleElement(style: XmlElement, env: Env) {
     const text = content && textOf(content);
     if (type !== 'text/css' || text === undefined) {
         env.report({
-            diag: 'unsupported style tag',
+            message: 'unsupported style tag',
             data: { xml: xml2string(style) },
         });
         return [];

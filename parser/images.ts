@@ -23,7 +23,7 @@ export async function buildImages(nodes: BooqNode[], file: EpubFile) {
             images[src] = image
         } else {
             diags.push({
-                diag: `Couldn't load image: ${src}`,
+                message: `Couldn't load image: ${src}`,
             })
         }
     }

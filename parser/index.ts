@@ -22,7 +22,7 @@ export async function parseEpub({ fileData, diagnoser }: {
         return book
     } catch (err) {
         diagnoser({
-            diag: 'Unhandled exception on parsing',
+            message: 'Unhandled exception on parsing',
             data: err as object,
         })
         return undefined
@@ -51,7 +51,7 @@ export async function extractMetadata({ fileData, extractCover, diagnoser }: {
             const coverBuffer = await epub.bufferResolver(coverHref)
             if (!coverBuffer) {
                 diagnoser({
-                    diag: `couldn't load cover image: ${coverHref}`,
+                    message: `couldn't load cover image: ${coverHref}`,
                 })
                 return { metadata }
             } else {

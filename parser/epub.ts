@@ -93,7 +93,7 @@ export async function openEpub({ fileData }: {
         } catch (e) {
             return {
                 diags: [{
-                    diag: 'exception on epub open',
+                    message: 'exception on epub open',
                     data: e as object,
                 }],
             }
@@ -101,7 +101,7 @@ export async function openEpub({ fileData }: {
     }
     return {
         diags: [{
-            diag: 'no packages found',
+            message: 'no packages found',
         }],
     }
 }
