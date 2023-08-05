@@ -1,7 +1,7 @@
 import {
     BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core'
-import { EpubFile } from './epubFile'
+import { EpubFile } from './epub'
 import { Diagnostic, Result } from './result'
 import { transformHref } from './parserUtils'
 

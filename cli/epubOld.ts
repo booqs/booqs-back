@@ -1,8 +1,33 @@
 import { EPub } from 'epub2'
-import { Result } from './result'
-import { EpubFile, EpubMetadata, EpubSection } from './epubFile'
+import { Diagnoser, Result } from '../parser/result'
+import { EpubFile, EpubMetadata, EpubSection } from '../parser/epub'
+import { processEpub } from '../parser/book'
+import { Booq } from '../core'
 
-export async function openEpub({ fileData }: {
+export async function parseEpub({ fileData, diagnoser }: {
+    fileData: Buffer,
+    diagnoser?: Diagnoser,
+}): Promise<Booq | undefined> {
+    diagnoser = diagnoser ?? (() => undefined)
+    try {
+        const { value: file, diags: fileDiags } = await openEpub({ fileData })
+        fileDiags.forEach(diagnoser)
+        if (!file) {
+            return undefined
+        }
+        const { value: book, diags: bookDiags } = await processEpub(file)
+        bookDiags.forEach(diagnoser)
+        return book
+    } catch (err) {
+        diagnoser({
+            diag: 'Unhandled exception on parsing',
+            data: err as object,
+        })
+        return undefined
+    }
+}
+
+async function openEpub({ fileData }: {
     fileData: Buffer,
 }): Promise<Result<EpubFile>> {
     let epub: FixedEpub

@@ -2,7 +2,7 @@ import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core'
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
-import { EpubSection, EpubFile } from './epubFile';
+import { EpubSection, EpubFile } from './epub';
 import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
 import { Result, Diagnostic } from './result';
 import { transformHref } from './parserUtils';

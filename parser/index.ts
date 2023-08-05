@@ -1,39 +1,13 @@
 import { Booq, BooqMeta } from '../core'
-import { Diagnoser, Result } from './result'
+import { Diagnoser } from './result'
 import { processEpub } from './book'
 import { getMetadata } from './metadata'
-import { EpubFile } from './epubFile'
-import { openEpub } from './epubNew'
-import { openEpub as openEpubOld } from './epubOld'
+import { openEpub } from './epub'
 
 export * from './result'
 
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
-    diagnoser?: Diagnoser,
-}) {
-    return parseEpubImpl({
-        fileData,
-        openEpub,
-        diagnoser,
-    })
-}
-
-export async function parseEpubOld({ fileData, diagnoser }: {
-    fileData: Buffer,
-    diagnoser?: Diagnoser,
-}) {
-    return parseEpubImpl({
-        fileData,
-        openEpub: openEpubOld,
-        diagnoser,
-    })
-}
-
-type EpubOpener = (input: { fileData: Buffer }) => Promise<Result<EpubFile>>
-async function parseEpubImpl({ fileData, openEpub, diagnoser }: {
-    fileData: Buffer,
-    openEpub: EpubOpener,
     diagnoser?: Diagnoser,
 }): Promise<Booq | undefined> {
     diagnoser = diagnoser ?? (() => undefined)

@@ -1,6 +1,6 @@
 import { uniq } from 'lodash'
 import { BooqNode, BooqImages } from '../core'
-import { EpubFile } from './epubFile'
+import { EpubFile } from './epub'
 import { Diagnostic } from './result'
 import { resolveRelativePath } from './path'
 

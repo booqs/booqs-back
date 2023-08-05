@@ -1,8 +1,9 @@
 import { promisify } from 'util'
 import { exists, readFile } from 'fs'
-import { parseEpub, parseEpubOld } from '../parser'
+import { parseEpub } from '../parser'
 import { pretty } from '../server/utils'
 import { listEpubs } from './parse'
+import { parseEpub as parseEpubOld } from './epubOld'
 
 export async function compateEpubParsers(path: string) {
     if (!await promisify(exists)(path)) {
@@ -16,7 +17,7 @@ export async function compateEpubParsers(path: string) {
     let newTotalDiags = 0
     let oldTotalDiags = 0
     for await (const filePath of listEpubs([path])) {
-        if (++count % 1 === 0) {
+        if (++count % 1000 === 0) {
             console.log(`Processed ${count} files`)
             console.log(`New parser: ${newTotalTime}ms, ${newTotalDiags} diagnostics`)
             console.log(`Old parser: ${oldTotalTime}ms, ${oldTotalDiags} diagnostics`)

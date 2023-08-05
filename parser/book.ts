@@ -1,5 +1,5 @@
 import { BooqNode, Booq } from '../core'
-import { EpubFile } from './epubFile'
+import { EpubFile } from './epub'
 import { Result, Diagnostic } from './result'
 import { parseSection } from './section'
 import { buildImages } from './images'
