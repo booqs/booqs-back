@@ -1,5 +1,5 @@
 import { BooqNode, Booq } from '../core'
-import { EpubFile } from './epub'
+import { EpubPackage } from './epub'
 import { Result, Diagnostic } from './result'
 import { parseSection } from './section'
 import { buildImages } from './images'
@@ -7,7 +7,7 @@ import { buildToc } from './toc'
 import { getMetadata } from './metadata'
 import { preprocess } from './preprocess'
 
-export async function processEpub(epub: EpubFile): Promise<Result<Booq>> {
+export async function processEpub(epub: EpubPackage): Promise<Result<Booq>> {
     const diags: Diagnostic[] = []
     const nodes: BooqNode[] = []
     for await (const section of epub.sections()) {

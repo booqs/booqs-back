@@ -1,6 +1,6 @@
 import { EPub } from 'epub2'
 import { Diagnostic, Result } from '../parser/result'
-import { EpubFile, EpubMetadata, EpubSection } from '../parser/epub'
+import { EpubPackage, EpubMetadata, EpubSection } from '../parser/epub'
 import { processEpub } from '../parser/book'
 import { Booq } from '../core'
 
@@ -29,7 +29,7 @@ export async function parseEpub({ fileData, diagnoser }: {
 
 async function openEpub({ fileData }: {
     fileData: Buffer,
-}): Promise<Result<EpubFile>> {
+}): Promise<Result<EpubPackage>> {
     let epub: FixedEpub
     function resolveHref(href: string) {
         href = href.startsWith('../')
@@ -50,8 +50,7 @@ async function openEpub({ fileData }: {
     try {
         epub = await FixedEpub.createFromData(fileData) as FixedEpub
 
-        const book: EpubFile = {
-            rawMetadata: getRawData(epub.metadata),
+        const book: EpubPackage = {
             metadata: extractMetadata(epub),
             bufferResolver: async href => {
                 const itemId = resolveHref(href)
@@ -86,9 +85,12 @@ async function openEpub({ fileData }: {
             },
             toc: function* () {
                 for (const el of epub.toc) {
+                    if (el.href === undefined || el.title === undefined || el.level === undefined) {
+                        continue
+                    }
                     yield {
                         level: el.level,
-                        title: el.title,
+                        label: el.title,
                         href: el.href && getFileName(el.href),
                     }
                 }
@@ -147,6 +149,13 @@ function extractMetadata(epub: EPub): EpubMetadata {
     const raw = getRawData(epub.metadata)
     metadata['dc:rights'] = raw['dc:rights']
     metadata['dc:identifier'] = raw['dc:identifier']
+    for (const [key, value] of Object.entries(metadata)) {
+        if (value === undefined) {
+            delete metadata[key]
+        } else if (!Array.isArray(value)) {
+            metadata[key] = [value]
+        }
+    }
 
     return metadata
 }

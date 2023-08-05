@@ -1,5 +1,4 @@
-import { openEpub as open } from 'booqs-epub'
-import { Result } from './result'
+import { Diagnostic, openEpub as open } from 'booqs-epub'
 import { createZipFileProvider } from './zip'
 
 export type EpubSection = {
@@ -8,16 +7,14 @@ export type EpubSection = {
     content: string,
 };
 export type EpubMetadata = {
-    [key: string]: string | string[] | undefined,
+    [key: string]: string[],
 };
 export type EpubTocItem = {
-    level: number | undefined,
-    title: string | undefined,
-    href: string | undefined,
+    level: number,
+    label: string,
+    href: string,
 };
-export type EpubFile = {
-    // TODO: remove
-    rawMetadata: any,
+export type EpubPackage = {
     metadata: EpubMetadata,
     bufferResolver(href: string): Promise<Buffer | undefined>,
     textResolver(href: string): Promise<string | undefined>,
@@ -25,16 +22,16 @@ export type EpubFile = {
     toc(): Generator<EpubTocItem>,
 };
 
-export async function openEpub({ fileData }: {
+export async function openFirstEpubPackage({ fileData, diagnoser }: {
     fileData: Buffer,
-}): Promise<Result<EpubFile>> {
+    diagnoser?: (diag: Diagnostic) => void,
+}): Promise<EpubPackage | undefined> {
     const epub = open(createZipFileProvider(fileData))
     for await (const pkg of epub.packages()) {
         const toc = await pkg.toc()
         try {
 
-            const book: EpubFile = {
-                rawMetadata: {},
+            const book: EpubPackage = {
                 metadata: pkg.metadata(),
                 bufferResolver: async href => {
                     const item = await pkg.loadHref(href)
@@ -82,26 +79,27 @@ export async function openEpub({ fileData }: {
                     for (const el of toc.items) {
                         yield {
                             level: el.level,
-                            title: el.label,
+                            label: el.label,
                             href: el.href,
                         }
                     }
                 },
             }
 
-            return { value: book, diags: [] }
+            return book
         } catch (e) {
-            return {
-                diags: [{
+            if (diagnoser) {
+                diagnoser({
                     message: 'exception on epub open',
                     data: e as object,
-                }],
+                })
             }
         }
     }
-    return {
-        diags: [{
+    if (diagnoser) {
+        diagnoser({
             message: 'no packages found',
-        }],
+        })
     }
+    return undefined
 }

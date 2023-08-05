@@ -1,11 +1,11 @@
 import {
     BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core'
-import { EpubFile } from './epub'
+import { EpubPackage } from './epub'
 import { Diagnostic, Result } from './result'
 import { transformHref } from './parserUtils'
 
-export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Result<TableOfContents>> {
+export async function buildToc(nodes: BooqNode[], file: EpubPackage): Promise<Result<TableOfContents>> {
     const diags: Diagnostic[] = []
     const items: TableOfContentsItem[] = []
     for (const epubTocItem of file.toc()) {
@@ -14,7 +14,7 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
             const path = findPathForId(nodes, targetId)
             if (path) {
                 items.push({
-                    title: epubTocItem.title,
+                    title: epubTocItem.label,
                     level: epubTocItem.level ?? 0,
                     position: positionForPath(nodes, path),
                     path,

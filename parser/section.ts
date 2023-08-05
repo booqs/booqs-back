@@ -2,14 +2,14 @@ import { BooqNode, BooqNodeStyle, BooqElementNode } from '../core'
 import {
     xmlStringParser, XmlElement, findByName, xml2string, childrenOf, nameOf, attributesOf, textOf, asObject, XmlAttributes,
 } from './xmlTree';
-import { EpubSection, EpubFile } from './epub';
+import { EpubSection, EpubPackage } from './epub';
 import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
 import { Result, Diagnostic } from './result';
 import { transformHref } from './parserUtils';
 import { capitalize } from 'lodash';
 import { resolveRelativePath } from './path';
 
-export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
+export async function parseSection(section: EpubSection, file: EpubPackage): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
     const node = await processSectionContent(section.content, {
         fileName: section.fileName,
