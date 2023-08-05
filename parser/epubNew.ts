@@ -7,22 +7,6 @@ export async function openEpub({ fileData }: {
     fileData: Buffer,
 }): Promise<Result<EpubFile>> {
     const epub = open(createZipFileProvider(fileData))
-    // function resolveHref(href: string) {
-    //     href = href.startsWith('../')
-    //         ? href.substring('../'.length)
-    //         : href
-    //     const items = listItems(epub)
-    //     const idItem = items
-    //         .find(item => item.href && item.href.endsWith(href))
-    //     return idItem?.id
-    // }
-    // TODO: rethink
-    function getFileName(href: string) {
-        // NOTE: couldn't find better solution
-        const comps = href.split('/')
-        const fileName = comps[comps.length - 1]
-        return fileName
-    }
     for await (const pkg of epub.packages()) {
         const toc = await pkg.toc()
         try {
@@ -57,7 +41,7 @@ export async function openEpub({ fileData }: {
                         }
                         const section: EpubSection = {
                             id,
-                            fileName: getFileName(href),
+                            fileName: href,
                             content: loaded.content,
                         }
                         yield section
@@ -71,7 +55,7 @@ export async function openEpub({ fileData }: {
                         yield {
                             level: el.level,
                             title: el.label,
-                            href: el.href && getFileName(el.href),
+                            href: el.href,
                         }
                     }
                 },

@@ -7,6 +7,7 @@ import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
 import { Result, Diagnostic } from './result';
 import { transformHref } from './parserUtils';
 import { capitalize } from 'lodash';
+import { resolveRelativePath } from './path';
 
 export async function parseSection(section: EpubSection, file: EpubFile): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -15,7 +16,8 @@ export async function parseSection(section: EpubSection, file: EpubFile): Promis
         stylesheet: { rules: [] },
         report: d => diags.push(d),
         resolveTextFile: async href => {
-            const buffer = await file.itemResolver(href);
+            let resolved = resolveRelativePath(href, section.fileName)
+            const buffer = await file.itemResolver(resolved);
             return buffer
                 ? Buffer.from(buffer).toString('utf8')
                 : undefined;
@@ -155,6 +157,7 @@ function processBody(body: XmlElement, env: Env) {
         ? {
             ...node,
             id: env.fileName,
+            fileName: env.fileName,
             name: 'div',
             style: undefined, // Note: ignore body-level styles
         }
