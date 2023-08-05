@@ -72,7 +72,7 @@ export async function startup() {
                         }))
                     },
                 })
-            }
+            },
         }),
     )
 

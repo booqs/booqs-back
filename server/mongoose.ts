@@ -3,8 +3,13 @@ import {
 } from 'mongoose'
 import { config } from './config'
 
-let db: Promise<boolean> = connectToMongoDb()
+let db: Promise<boolean> | undefined
 export async function mongoDbConnection() {
+    if (!db) {
+        db = connectToMongoDb()
+    } else if (!(await db)) {
+        db = connectToMongoDb()
+    }
     return db
 }
 async function connectToMongoDb() {
