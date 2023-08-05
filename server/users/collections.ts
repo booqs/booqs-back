@@ -34,7 +34,7 @@ export async function addToCollection(
     name: string,
     booqId: string,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             $addToSet: {
@@ -50,7 +50,7 @@ export async function removeFromCollection(
     name: string,
     booqId: string,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             $pull: {

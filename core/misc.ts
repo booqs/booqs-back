@@ -21,7 +21,7 @@ export function uuidv4() {
 }
 
 export function uniqueId() {
-    return Math.random().toString(36).substring(2)
+    return Math.random().toString(36).substr(2)
 }
 
 export function assertNever(x: never) {

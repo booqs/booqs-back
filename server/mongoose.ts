@@ -1,34 +1,37 @@
 import {
     Schema, model, Document, connect, Model,
-} from 'mongoose';
-import { config } from './config';
+} from 'mongoose'
+import { config } from './config'
 
-let db: any;
-export async function connectDb() {
-    if (!db) {
-        const dbUri = config().mongodbUri;
-        if (dbUri) {
-            console.log('Connecting to db...');
-            db = await connect(dbUri);
-            console.log('Connected to db');
-        } else {
-            console.warn('BOOQS_BACKEND_MONGODB_URI is not set');
-        }
+let db: Promise<boolean> = connectToMongoDb()
+export async function mongoDbConnection() {
+    return db
+}
+async function connectToMongoDb() {
+    const dbUri = config().mongodbUri
+    if (dbUri) {
+        console.log('Connecting to db...')
+        await connect(dbUri, { dbName: 'production' })
+        console.log('Connected to db')
+        return true
+    } else {
+        console.warn('MONGODB_URI is not set')
+        return false
     }
-    return db;
 }
 
-export function typedModel<T extends SchemaDefinition>(name: string, schema: T): Model<DocumentType<T>> {
+export async function typedModel<T extends SchemaDefinition>(name: string, schema: T): Promise<Model<DocumentType<T>>> {
+    await mongoDbConnection()
     const key = `mongodb_${name}`;
-    (global as any)[key] = (global as any)[key] ?? model(name, new Schema(schema));
-    return (global as any)[key];
+    (global as any)[key] = (global as any)[key] ?? model(name, new Schema(schema))
+    return (global as any)[key]
 }
 
 export function taggedObject<T>(): TaggedObject<T> {
-    return Object;
+    return Object
 }
 
-export const ObjectId = Schema.Types.ObjectId;
+export const ObjectId = Schema.Types.ObjectId
 export type ObjectId = Schema.Types.ObjectId;
 type ObjectIdConstructor = typeof ObjectId;
 

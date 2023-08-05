@@ -3,7 +3,7 @@ import { downloadAsset } from '../s3'
 import { LibraryCard } from '../sources'
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
-    return pgCards
+    return (await pgCards)
         .find(
             { index: { $in: ids } },
             {
@@ -26,7 +26,7 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
 }
 
 export async function fileForId(id: string) {
-    const doc = await pgCards.findOne({ index: id }).exec()
+    const doc = await (await pgCards).findOne({ index: id }).exec()
     if (!doc) {
         return undefined
     } else {

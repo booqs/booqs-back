@@ -53,7 +53,7 @@ async function processAsset(asset: Asset) {
 }
 
 async function existingAssetIds() {
-    const all = await pgCards
+    const all = await (await pgCards)
         .find()
         .select('assetId')
         .exec()
@@ -132,7 +132,7 @@ async function insertRecord(booq: Booq, assetId: string) {
         cover: parseString(cover),
         meta: rest,
     }
-    const [inserted] = await pgCards.insertMany([doc])
+    const [inserted] = await (await pgCards).insertMany([doc])
     report('inserted', inserted)
     return inserted
 }

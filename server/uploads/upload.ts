@@ -12,7 +12,7 @@ import {
 
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const { buffer, hash } = await buildFile(fileStream)
-    const existing = await uuCards.findOne({ fileHash: hash }).exec()
+    const existing = await (await uuCards).findOne({ fileHash: hash }).exec()
     if (existing) {
         await addToRegistry(existing._id, userId)
         return {
@@ -63,7 +63,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
         cover: parseString(cover),
         meta: rest,
     }
-    const [inserted] = await uuCards.insertMany([doc])
+    const [inserted] = await (await uuCards).insertMany([doc])
     report('inserted', inserted)
     return inserted
 }

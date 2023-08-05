@@ -14,6 +14,20 @@ export function pathFromString(pathString: string): BooqPath | undefined {
         : path
 }
 
+const idPrefix = 'path:'
+export function pathToId(path: BooqPath): string {
+    return `${idPrefix}${pathToString(path)}`
+}
+
+export function pathFromId(id: string): BooqPath | undefined {
+    if (id.startsWith(idPrefix)) {
+        const pathString = id.substring(idPrefix.length)
+        return pathFromString(pathString)
+    } else {
+        return undefined
+    }
+}
+
 export function samePath(first: BooqPath, second: BooqPath) {
     return first.length === second.length
         && first.every((p, idx) => p === second[idx])

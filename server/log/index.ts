@@ -17,12 +17,12 @@ export type DbLog = TypeFromSchema<typeof schema>;
 const logModel = typedModel('log', schema)
 
 export async function logItem(item: DbLog) {
-    return logModel.insertMany([item])
+    return (await logModel).insertMany([item])
 }
 
 export async function logExists({ kind, id }: {
     kind: string,
     id: string,
 }) {
-    return logModel.exists({ kind, id })
+    return (await logModel).exists({ kind, id })
 }
