@@ -12,7 +12,11 @@ export async function parseEpubs(path: string, options: {
         return
     }
 
+    let count = 0
     for await (const filePath of listEpubs([path])) {
+        if (++count % 1000 === 0) {
+            console.log(`Processed ${count} files`)
+        }
         await processFile(filePath, options.verbose)
     }
 }
@@ -25,7 +29,7 @@ async function processFile(filePath: string, verbose?: boolean) {
         const file = await promisify(readFile)(filePath)
         const result = await parseEpub({
             fileData: file,
-            diagnoser: diag => console.log(pretty(diag)),
+            diagnoser: diag => console.log(`${filePath}: `, pretty(diag)),
         })
         if (verbose) {
             console.log(pretty(result?.meta))

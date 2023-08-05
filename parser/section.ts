@@ -8,6 +8,7 @@ import { Result, Diagnostic } from './result';
 import { transformHref } from './parserUtils';
 import { capitalize } from 'lodash';
 import { resolveRelativePath } from './path';
+import { isComment } from 'domutils';
 
 export async function parseSection(section: EpubSection, file: EpubPackage): Promise<Result<BooqNode>> {
     const diags: Diagnostic[] = [];
@@ -74,7 +75,7 @@ async function processHead(head: XmlElement, env: Env) {
                 // TODO: handle ?
                 break;
             default:
-                if (!isEmptyText(ch)) {
+                if (!(isEmptyText(ch) || isComment(ch))) {
                     env.report({
                         message: 'unexpected head node',
                         data: { xml: xml2string(ch) },
