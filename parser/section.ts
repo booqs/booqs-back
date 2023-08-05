@@ -129,6 +129,7 @@ async function processLink(link: XmlElement, env: Env) {
     if (content === undefined) {
         env.report({
             message: `couldn't load css: ${href}`,
+            data: { xml: xml2string(link) },
         });
         return [];
     } else {
