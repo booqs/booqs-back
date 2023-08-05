@@ -1,5 +1,5 @@
 import { Booq, BooqMeta } from '../core'
-import { Diagnoser } from './result'
+import { Diagnostic } from './result'
 import { processEpub } from './book'
 import { getMetadata } from './metadata'
 import { openEpub } from './epub'
@@ -8,7 +8,7 @@ export * from './result'
 
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
-    diagnoser?: Diagnoser,
+    diagnoser?: (diag: Diagnostic) => void,
 }): Promise<Booq | undefined> {
     diagnoser = diagnoser ?? (() => undefined)
     try {
@@ -36,7 +36,7 @@ export type ExtractedMetadata = {
 export async function extractMetadata({ fileData, extractCover, diagnoser }: {
     fileData: Buffer,
     extractCover?: boolean,
-    diagnoser?: Diagnoser,
+    diagnoser?: (diag: Diagnostic) => void,
 }): Promise<ExtractedMetadata | undefined> {
     diagnoser = diagnoser ?? (() => undefined)
     const { value: epub, diags: fileDiags } = await openEpub({ fileData })

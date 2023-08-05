@@ -1,12 +1,12 @@
 import { EPub } from 'epub2'
-import { Diagnoser, Result } from '../parser/result'
+import { Diagnostic, Result } from '../parser/result'
 import { EpubFile, EpubMetadata, EpubSection } from '../parser/epub'
 import { processEpub } from '../parser/book'
 import { Booq } from '../core'
 
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
-    diagnoser?: Diagnoser,
+    diagnoser?: (diag: Diagnostic) => void,
 }): Promise<Booq | undefined> {
     diagnoser = diagnoser ?? (() => undefined)
     try {
