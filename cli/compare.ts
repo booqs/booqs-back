@@ -4,6 +4,7 @@ import { parseEpub } from '../parser'
 import { pretty } from '../server/utils'
 import { listEpubs } from './parse'
 import { parseEpub as parseEpubOld } from './epubOld'
+import { Booq } from '../core'
 
 export async function compateEpubParsers(path: string) {
     if (!await promisify(exists)(path)) {
@@ -27,35 +28,26 @@ export async function compateEpubParsers(path: string) {
 
         // Old
         const oldDiags: any[] = []
-        try {
-            const {
-                time: oldTime,
-                // value: oldResult,
-            } = await measureTime(() => parseEpubOld({
-                fileData: file,
-                diagnoser: diag => oldDiags.push(diag),
-            }))
-            oldTotalTime += oldTime
-        } catch (err) {
-            console.log(pretty(`Error parsing with new parser ${filePath}`))
-            console.log(pretty(err))
-        }
+        const {
+            time: oldTime,
+            value: oldResult,
+        } = await measureTime(() => parseEpubOld({
+            fileData: file,
+            diagnoser: diag => oldDiags.push(diag),
+        }))
+        oldTotalTime += oldTime
 
         // New
         const newDiags: any[] = []
-        try {
-            const {
-                time: newTime,
-                // value: newResult,
-            } = await measureTime(() => parseEpub({
-                fileData: file,
-                diagnoser: diag => newDiags.push(diag),
-            }))
-            newTotalTime += newTime
-        } catch (err) {
-            console.log(pretty(`Error parsing with new parser ${filePath}`))
-            console.log(pretty(err))
-        }
+        const {
+            time: newTime,
+            value: newResult,
+        } = await measureTime(() => parseEpub({
+            fileData: file,
+            diagnoser: diag => newDiags.push(diag),
+        }))
+        newTotalTime += newTime
+        compare(newResult, oldResult)
 
         if (newDiags.length !== oldDiags.length) {
             console.log(pretty(`Processing ${filePath}`))
@@ -76,6 +68,39 @@ export async function compateEpubParsers(path: string) {
     console.log(`Old total time: ${oldTotalTime}ms`)
     console.log(`New total diagnostics: ${newTotalDiags}`)
     console.log(`Old total diagnostics: ${oldTotalDiags}`)
+}
+
+function compare(newResult: Booq | undefined, oldResult: Booq | undefined) {
+    if (newResult === undefined) {
+        if (oldResult !== undefined) {
+            console.log('New parser failed, old didnt')
+        }
+        return
+    } else if (oldResult === undefined) {
+        console.log('Old parser failed, new didnt')
+        return
+    }
+    for (const [key, newMetaValue] of Object.entries(newResult.meta)) {
+        const oldMetaValue = oldResult.meta[key]
+        if (newMetaValue?.length !== oldMetaValue?.length) {
+            console.log(`Different meta length for ${key}: ${pretty(newMetaValue)} vs ${pretty(oldMetaValue)}`)
+        }
+        if (newMetaValue === undefined || oldMetaValue === undefined) {
+            continue
+        }
+        for (let i = 0; i < newMetaValue?.length; i++) {
+            if (newMetaValue[i] !== oldMetaValue[i]) {
+                console.log(`Different meta value for ${key}[${i}]: ${pretty(newMetaValue[i])} vs ${pretty(oldMetaValue[i])}`)
+            }
+        }
+    }
+    for (let i = 0; i < newResult.toc.items.length; i++) {
+        const newTitle = newResult.toc.items[i].title
+        const oldTitle = oldResult.toc.items[i].title
+        if (newTitle !== oldTitle) {
+            console.log(`Different TOC title for ${i}: ${newTitle} vs ${oldTitle}`)
+        }
+    }
 }
 
 async function measureTime<T>(fn: () => Promise<T>): Promise<{ value: T, time: number }> {
