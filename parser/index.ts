@@ -1,13 +1,39 @@
 import { Booq, BooqMeta } from '../core'
-import { Diagnoser } from './result'
-import { openEpub } from './epub'
+import { Diagnoser, Result } from './result'
 import { processEpub } from './book'
 import { getMetadata } from './metadata'
+import { EpubFile } from './epubFile'
+import { openEpub } from './epubNew'
+import { openEpub as openEpubOld } from './epubOld'
 
 export * from './result'
 
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
+    diagnoser?: Diagnoser,
+}) {
+    return parseEpubImpl({
+        fileData,
+        openEpub,
+        diagnoser,
+    })
+}
+
+export async function parseEpubOld({ fileData, diagnoser }: {
+    fileData: Buffer,
+    diagnoser?: Diagnoser,
+}) {
+    return parseEpubImpl({
+        fileData,
+        openEpub: openEpubOld,
+        diagnoser,
+    })
+}
+
+type EpubOpener = (input: { fileData: Buffer }) => Promise<Result<EpubFile>>
+async function parseEpubImpl({ fileData, openEpub, diagnoser }: {
+    fileData: Buffer,
+    openEpub: EpubOpener,
     diagnoser?: Diagnoser,
 }): Promise<Booq | undefined> {
     diagnoser = diagnoser ?? (() => undefined)
@@ -48,7 +74,7 @@ export async function extractMetadata({ fileData, extractCover, diagnoser }: {
     if (extractCover) {
         const coverHref = metadata.cover
         if (typeof coverHref === 'string') {
-            const coverBuffer = await epub.imageResolver(coverHref)
+            const coverBuffer = await epub.bufferResolver(coverHref)
             if (!coverBuffer) {
                 diagnoser({
                     diag: `couldn't load cover image: ${coverHref}`,

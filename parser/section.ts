@@ -17,10 +17,7 @@ export async function parseSection(section: EpubSection, file: EpubFile): Promis
         report: d => diags.push(d),
         resolveTextFile: async href => {
             let resolved = resolveRelativePath(href, section.fileName)
-            const buffer = await file.itemResolver(resolved);
-            return buffer
-                ? Buffer.from(buffer).toString('utf8')
-                : undefined;
+            return file.textResolver(resolved);
         },
     });
     return {

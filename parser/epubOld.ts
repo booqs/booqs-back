@@ -28,7 +28,7 @@ export async function openEpub({ fileData }: {
         const book: EpubFile = {
             rawMetadata: getRawData(epub.metadata),
             metadata: extractMetadata(epub),
-            imageResolver: async href => {
+            bufferResolver: async href => {
                 const itemId = resolveHref(href)
                 if (!itemId) {
                     return undefined
@@ -36,13 +36,15 @@ export async function openEpub({ fileData }: {
                 const [buffer] = await epub.getImageAsync(itemId)
                 return buffer
             },
-            itemResolver: async href => {
+            textResolver: async href => {
                 const itemId = resolveHref(href)
                 if (!itemId) {
                     return undefined
                 }
                 const [buffer] = await epub.getFileAsync(itemId)
                 return buffer
+                    ? Buffer.from(buffer).toString('utf8')
+                    : undefined
             },
             sections: async function* () {
                 for (const el of epub.flow) {

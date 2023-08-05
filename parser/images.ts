@@ -17,7 +17,7 @@ export async function buildImages(nodes: BooqNode[], file: EpubFile) {
         if (isExternal(src)) {
             continue
         }
-        const buffer = await file.imageResolver(src)
+        const buffer = await file.bufferResolver(src)
         if (buffer) {
             const image = Buffer.from(buffer).toString('base64')
             images[src] = image

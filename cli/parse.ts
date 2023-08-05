@@ -29,7 +29,7 @@ async function processFile(filePath: string) {
     }
 }
 
-async function* listEpubs(paths: string[]): AsyncGenerator<string> {
+export async function* listEpubs(paths: string[]): AsyncGenerator<string> {
     for (const path of paths) {
         const info = await promisify(lstat)(path)
         if (info.isDirectory()) {

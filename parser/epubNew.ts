@@ -14,19 +14,25 @@ export async function openEpub({ fileData }: {
             const book: EpubFile = {
                 rawMetadata: {},
                 metadata: pkg.metadata(),
-                imageResolver: async href => {
+                bufferResolver: async href => {
                     const item = await pkg.loadHref(href)
                     if (!item || !item.content) {
                         return undefined
+                    } else if (typeof item.content === 'string') {
+                        return undefined
+                    } else {
+                        return item.content as Buffer
                     }
-                    return item.content as Buffer
                 },
-                itemResolver: async href => {
+                textResolver: async href => {
                     const item = await pkg.loadHref(href)
                     if (!item || !item.content) {
                         return undefined
+                    } else if (typeof item.content === 'string') {
+                        return item.content
+                    } else {
+                        return undefined
                     }
-                    return item.content as Buffer
                 },
                 sections: async function* () {
                     for (const el of pkg.spine()) {
