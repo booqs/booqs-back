@@ -9,7 +9,6 @@ import {
     uuCards, DbUuCard,
     userUploadedEpubsBucket, toLibraryCard,
 } from './schema'
-import { diagnoser } from 'booqs-epub'
 
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const { buffer, hash } = await buildFile(fileStream)
@@ -21,12 +20,10 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
         }
     }
 
-    let diags = diagnoser('upload')
-    const booq = await parseEpub({
+    const { value: booq, diags } = await parseEpub({
         fileData: buffer,
-        diagnoser: diags,
     })
-    diags.all().forEach(d => report(d.message, d.data))
+    diags.forEach(d => report(d.message, d.data))
     if (!booq) {
         report('Can\'t parse upload')
         return undefined

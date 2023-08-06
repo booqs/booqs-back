@@ -28,20 +28,20 @@ async function processFile(filePath: string, verbose?: boolean) {
             console.log(pretty(`Processing ${filePath}`))
         }
         const file = await promisify(readFile)(filePath)
-        let diags = diagnoser('processFile')
-        const result = await parseEpub({
+        const { value: result, diags: parseDiags } = await parseEpub({
             fileData: file,
-            diagnoser: diags,
         })
-        const meta = await extractMetadata({
+        const { value: meta, diags: metaDiags } = await extractMetadata({
             fileData: file,
-            diagnoser: diags,
             extractCover: true,
         })
+        let diags = [...parseDiags, ...metaDiags]
         if (!meta?.cover) {
-            diags.push('No cover image found')
+            diags.push({
+                message: 'No cover image found',
+            })
         }
-        diags.all().forEach(diag => console.log(`${filePath}: `, pretty(diag)))
+        diags.forEach(diag => console.log(`${filePath}: `, pretty(diag)))
         if (verbose) {
             console.log(pretty(result?.meta))
         }

@@ -5,7 +5,6 @@ import { pretty } from '../server/utils'
 import { listEpubs } from './parse'
 import { parseEpub as parseEpubOld } from './epubOld'
 import { Booq, BooqMeta } from '../core'
-import { diagnoser } from 'booqs-epub'
 
 export async function compateEpubParsers(path: string) {
     if (!await promisify(exists)(path)) {
@@ -28,30 +27,24 @@ export async function compateEpubParsers(path: string) {
         const file = await promisify(readFile)(filePath)
 
         // Old
-        const oldDiagnoser = diagnoser('epub')
         const {
             time: oldTime,
-            value: oldResult,
+            value: { value: oldResult, diags: oldDiags },
         } = await measureTime(() => parseEpubOld({
             fileData: file,
-            diagnoser: oldDiagnoser,
         }))
         oldTotalTime += oldTime
 
         // New
-        const newDiagnoser = diagnoser('epub')
         const {
             time: newTime,
-            value: newResult,
+            value: { value: newResult, diags: newDiags },
         } = await measureTime(() => parseEpub({
             fileData: file,
-            diagnoser: newDiagnoser,
         }))
         newTotalTime += newTime
         compare(newResult, oldResult)
 
-        let newDiags = newDiagnoser.all()
-        let oldDiags = oldDiagnoser.all()
         if (newDiags.length !== oldDiags.length) {
             console.log(pretty(`Processing ${filePath}`))
             console.log(`Different number of diagnostics: ${newDiags.length} vs ${oldDiags.length}`)

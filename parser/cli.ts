@@ -35,14 +35,12 @@ async function exec() {
 
 async function processEpubFile(filePath: string, verbosity: number = 0) {
     const fileData = await promisify(readFile)(filePath)
-    let diags = diagnoser('epub')
-    const booq = await parseEpub({
+    const { value: booq, diags } = await parseEpub({
         fileData,
-        diagnoser: diags,
     })
     if (verbosity > -1) {
         console.log('Diagnostics:')
-        console.log(inspect(diags.all(), { depth: 10 }))
+        console.log(inspect(diags, { depth: 10 }))
     }
     if (!booq) {
         if (verbosity > -1) {
