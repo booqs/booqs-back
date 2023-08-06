@@ -8,7 +8,7 @@ import { transformHref } from './parserUtils';
 import { capitalize } from 'lodash';
 import { resolveRelativePath } from './path';
 import { isComment } from 'domutils';
-import { Diagnoser, Diagnostic } from 'booqs-epub';
+import { Diagnoser } from 'booqs-epub';
 
 export async function parseSection(section: EpubSection, file: EpubPackage, diags: Diagnoser): Promise<BooqNode | undefined> {
     const node = await processSectionContent(section.content, {
