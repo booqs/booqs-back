@@ -1,31 +1,55 @@
 import { promisify } from 'util'
 import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
-import { parseEpub } from '../parser'
+import { extractMetadata, parseEpub } from '../parser'
 import { pretty } from '../server/utils'
 
-export async function parseEpubs(path: string) {
+export async function parseEpubs(path: string, options: {
+    verbose?: boolean,
+}) {
     if (!await promisify(exists)(path)) {
         console.log(`No such file or directory: ${path}`)
         return
     }
 
+    let count = 0
     for await (const filePath of listEpubs([path])) {
-        await processFile(filePath)
+        if (++count % 1000 === 0) {
+            console.log(`Processed ${count} files`)
+        }
+        await processFile(filePath, options.verbose)
     }
 }
 
-async function processFile(filePath: string) {
-    console.log(pretty(`Processing ${filePath}`))
-    const file = await promisify(readFile)(filePath)
-    const result = await parseEpub({
-        fileData: file,
-        diagnoser: diag => console.log(pretty(diag)),
-    })
-    console.log(pretty(result?.meta))
+async function processFile(filePath: string, verbose?: boolean) {
+    try {
+        if (verbose) {
+            console.log(pretty(`Processing ${filePath}`))
+        }
+        const file = await promisify(readFile)(filePath)
+        const { value: result, diags: parseDiags } = await parseEpub({
+            fileData: file,
+        })
+        const { value: meta, diags: metaDiags } = await extractMetadata({
+            fileData: file,
+            extractCover: true,
+        })
+        let diags = [...parseDiags, ...metaDiags]
+        if (!meta?.cover) {
+            diags.push({
+                message: 'No cover image found',
+            })
+        }
+        diags.forEach(diag => console.log(`${filePath}: `, pretty(diag)))
+        if (verbose) {
+            console.log(pretty(result?.meta))
+        }
+    } catch (err) {
+        console.log(pretty(err))
+    }
 }
 
-async function* listEpubs(paths: string[]): AsyncGenerator<string> {
+export async function* listEpubs(paths: string[]): AsyncGenerator<string> {
     for (const path of paths) {
         const info = await promisify(lstat)(path)
         if (info.isDirectory()) {

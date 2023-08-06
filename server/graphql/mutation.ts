@@ -2,9 +2,9 @@ import { IResolvers } from '@graphql-tools/utils'
 import { uniqueId } from '../../core'
 import { users } from '../users'
 import { highlights } from '../highlights'
-import { Context } from './context'
+import { ResolverContext } from './context'
 
-export const mutationResolver: IResolvers<any, Context> = {
+export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
         async addBookmark(_, { bookmark }, { user }) {
             if (user?._id) {

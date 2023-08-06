@@ -1,12 +1,11 @@
+import { Diagnoser } from 'booqs-epub'
 import {
     BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core'
-import { EpubFile } from './epubFile'
-import { Diagnostic, Result } from './result'
+import { EpubPackage } from './epub'
 import { transformHref } from './parserUtils'
 
-export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Result<TableOfContents>> {
-    const diags: Diagnostic[] = []
+export async function buildToc(nodes: BooqNode[], file: EpubPackage, diags: Diagnoser): Promise<TableOfContents> {
     const items: TableOfContentsItem[] = []
     for (const epubTocItem of file.toc()) {
         if (epubTocItem.href) {
@@ -14,30 +13,26 @@ export async function buildToc(nodes: BooqNode[], file: EpubFile): Promise<Resul
             const path = findPathForId(nodes, targetId)
             if (path) {
                 items.push({
-                    title: epubTocItem.title,
+                    title: epubTocItem.label,
                     level: epubTocItem.level ?? 0,
                     position: positionForPath(nodes, path),
                     path,
                 })
             } else {
                 diags.push({
-                    diag: 'Unresolved toc item',
+                    message: 'Unresolved toc item',
                     data: epubTocItem,
                 })
             }
         }
     }
-    const title = typeof file.metadata.title === 'string'
-        ? file.metadata.title
-        : undefined
+    let titles = file.metadata.fields['title'] ?? file.metadata.fields['dc:title'] ?? []
+    let title = titles.map(t => t['#text']).join(', ')
 
     return {
-        value: {
-            title,
-            items,
-            length: nodesLength(nodes), // TODO: implement
-        },
-        diags,
+        title,
+        items,
+        length: nodesLength(nodes), // TODO: implement
     }
 }
 

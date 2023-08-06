@@ -1,54 +1,44 @@
-import { StartStandaloneServerOptions } from '@apollo/server/standalone'
 import { fromCookie } from '../auth'
 import { DbUser } from '../users'
 import { config } from '../config'
-import { serialize } from 'cookie'
 
-export type Context = {
+export type ResolverContext = {
     user?: DbUser & { _id?: string },
     setAuthToken(token: string | undefined): void,
 };
-type StandaloneServerContext = StartStandaloneServerOptions<{}>['context'];
-export const context: StandaloneServerContext = async (context): Promise<Context> => {
-    const parsed = parseCookies(context.req.headers.cookie ?? '')
-    const cookie = parsed.token ?? ''
+type CookieOptions = {
+    httpOnly?: boolean,
+    secure?: boolean,
+}
+type RequestContext = {
+    getCookie(name: string): string | undefined,
+    setCookie(name: string, value: string, options?: CookieOptions): void,
+    clearCookie(name: string, options?: CookieOptions): void,
+};
+export async function context(ctx: RequestContext): Promise<ResolverContext> {
+    const cookie = ctx.getCookie('token') ?? ''
     const user = await fromCookie(cookie) ?? undefined
 
     return {
         user,
         setAuthToken(token) {
             if (token) {
-                context.res.setHeader('Set-Cookie', serialize('token', token, {
+                ctx.setCookie('token', token, {
                     httpOnly: true,
                     secure: config().https ? true : false,
-                }))
-                context.res.setHeader('Set-Cookie', serialize('signed', 'true', {
+                })
+                ctx.setCookie('signed', 'true', {
                     httpOnly: false,
-                }))
+                })
             } else {
-                context.res.setHeader('Set-Cookie', serialize('token', '', {
+                ctx.clearCookie('token', {
                     httpOnly: true,
-                    maxAge: 0,
-                }))
-                context.res.setHeader('Set-Cookie', serialize('signed', '', {
-                    httpOnly: true,
-                    maxAge: 0,
-                }))
+                })
+                ctx.clearCookie('signed', {
+                    httpOnly: false,
+                })
             }
         },
     }
-}
-
-function parseCookies(cookie: string) {
-    const pairs = cookie.split('; ')
-    const result = pairs.reduce<{ [key: string]: string | undefined }>(
-        (res, pair) => {
-            const [name, value] = pair.split('=')
-            res[name] = value
-            return res
-        },
-        {},
-    )
-    return result
 }
 

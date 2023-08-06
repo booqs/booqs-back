@@ -12,7 +12,7 @@ import {
 
 export async function uploadEpub(fileStream: ReadStream, userId: string) {
     const { buffer, hash } = await buildFile(fileStream)
-    const existing = await uuCards.findOne({ fileHash: hash }).exec()
+    const existing = await (await uuCards).findOne({ fileHash: hash }).exec()
     if (existing) {
         await addToRegistry(existing._id, userId)
         return {
@@ -20,10 +20,10 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
         }
     }
 
-    const booq = await parseEpub({
+    const { value: booq, diags } = await parseEpub({
         fileData: buffer,
-        diagnoser: diag => report(diag.diag, diag.data),
     })
+    diags.forEach(d => report(d.message, d.data))
     if (!booq) {
         report('Can\'t parse upload')
         return undefined
@@ -44,26 +44,26 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
 
 async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
     const {
-        title, creator: author, subject, language, description, cover,
-        ...rest
+        title, authors, subjects, languages, descriptions, cover,
+        rights, contributors,
+        tags,
     } = booq.meta
-    const subjects = typeof subject === 'string' ? [subject]
-        : Array.isArray(subject) ? subject
-            : []
     const length = nodesLength(booq.nodes)
     const doc: DbUuCard = {
         assetId,
         length,
         fileHash,
         subjects,
-        title: parseString(title),
-        author: parseString(author),
-        language: parseString(language),
-        description: parseString(description),
-        cover: parseString(cover),
-        meta: rest,
+        title,
+        author: authors.join(', '),
+        language: languages[0],
+        description: descriptions[0],
+        cover: cover?.href,
+        rights,
+        contributors,
+        meta: tags,
     }
-    const [inserted] = await uuCards.insertMany([doc])
+    const [inserted] = await (await uuCards).insertMany([doc])
     report('inserted', inserted)
     return inserted
 }
@@ -97,11 +97,6 @@ async function buildFile(fileStream: ReadStream) {
             reject(e)
         }
     })
-}
-
-function parseString(field: unknown) {
-    return typeof field === 'string'
-        ? field : undefined
 }
 
 function report(label: string, data?: any) {

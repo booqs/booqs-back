@@ -2,11 +2,11 @@ import { IResolvers } from '@graphql-tools/utils'
 import { authWithToken } from '../auth'
 import { users } from '../users'
 import { search, forId, forIds, featuredIds } from '../books'
-import { Context } from './context'
+import { ResolverContext } from './context'
 import { BooqParent } from './booq'
 import { BooqHistoryParent } from './history'
 
-export const queryResolver: IResolvers<any, Context> = {
+export const queryResolver: IResolvers<any, ResolverContext> = {
     Query: {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)

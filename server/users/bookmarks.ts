@@ -13,7 +13,7 @@ export async function addBookmark(
     userId: string,
     { id, ...data }: DbBookmark,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             [`bookmarks.${id}`]: data,
@@ -27,7 +27,7 @@ export async function deleteBookmark(
     userId: string,
     { id }: Pick<DbBookmark, 'id'>,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             $unset: { [`bookmarks.${id}`]: '' },

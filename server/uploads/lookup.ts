@@ -4,7 +4,7 @@ import { downloadAsset } from '../s3'
 import { LibraryCard } from '../sources'
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
-    return uuCards
+    return (await uuCards)
         .find(
             { _id: { $in: ids.map(id => new mongoose.Types.ObjectId(id)) } },
             {
@@ -27,7 +27,7 @@ export async function cards(ids: string[]): Promise<LibraryCard[]> {
 }
 
 export async function fileForId(id: string) {
-    const doc = await uuCards.findOne({ _id: id }).exec()
+    const doc = await (await uuCards).findOne({ _id: id }).exec()
     if (!doc) {
         return undefined
     } else {

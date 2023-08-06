@@ -1,7 +1,6 @@
 import { inspect } from 'util'
-import { flatten, uniq } from 'lodash'
 import { Booq, nodesLength, filterUndefined } from '../../core'
-import { parseEpub, Diagnostic } from '../../parser'
+import { parseEpub } from '../../parser'
 import { makeBatches } from '../utils'
 import { listObjects, downloadAsset, Asset } from '../s3'
 import { logExists, logItem } from '../log'
@@ -53,7 +52,7 @@ async function processAsset(asset: Asset) {
 }
 
 async function existingAssetIds() {
-    const all = await pgCards
+    const all = await (await pgCards)
         .find()
         .select('assetId')
         .exec()
@@ -87,10 +86,8 @@ async function downloadAndInsert(assetId: string) {
         report(`Couldn't load pg asset: ${assetId}`)
         return
     }
-    const diags: Diagnostic[] = []
-    const booq = await parseEpub({
+    const { value: booq, diags } = await parseEpub({
         fileData: asset as any,
-        diagnoser: diag => diags.push(diag),
     })
     if (!booq) {
         report(`Couldn't parse epub: ${assetId}`)
@@ -116,42 +113,28 @@ async function insertRecord(booq: Booq, assetId: string) {
         return undefined
     }
     const {
-        title, creator: author, subject, language, description, cover,
-        ...rest
+        title, authors, subjects, languages, descriptions, cover,
+        rights, contributors,
+        tags,
     } = booq.meta
     const length = nodesLength(booq.nodes)
     const doc: DbPgCard = {
         assetId,
         index,
         length,
-        title: parseString(title),
-        author: parseString(author),
-        language: parseString(language),
-        description: parseString(description),
-        subjects: parseSubject(subject),
-        cover: parseString(cover),
-        meta: rest,
+        subjects,
+        title,
+        author: authors.join(', '),
+        language: languages[0],
+        description: descriptions[0],
+        cover: cover?.href,
+        rights,
+        contributors,
+        meta: tags,
     }
-    const [inserted] = await pgCards.insertMany([doc])
+    const [inserted] = await (await pgCards).insertMany([doc])
     report('inserted', inserted)
     return inserted
-}
-
-function parseString(field: unknown) {
-    return typeof field === 'string'
-        ? field : undefined
-}
-
-function parseSubject(subject: unknown) {
-    if (Array.isArray(subject)) {
-        const subs = subject.map((s: string) => s.split(' -- '))
-        const result = uniq(flatten(subs))
-        return result
-    } else if (typeof subject === 'string') {
-        return [subject]
-    } else {
-        return undefined
-    }
 }
 
 function indexFromAssetId(assetId: string) {

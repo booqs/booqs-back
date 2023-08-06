@@ -1,6 +1,5 @@
 import { ApolloServer } from '@apollo/server'
 import { readTypeDefs, resolvers, context } from './graphql'
-import { connectDb } from './mongoose'
 import { booqsWorker } from './books'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
@@ -10,10 +9,11 @@ import http from 'http'
 import cors from 'cors'
 import express from 'express'
 import bodyParser from 'body-parser'
+import { serialize } from 'cookie'
+import { mongoDbConnection } from './mongoose'
 
 export async function startup() {
-    const db = connectDb()
-
+    mongoDbConnection()
     // Required logic for integrating with Express
     const app = express()
     // Our httpServer handles incoming requests to our Express app.
@@ -58,11 +58,24 @@ export async function startup() {
         // expressMiddleware accepts the same arguments:
         // an Apollo Server instance and optional configuration options
         expressMiddleware(server, {
-            context,
+            context({ req, res }) {
+                const parsed = parseCookies(req.headers.cookie ?? '')
+                return context({
+                    getCookie(name) { return parsed[name] },
+                    setCookie(name, value, options) {
+                        res.setHeader('Set-Cookie', serialize(name, value, options))
+                    },
+                    clearCookie(name, options) {
+                        res.setHeader('Set-Cookie', serialize(name, '', {
+                            ...options,
+                            maxAge: 0,
+                        }))
+                    },
+                })
+            },
         }),
     )
 
-    await db
     // Modified server startup
     const port = process.env.PORT
         ? parseInt(process.env.PORT)
@@ -77,4 +90,17 @@ async function runWorkers() {
     if (process.env.RUN_WORKERS) {
         booqsWorker()
     }
+}
+
+function parseCookies(cookie: string) {
+    const pairs = cookie.split('; ')
+    const result = pairs.reduce<{ [key: string]: string | undefined }>(
+        (res, pair) => {
+            const [name, value] = pair.split('=')
+            res[name] = value
+            return res
+        },
+        {},
+    )
+    return result
 }

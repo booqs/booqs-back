@@ -2,7 +2,7 @@ import { DbUser, collection } from './schema'
 
 
 export async function forId(id: string) {
-    return collection.findById(id).exec()
+    return (await collection).findById(id).exec()
 }
 
 export type UserInfo = {
@@ -12,7 +12,7 @@ export type UserInfo = {
     pictureUrl?: string,
 }
 export async function forFacebook(facebookUser: UserInfo) {
-    const result = await collection
+    const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
 
@@ -31,7 +31,7 @@ export async function forFacebook(facebookUser: UserInfo) {
             email: facebookUser.email,
             joined: new Date(),
         }
-        const [insertResult] = await collection.insertMany([toAdd])
+        const [insertResult] = await (await collection).insertMany([toAdd])
         doc = insertResult
     }
 
@@ -49,7 +49,7 @@ export async function forApple({ id, name, email }: {
     name?: string,
     email?: string,
 }) {
-    const result = await collection
+    const result = await (await collection)
         .findOne({ appleId: id })
         .exec()
 
@@ -69,7 +69,7 @@ export async function forApple({ id, name, email }: {
             name, email,
             joined: new Date(),
         }
-        const [insertResult] = await collection.insertMany([toAdd])
+        const [insertResult] = await (await collection).insertMany([toAdd])
         doc = insertResult
     }
 

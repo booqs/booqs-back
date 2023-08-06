@@ -48,8 +48,22 @@ export type TableOfContents = {
     length: number,
 };
 
+export type BooqMetaTag = {
+    name: string,
+    value: string,
+}
 export type BooqMeta = {
-    [name in string]?: string | string[];
+    title: string | undefined,
+    authors: string[],
+    languages: string[],
+    contributors: string[],
+    descriptions: string[],
+    subjects: string[],
+    rights: string | undefined,
+    cover?: {
+        href: string,
+    },
+    tags: BooqMetaTag[],
 };
 export type BooqImages = {
     [src: string]: string,

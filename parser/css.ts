@@ -4,9 +4,9 @@ import {
 import { compile, is } from 'css-select'
 import { SpecificityArray, calculate, compare } from 'specificity'
 import { flatten } from 'lodash'
-import { Result, combineResults, Diagnostic } from './result'
 import { filterUndefined } from '../core'
 import { XmlElement, attributesOf } from './xmlTree'
+import { Diagnoser } from 'booqs-epub'
 
 type CompiledQuery = ReturnType<typeof compile>
 type Specificity = SpecificityArray;
@@ -26,15 +26,14 @@ export type StyleRule = {
 export type Stylesheet = {
     rules: StyleRule[],
 };
-export function parseCss(css: string, fileName: string): Result<Stylesheet> {
-    const diags: Diagnostic[] = []
+export function parseCss(css: string, fileName: string, diags: Diagnoser): Stylesheet | undefined {
     const parsed = parse(css, {
         silent: true,
         source: fileName,
     })
     if (parsed.stylesheet?.parsingErrors?.length) {
-        diags.push({
-            diag: 'css parsing error',
+        diags?.push({
+            message: 'css parsing error',
             data: {
                 errors: parsed.stylesheet.parsingErrors.map(
                     e => ({ ...e, message: undefined }),
@@ -43,16 +42,12 @@ export function parseCss(css: string, fileName: string): Result<Stylesheet> {
         })
     }
     const parsedRules = parsed.stylesheet?.rules ?? []
-    const { value: rules, diags: rulesDiags } = processRules(parsedRules)
-    diags.push(...rulesDiags)
+    const rules = processRules(parsedRules, diags)
 
-    return {
-        value: { rules },
-        diags,
-    }
+    return { rules }
 }
 
-export function applyRules(xml: XmlElement, rules: StyleRule[]) {
+export function applyRules(xml: XmlElement, rules: StyleRule[], diags: Diagnoser) {
     const assignments = flatten(
         rules.map(rule => selectXml(xml, rule)),
     )
@@ -73,7 +68,7 @@ export function applyRules(xml: XmlElement, rules: StyleRule[]) {
     )
     const inlineStyle = attributesOf(xml)?.style
     const inlineRules = inlineStyle !== undefined
-        ? parseInlineStyle(inlineStyle, 'inline')
+        ? parseInlineStyle(inlineStyle, 'inline', diags)
         : []
     const inlineDeclarations = flatten(
         inlineRules.map(rule => rule.content),
@@ -84,9 +79,8 @@ export function applyRules(xml: XmlElement, rules: StyleRule[]) {
     return style
 }
 
-function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
+function processRules(parsedRules: Array<Rule | Comment | AtRule>, diags: Diagnoser) {
     const rules: StyleRule[] = []
-    const diags: Diagnostic[] = []
     for (const parsedRule of parsedRules) {
         switch (parsedRule.type) {
             case 'comment':
@@ -96,83 +90,73 @@ function processRules(parsedRules: Array<Rule | Comment | AtRule>) {
             case 'charset': {
                 const charset = (parsedRule as Charset).charset
                 if (charset !== '"utf-8"') {
-                    diags.push({
-                        diag: `unsupported charset: ${charset}`,
+                    diags?.push({
+                        message: `unsupported charset: ${charset}`,
                     })
                 }
                 break
             }
             case 'media': {
-                const fromMedia = processMedia(parsedRule)
-                rules.push(...fromMedia.value)
-                diags.push(...fromMedia.diags)
+                const fromMedia = processMedia(parsedRule, diags)
+                rules.push(...fromMedia)
                 break
             }
             case 'rule': {
-                const { value, diags: ruleDiags } = buildRule(parsedRule)
-                diags.push(...ruleDiags)
+                const value = buildRule(parsedRule, diags)
                 if (value) {
                     rules.push(value)
                 }
                 break
             }
             default:
-                diags.push({
-                    diag: `unsupported css rule: ${parsedRule.type}`,
+                diags?.push({
+                    message: `unsupported css rule: ${parsedRule.type}`,
                 })
                 break
         }
     }
 
-    return {
-        value: rules,
-        diags,
-    }
+    return rules
 }
 
-function parseInlineStyle(style: string, fileName: string) {
+function parseInlineStyle(style: string, fileName: string, diags: Diagnoser) {
     const pseudoCss = `* {\n${style}\n}`
-    const { value } = parseCss(pseudoCss, fileName)
+    const value = parseCss(pseudoCss, fileName, diags)
     return value?.rules ?? []
 }
 
-function buildRule(rule: Rule): Result<StyleRule> {
+function buildRule(rule: Rule, diags: Diagnoser): StyleRule | undefined {
     const supported = rule.selectors?.filter(supportedSelector) ?? []
-    const { value, diags } = combineResults(supported.map(parseSelector))
+    const value = supported.map(s => parseSelector(s, diags))
     const selectors = filterUndefined(value ?? [])
     if (selectors.length === 0) {
-        return { diags }
+        return undefined
     }
 
     return {
-        value: {
-            selectors,
-            content: (rule.declarations ?? [])
-                .filter((r): r is Declaration => r.type === 'declaration')
-                .map(d => ({
-                    property: d.property!,
-                    value: d.value,
-                })),
-        },
-        diags,
+        selectors,
+        content: (rule.declarations ?? [])
+            .filter((r): r is Declaration => r.type === 'declaration')
+            .map(d => ({
+                property: d.property!,
+                value: d.value,
+            })),
     }
 }
 
-function processMedia(media: Media) {
+function processMedia(media: Media, diags: Diagnoser): StyleRule[] {
     switch (media.media) {
         case 'all':
         case 'screen':
-            return processRules(media.rules ?? [])
+            return processRules(media.rules ?? [], diags)
         case 'print':
         case 'speech':
-            return { value: [], diags: [] }
+            return []
         default:
-            return {
-                value: [],
-                diags: [{
-                    diag: `unsupported media rule: ${media.media}`,
-                }],
-            }
+            diags.push({
+                message: `unsupported media rule: ${media.media}`,
+            })
+            return []
     }
 }
 
@@ -210,25 +194,21 @@ function isSelect(xml: XmlElement, selector: Selector) {
     return is(xml, selector.compiled)
 }
 
-function parseSelector(selector: string): Result<Selector> {
+function parseSelector(selector: string, diags: Diagnoser): Selector | undefined {
     try {
         const compiled = compile(selector)
         const [specificity] = calculate(selector)
         return {
-            value: {
-                selector,
-                compiled,
-                specificity: specificity.specificityArray,
-            },
-            diags: [],
+            selector,
+            compiled,
+            specificity: specificity.specificityArray,
         }
     } catch (err) {
-        return {
-            diags: [{
-                diag: `Couldn't parse selector: ${selector}`,
-                data: err as object,
-            }],
-        }
+        diags.push({
+            message: `Couldn't parse selector: ${selector}`,
+            data: err as object,
+        })
+        return undefined
     }
 }
 

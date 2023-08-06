@@ -2,7 +2,7 @@ import { pgCards } from './schema'
 import { LibraryCard } from '../sources'
 
 export async function search(query: string, limit: number): Promise<LibraryCard[]> {
-    return pgCards.aggregate([{
+    return (await pgCards).aggregate([{
         $search: {
             compound: {
                 should: [

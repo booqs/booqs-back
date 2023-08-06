@@ -21,7 +21,7 @@ export async function addBooqHistory(
     userId: string,
     { booqId, source, ...data }: DbBooqHistory,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             [`history.${booqId}.${source}`]: data,
@@ -35,7 +35,7 @@ export async function deleteBooqHistory(
     userId: string,
     { booqId }: Pick<DbBooqHistory, 'booqId'>,
 ) {
-    const result = await collection.findByIdAndUpdate(
+    const result = await (await collection).findByIdAndUpdate(
         userId,
         {
             $unset: {
