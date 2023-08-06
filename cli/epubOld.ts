@@ -107,7 +107,7 @@ async function openEpub({ fileData, diagnoser }: {
 }
 
 class FixedEpub extends EPub {
-    static libPromise = Promise;
+    static libPromise = Promise
 
     static createFromData(fileData: Buffer): Promise<FixedEpub> {
         // Note: very hacky, but under the hood 'epub2' just send
