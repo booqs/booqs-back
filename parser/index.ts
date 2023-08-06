@@ -4,7 +4,6 @@ import { processEpub } from './book'
 import { openFirstEpubPackage } from './epub'
 import { buildMeta } from './metadata'
 
-
 export async function parseEpub({ fileData, diagnoser: diags }: {
     fileData: Buffer,
     diagnoser?: Diagnoser,

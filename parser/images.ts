@@ -7,7 +7,7 @@ import { Diagnoser } from 'booqs-epub'
 export async function buildImages(nodes: BooqNode[], meta: BooqMeta, file: EpubPackage, diags: Diagnoser) {
     const srcs = collectImgSrcs(nodes)
     const cover = meta.cover?.href
-    const allSrcs = typeof cover === 'string'
+    const allSrcs = cover !== undefined
         ? [cover, ...srcs]
         : srcs
     const uniqueSrcs = uniq(allSrcs)
