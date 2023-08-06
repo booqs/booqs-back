@@ -44,24 +44,24 @@ export async function uploadEpub(fileStream: ReadStream, userId: string) {
 
 async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
     const {
-        title, creator: author, subject, language, description, cover,
-        ...rest
+        title, authors, subjects, languages, descriptions, cover,
+        rights, contributors,
+        tags,
     } = booq.meta
-    const subjects = typeof subject === 'string' ? [subject]
-        : Array.isArray(subject) ? subject
-            : []
     const length = nodesLength(booq.nodes)
     const doc: DbUuCard = {
         assetId,
         length,
         fileHash,
         subjects,
-        title: parseString(title),
-        author: parseString(author),
-        language: parseString(language),
-        description: parseString(description),
-        cover: parseString(cover),
-        meta: rest,
+        title,
+        author: authors.join(', '),
+        language: languages[0],
+        description: descriptions[0],
+        cover: cover?.href,
+        rights,
+        contributors,
+        meta: tags,
     }
     const [inserted] = await (await uuCards).insertMany([doc])
     report('inserted', inserted)
@@ -97,11 +97,6 @@ async function buildFile(fileStream: ReadStream) {
             reject(e)
         }
     })
-}
-
-function parseString(field: unknown) {
-    return typeof field === 'string'
-        ? field : undefined
 }
 
 function report(label: string, data?: any) {

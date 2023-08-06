@@ -15,6 +15,7 @@ export async function parseEpub({ fileData, diagnoser }: {
         if (!file) {
             return undefined
         }
+        // console.log(pretty(file.metadata))
         const { value: book, diags: bookDiags } = await processEpub(file)
         bookDiags.forEach(diagnoser)
         return book
@@ -137,27 +138,52 @@ class FixedEpub extends EPub {
 
 function extractMetadata(epub: EPub): EpubMetadata {
     const metadata = { ...epub.metadata } as any
+    let result: EpubMetadata = {
+        fields: {},
+        items: [],
+    }
     const coverId = metadata.cover
     if (coverId) {
         const items = listItems(epub)
         const coverItem = items
             .find(item => item.id === coverId)
-        metadata.cover = coverItem !== undefined
-            ? coverItem.href
-            : undefined
+        if (coverItem && coverItem.id && coverItem.href) {
+            result.items.push({
+                name: 'cover',
+                id: coverItem.id,
+                href: coverItem.href,
+            })
+        }
     }
     const raw = getRawData(epub.metadata)
-    metadata['dc:rights'] = raw['dc:rights']
-    metadata['dc:identifier'] = raw['dc:identifier']
-    for (const [key, value] of Object.entries(metadata)) {
-        if (value === undefined) {
-            delete metadata[key]
-        } else if (!Array.isArray(value)) {
-            metadata[key] = [value]
+    for (let [key, value] of Object.entries(raw)) {
+        if (key.startsWith('dc:')) {
+            key = key.substring('dc:'.length)
+        }
+        if (Array.isArray(value)) {
+            result.fields[key] = value.map(processValue)
+        } else {
+            result.fields[key] = [processValue(value)]
         }
     }
 
-    return metadata
+    return result
+}
+
+function processValue(value: unknown) {
+    if (typeof value === 'string') {
+        return {
+            '#text': value,
+        }
+    } else if (typeof value === 'object') {
+        let any = value as Record<string, any | undefined>
+        return {
+            '#text': any['#'],
+            '@opf:event': any['@']?.['opf:event'],
+        }
+    } else {
+        return {}
+    }
 }
 
 function getRawData(object: any): any {

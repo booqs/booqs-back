@@ -23,6 +23,8 @@ const schema = {
     description: String,
     subjects: [String],
     cover: String,
+    rights: String,
+    contributors: [String],
     meta: taggedObject<object>(),
 } as const
 

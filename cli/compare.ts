@@ -4,7 +4,7 @@ import { parseEpub } from '../parser'
 import { pretty } from '../server/utils'
 import { listEpubs } from './parse'
 import { parseEpub as parseEpubOld } from './epubOld'
-import { Booq } from '../core'
+import { Booq, BooqMeta } from '../core'
 
 export async function compateEpubParsers(path: string) {
     if (!await promisify(exists)(path)) {
@@ -80,18 +80,25 @@ function compare(newResult: Booq | undefined, oldResult: Booq | undefined) {
         console.log('Old parser failed, new didnt')
         return
     }
-    for (const [key, newMetaValue] of Object.entries(newResult.meta)) {
-        const oldMetaValue = oldResult.meta[key]
-        if (newMetaValue?.length !== oldMetaValue?.length) {
-            console.log(`Different meta length for ${key}: ${pretty(newMetaValue)} vs ${pretty(oldMetaValue)}`)
-        }
-        if (newMetaValue === undefined || oldMetaValue === undefined) {
-            continue
-        }
-        for (let i = 0; i < newMetaValue?.length; i++) {
-            if (newMetaValue[i] !== oldMetaValue[i]) {
-                console.log(`Different meta value for ${key}[${i}]: ${pretty(newMetaValue[i])} vs ${pretty(oldMetaValue[i])}`)
+    let { tags, cover, ...rest } = newResult.meta
+    let { tags: oldTags, cover: oldCover, ...oldRest } = oldResult.meta
+    for (const [key, newMetaValue] of Object.entries(rest)) {
+        const oldMetaValue = oldRest[key as Exclude<keyof BooqMeta, 'tags' | 'cover'>]
+        if (typeof newMetaValue === 'string' && typeof oldMetaValue === 'string') {
+            if (newMetaValue !== oldMetaValue) {
+                console.log(`Different meta value for ${key}: ${newMetaValue} vs ${oldMetaValue}`)
             }
+        } else if (Array.isArray(newMetaValue) && Array.isArray(oldMetaValue)) {
+            if (newMetaValue.length !== oldMetaValue.length) {
+                console.log(`Different meta length for ${key}: ${newMetaValue.length} vs ${oldMetaValue.length}`)
+            }
+            for (let i = 0; i < newMetaValue.length; i++) {
+                if (newMetaValue[i] !== oldMetaValue[i]) {
+                    console.log(`Different meta value for ${key}[${i}]: ${newMetaValue[i]} vs ${oldMetaValue[i]}`)
+                }
+            }
+        } else if (newMetaValue !== oldMetaValue) {
+            console.log(`Different meta type for ${key}: ${typeof newMetaValue} vs ${typeof oldMetaValue}`)
         }
     }
     for (let i = 0; i < newResult.toc.items.length; i++) {

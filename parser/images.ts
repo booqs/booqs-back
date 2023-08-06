@@ -1,13 +1,13 @@
 import { uniq } from 'lodash'
-import { BooqNode, BooqImages } from '../core'
+import { BooqNode, BooqImages, BooqMeta } from '../core'
 import { EpubPackage } from './epub'
 import { Diagnostic } from './result'
 import { resolveRelativePath } from './path'
 
-export async function buildImages(nodes: BooqNode[], file: EpubPackage) {
+export async function buildImages(nodes: BooqNode[], meta: BooqMeta, file: EpubPackage) {
     const diags: Diagnostic[] = []
     const srcs = collectImgSrcs(nodes)
-    const cover = file.metadata.cover
+    const cover = meta.cover?.href
     const allSrcs = typeof cover === 'string'
         ? [cover, ...srcs]
         : srcs

@@ -4,8 +4,8 @@ import { Result, Diagnostic } from './result'
 import { parseSection } from './section'
 import { buildImages } from './images'
 import { buildToc } from './toc'
-import { getMetadata } from './metadata'
 import { preprocess } from './preprocess'
+import { buildMeta } from './metadata'
 
 export async function processEpub(epub: EpubPackage): Promise<Result<Booq>> {
     const diags: Diagnostic[] = []
@@ -19,7 +19,8 @@ export async function processEpub(epub: EpubPackage): Promise<Result<Booq>> {
         nodes.push(value)
     }
 
-    const { value: images, diags: imagesDiags } = await buildImages(nodes, epub)
+    let meta = buildMeta(epub, diags)
+    const { value: images, diags: imagesDiags } = await buildImages(nodes, meta, epub)
     diags.push(...imagesDiags)
 
     const { value: toc, diags: tocDiags } = await buildToc(nodes, epub)
@@ -31,7 +32,7 @@ export async function processEpub(epub: EpubPackage): Promise<Result<Booq>> {
     return {
         value: {
             nodes: prepocessed ?? [],
-            meta: await getMetadata(epub),
+            meta,
             toc: toc ?? {
                 title: undefined,
                 items: [],

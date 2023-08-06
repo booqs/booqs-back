@@ -27,9 +27,8 @@ export async function buildToc(nodes: BooqNode[], file: EpubPackage): Promise<Re
             }
         }
     }
-    const title = typeof file.metadata.title === 'string'
-        ? file.metadata.title
-        : undefined
+    let titles = file.metadata.fields['title'] ?? file.metadata.fields['dc:title'] ?? []
+    let title = titles.map(t => t['#text']).join(', ')
 
     return {
         value: {

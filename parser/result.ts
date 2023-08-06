@@ -1,6 +1,6 @@
 export type Diagnostic = {
     message: string,
-    severity?: 'error' | 'warning' | 'info' | 'critical',
+    severity?: 'error' | 'warning' | 'critical',
     data?: object,
 };
 export type Success<T> = {

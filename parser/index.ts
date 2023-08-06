@@ -1,8 +1,8 @@
 import { Booq, BooqMeta } from '../core'
 import { Diagnostic } from './result'
 import { processEpub } from './book'
-import { getMetadata } from './metadata'
 import { openFirstEpubPackage } from './epub'
+import { buildMeta } from './metadata'
 
 export * from './result'
 
@@ -42,9 +42,11 @@ export async function extractMetadata({ fileData, extractCover, diagnoser }: {
     if (!epub) {
         return undefined
     }
-    const metadata = await getMetadata(epub)
+    let diags: Diagnostic[] = []
+    const metadata = buildMeta(epub, diags)
+    diags.forEach(diagnoser)
     if (extractCover) {
-        const coverHref = metadata.cover
+        const coverHref = metadata.cover?.href
         if (typeof coverHref === 'string') {
             const coverBuffer = await epub.bufferResolver(coverHref)
             if (!coverBuffer) {
