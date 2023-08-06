@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 import { prepPgLib } from './pgprep'
 import { parseEpubs } from './parse'
-import { compateEpubParsers } from './compare'
 
 exec()
 
@@ -21,13 +20,6 @@ async function exec() {
                 await parseEpubs(path, {
                     verbose: verbose === '--verbose',
                 })
-            }
-            break
-        }
-        case 'compare': {
-            const [path] = args
-            if (path) {
-                await compateEpubParsers(path)
             }
             break
         }
