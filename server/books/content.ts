@@ -2,6 +2,7 @@ import { parseId, Booq } from '../../core'
 import { parseEpub } from '../../parser'
 import { sources } from './libSources'
 import { logTime } from '../utils'
+import { diagnoser } from 'booqs-epub'
 
 const cache: {
     [booqId: string]: Promise<Booq | undefined>,
@@ -23,10 +24,12 @@ async function parseBooqForId(booqId: string) {
     if (!file) {
         return undefined
     }
+    let diags = diagnoser('booqForId')
     const booq = await logTime(() => parseEpub({
         fileData: file.file,
-        diagnoser: d => console.log(d),
+        diagnoser: diags,
     }), 'Parser')
+    diags.all().forEach(console.log)
     return booq
 }
 

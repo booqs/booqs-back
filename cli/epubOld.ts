@@ -1,26 +1,23 @@
 import { EPub } from 'epub2'
-import { Diagnostic, Result } from '../parser/result'
 import { EpubPackage, EpubMetadata, EpubSection } from '../parser/epub'
 import { processEpub } from '../parser/book'
 import { Booq } from '../core'
+import { Diagnoser } from 'booqs-epub'
 
 export async function parseEpub({ fileData, diagnoser }: {
     fileData: Buffer,
-    diagnoser?: (diag: Diagnostic) => void,
+    diagnoser: Diagnoser,
 }): Promise<Booq | undefined> {
-    diagnoser = diagnoser ?? (() => undefined)
     try {
-        const { value: file, diags: fileDiags } = await openEpub({ fileData })
-        fileDiags.forEach(diagnoser)
+        const file = await openEpub({ fileData, diagnoser })
         if (!file) {
             return undefined
         }
         // console.log(pretty(file.metadata))
-        const { value: book, diags: bookDiags } = await processEpub(file)
-        bookDiags.forEach(diagnoser)
+        const book = await processEpub(file, diagnoser)
         return book
     } catch (err) {
-        diagnoser({
+        diagnoser?.push({
             message: 'Unhandled exception on parsing',
             data: err as object,
         })
@@ -28,9 +25,10 @@ export async function parseEpub({ fileData, diagnoser }: {
     }
 }
 
-async function openEpub({ fileData }: {
+async function openEpub({ fileData, diagnoser }: {
     fileData: Buffer,
-}): Promise<Result<EpubPackage>> {
+    diagnoser?: Diagnoser,
+}): Promise<EpubPackage | undefined> {
     let epub: FixedEpub
     function resolveHref(href: string) {
         href = href.startsWith('../')
@@ -98,14 +96,13 @@ async function openEpub({ fileData }: {
             },
         }
 
-        return { value: book, diags: [] }
+        return book
     } catch (e) {
-        return {
-            diags: [{
-                message: 'exception on epub open',
-                data: e as object,
-            }],
-        }
+        diagnoser?.push({
+            message: 'exception on epub open',
+            data: e as object,
+        })
+        return undefined
     }
 }
 

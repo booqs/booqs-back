@@ -1,15 +1,11 @@
 import { BooqNode, findPathForId } from '../core'
-import { Result } from './result'
 import { resolveRefs } from './refs'
 import { markParagraphs } from './pph'
 
-export function preprocess(nodes: BooqNode[]): Result<BooqNode[]> {
+export function preprocess(nodes: BooqNode[]): BooqNode[] {
     const resolved = resolveRefs(nodes)
     const marked = markParagraphs(resolved)
-    return {
-        value: marked,
-        diags: [],
-    }
+    return marked
 }
 
 function resolveNodesRefs(root: BooqNode[], nodes: BooqNode[]): BooqNode[] {

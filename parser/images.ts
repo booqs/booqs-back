@@ -1,11 +1,10 @@
 import { uniq } from 'lodash'
 import { BooqNode, BooqImages, BooqMeta } from '../core'
 import { EpubPackage } from './epub'
-import { Diagnostic } from './result'
 import { resolveRelativePath } from './path'
+import { Diagnoser } from 'booqs-epub'
 
-export async function buildImages(nodes: BooqNode[], meta: BooqMeta, file: EpubPackage) {
-    const diags: Diagnostic[] = []
+export async function buildImages(nodes: BooqNode[], meta: BooqMeta, file: EpubPackage, diags: Diagnoser) {
     const srcs = collectImgSrcs(nodes)
     const cover = meta.cover?.href
     const allSrcs = typeof cover === 'string'
@@ -27,10 +26,7 @@ export async function buildImages(nodes: BooqNode[], meta: BooqMeta, file: EpubP
             })
         }
     }
-    return {
-        value: images,
-        diags,
-    }
+    return images
 }
 
 function isExternal(src: string): boolean {

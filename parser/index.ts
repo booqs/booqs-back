@@ -1,26 +1,23 @@
+import { Diagnoser, diagnoser } from 'booqs-epub'
 import { Booq, BooqMeta } from '../core'
-import { Diagnostic } from './result'
 import { processEpub } from './book'
 import { openFirstEpubPackage } from './epub'
 import { buildMeta } from './metadata'
 
-export * from './result'
 
-export async function parseEpub({ fileData, diagnoser }: {
+export async function parseEpub({ fileData, diagnoser: diags }: {
     fileData: Buffer,
-    diagnoser?: (diag: Diagnostic) => void,
+    diagnoser?: Diagnoser,
 }): Promise<Booq | undefined> {
-    diagnoser = diagnoser ?? (() => undefined)
     try {
-        const file = await openFirstEpubPackage({ fileData, diagnoser })
+        const file = await openFirstEpubPackage({ fileData, diagnoser: diags })
         if (!file) {
             return undefined
         }
-        const { value: book, diags: bookDiags } = await processEpub(file)
-        bookDiags.forEach(diagnoser)
+        const book = await processEpub(file, diags ?? diagnoser('process epub'))
         return book
     } catch (err) {
-        diagnoser({
+        diags?.push({
             message: 'Unhandled exception on parsing',
             data: err as object,
         })
@@ -35,22 +32,19 @@ export type ExtractedMetadata = {
 export async function extractMetadata({ fileData, extractCover, diagnoser }: {
     fileData: Buffer,
     extractCover?: boolean,
-    diagnoser?: (diag: Diagnostic) => void,
+    diagnoser?: Diagnoser,
 }): Promise<ExtractedMetadata | undefined> {
-    diagnoser = diagnoser ?? (() => undefined)
     const epub = await openFirstEpubPackage({ fileData, diagnoser })
     if (!epub) {
         return undefined
     }
-    let diags: Diagnostic[] = []
-    const metadata = buildMeta(epub, diags)
-    diags.forEach(diagnoser)
+    const metadata = buildMeta(epub, diagnoser)
     if (extractCover) {
         const coverHref = metadata.cover?.href
         if (typeof coverHref === 'string') {
             const coverBuffer = await epub.bufferResolver(coverHref)
             if (!coverBuffer) {
-                diagnoser({
+                diagnoser?.push({
                     message: `couldn't load cover image: ${coverHref}`,
                 })
                 return { metadata }

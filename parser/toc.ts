@@ -1,12 +1,11 @@
+import { Diagnoser } from 'booqs-epub'
 import {
     BooqNode, TableOfContentsItem, TableOfContents, findPathForId, nodesLength, positionForPath,
 } from '../core'
 import { EpubPackage } from './epub'
-import { Diagnostic, Result } from './result'
 import { transformHref } from './parserUtils'
 
-export async function buildToc(nodes: BooqNode[], file: EpubPackage): Promise<Result<TableOfContents>> {
-    const diags: Diagnostic[] = []
+export async function buildToc(nodes: BooqNode[], file: EpubPackage, diags: Diagnoser): Promise<TableOfContents> {
     const items: TableOfContentsItem[] = []
     for (const epubTocItem of file.toc()) {
         if (epubTocItem.href) {
@@ -31,12 +30,9 @@ export async function buildToc(nodes: BooqNode[], file: EpubPackage): Promise<Re
     let title = titles.map(t => t['#text']).join(', ')
 
     return {
-        value: {
-            title,
-            items,
-            length: nodesLength(nodes), // TODO: implement
-        },
-        diags,
+        title,
+        items,
+        length: nodesLength(nodes), // TODO: implement
     }
 }
 

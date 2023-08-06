@@ -4,33 +4,29 @@ import {
 } from './xmlTree';
 import { EpubSection, EpubPackage } from './epub';
 import { parseCss, Stylesheet, StyleRule, applyRules } from './css';
-import { Result, Diagnostic } from './result';
 import { transformHref } from './parserUtils';
 import { capitalize } from 'lodash';
 import { resolveRelativePath } from './path';
 import { isComment } from 'domutils';
+import { Diagnoser, Diagnostic } from 'booqs-epub';
 
-export async function parseSection(section: EpubSection, file: EpubPackage): Promise<Result<BooqNode>> {
-    const diags: Diagnostic[] = [];
+export async function parseSection(section: EpubSection, file: EpubPackage, diags: Diagnoser): Promise<BooqNode | undefined> {
     const node = await processSectionContent(section.content, {
         fileName: section.fileName,
         stylesheet: { rules: [] },
-        report: d => diags.push(d),
+        diags,
         resolveTextFile: async href => {
             let resolved = resolveRelativePath(href, section.fileName)
             return file.textResolver(resolved);
         },
     });
-    return {
-        value: node,
-        diags,
-    };
+    return node;
 }
 
 type Env = {
     fileName: string,
     stylesheet: Stylesheet,
-    report: (diag: Diagnostic) => void,
+    diags: Diagnoser,
     resolveTextFile: (href: string) => Promise<string | undefined>,
 };
 
@@ -39,7 +35,7 @@ async function processSectionContent(content: string, env: Env): Promise<BooqNod
     const head = findByName(elements, 'head');
     const body = findByName(elements, 'body');
     if (!body) {
-        env.report({
+        env.diags.push({
             message: 'missing body node',
             data: { xml: xml2string(...elements) },
         });
@@ -76,7 +72,7 @@ async function processHead(head: XmlElement, env: Env) {
                 break;
             default:
                 if (!(isEmptyText(ch) || isComment(ch))) {
-                    env.report({
+                    env.diags.push({
                         message: 'unexpected head node',
                         data: { xml: xml2string(ch) },
                     });
@@ -95,7 +91,7 @@ async function processLink(link: XmlElement, env: Env) {
         case 'icon':
             return [];
         default:
-            env.report({
+            env.diags.push({
                 message: `unexpected link rel: ${rel}`,
                 data: { xml: xml2string(link) },
             });
@@ -110,7 +106,7 @@ async function processLink(link: XmlElement, env: Env) {
         // Note: unknown unsupported
         default:
             if (rel !== 'stylesheet') {
-                env.report({
+                env.diags.push({
                     message: `unexpected link type: ${type}`,
                     data: { xml: xml2string(link) },
                 });
@@ -119,7 +115,7 @@ async function processLink(link: XmlElement, env: Env) {
             break
     }
     if (href === undefined) {
-        env.report({
+        env.diags.push({
             message: 'missing href on link',
             data: { xml: xml2string(link) },
         });
@@ -127,14 +123,13 @@ async function processLink(link: XmlElement, env: Env) {
     }
     const content = await env.resolveTextFile(href);
     if (content === undefined) {
-        env.report({
+        env.diags.push({
             message: `couldn't load css: ${href}`,
             data: { xml: xml2string(link) },
         });
         return [];
     } else {
-        const { value, diags } = parseCss(content, href);
-        diags.forEach(d => env.report(d));
+        const value = parseCss(content, href, env.diags);
         return value?.rules ?? [];
     }
 }
@@ -144,14 +139,13 @@ async function processStyleElement(style: XmlElement, env: Env) {
     const { type } = attributesOf(style);
     const text = content && textOf(content);
     if (type !== 'text/css' || text === undefined) {
-        env.report({
+        env.diags.push({
             message: 'unsupported style tag',
             data: { xml: xml2string(style) },
         });
         return [];
     }
-    const { value, diags } = parseCss(text, `${env.fileName}: <style>`);
-    diags.forEach(d => env.report(d));
+    const value = parseCss(text, `${env.fileName}: <style>`, env.diags);
     return value?.rules ?? [];
 }
 
@@ -208,7 +202,7 @@ function processId(id: string | undefined, env: Env) {
 }
 
 function processStyle(element: XmlElement, env: Env) {
-    const input = applyRules(element, env.stylesheet.rules);
+    const input = applyRules(element, env.stylesheet.rules, env.diags);
     const style: BooqNodeStyle = {};
     for (const [property, value] of Object.entries(input)) {
         switch (property) {

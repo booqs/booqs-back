@@ -1,8 +1,9 @@
 import { promisify } from 'util'
 import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
-import { parseEpub } from '../parser'
+import { extractMetadata, parseEpub } from '../parser'
 import { pretty } from '../server/utils'
+import { diagnoser } from 'booqs-epub'
 
 export async function parseEpubs(path: string, options: {
     verbose?: boolean,
@@ -27,10 +28,20 @@ async function processFile(filePath: string, verbose?: boolean) {
             console.log(pretty(`Processing ${filePath}`))
         }
         const file = await promisify(readFile)(filePath)
+        let diags = diagnoser('processFile')
         const result = await parseEpub({
             fileData: file,
-            diagnoser: diag => console.log(`${filePath}: `, pretty(diag)),
+            diagnoser: diags,
         })
+        const meta = await extractMetadata({
+            fileData: file,
+            diagnoser: diags,
+            extractCover: true,
+        })
+        if (!meta?.cover) {
+            diags.push('No cover image found')
+        }
+        diags.all().forEach(diag => console.log(`${filePath}: `, pretty(diag)))
         if (verbose) {
             console.log(pretty(result?.meta))
         }

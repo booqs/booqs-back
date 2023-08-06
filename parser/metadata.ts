@@ -1,8 +1,8 @@
 import { EpubPackage } from './epub'
 import { BooqMeta } from '../core'
-import { Diagnostic } from './result'
+import { Diagnoser } from 'booqs-epub'
 
-export function buildMeta(epub: EpubPackage, diags: Diagnostic[]): BooqMeta {
+export function buildMeta(epub: EpubPackage, diags?: Diagnoser): BooqMeta {
     let pkgMeta = epub.metadata
     let result: BooqMeta = {
         title: undefined,
@@ -29,7 +29,7 @@ export function buildMeta(epub: EpubPackage, diags: Diagnostic[]): BooqMeta {
             continue
         }
         if (!Array.isArray(value)) {
-            diags.push({
+            diags?.push({
                 message: `Unexpected metadata for key: ${key}, value: ${value}`,
                 severity: 'warning',
             })
@@ -62,7 +62,7 @@ export function buildMeta(epub: EpubPackage, diags: Diagnostic[]): BooqMeta {
                 break
             case 'rights':
                 if (result.rights || texts.length > 1) {
-                    diags.push({
+                    diags?.push({
                         message: 'Multiple rights tags found',
                         severity: 'warning',
                     })
@@ -99,7 +99,7 @@ export function buildMeta(epub: EpubPackage, diags: Diagnostic[]): BooqMeta {
         }
     }
     if (titles.length === 0) {
-        diags.push({
+        diags?.push({
             message: 'No title found',
             severity: 'error',
         })

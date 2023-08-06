@@ -1,10 +1,11 @@
 import { inspect } from 'util'
 import { Booq, nodesLength, filterUndefined } from '../../core'
-import { parseEpub, Diagnostic } from '../../parser'
+import { parseEpub } from '../../parser'
 import { makeBatches } from '../utils'
 import { listObjects, downloadAsset, Asset } from '../s3'
 import { logExists, logItem } from '../log'
 import { pgCards, DbPgCard, pgEpubsBucket } from './schema'
+import { diagnoser } from 'booqs-epub'
 
 export async function* syncWithS3() {
     report('Syncing with S3')
@@ -86,10 +87,10 @@ async function downloadAndInsert(assetId: string) {
         report(`Couldn't load pg asset: ${assetId}`)
         return
     }
-    const diags: Diagnostic[] = []
+    const diags = diagnoser('downloadAndInsert')
     const booq = await parseEpub({
         fileData: asset as any,
-        diagnoser: diag => diags.push(diag),
+        diagnoser: diags,
     })
     if (!booq) {
         report(`Couldn't parse epub: ${assetId}`)

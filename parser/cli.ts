@@ -6,6 +6,7 @@ import { promisify, inspect } from 'util'
 import { flatten } from 'lodash'
 import { Booq } from '../core'
 import { parseEpub } from './index'
+import { diagnoser } from 'booqs-epub'
 
 exec()
 
@@ -34,14 +35,15 @@ async function exec() {
 
 async function processEpubFile(filePath: string, verbosity: number = 0) {
     const fileData = await promisify(readFile)(filePath)
+    let diags = diagnoser('epub')
     const booq = await parseEpub({
         fileData,
-        diagnoser: diag => {
-            if (verbosity > -1) {
-                console.log(inspect(diag, false, 8, true))
-            }
-        },
+        diagnoser: diags,
     })
+    if (verbosity > -1) {
+        console.log('Diagnostics:')
+        console.log(inspect(diags.all(), { depth: 10 }))
+    }
     if (!booq) {
         if (verbosity > -1) {
             logRed(`Couldn't parse epub: '${filePath}'`)
