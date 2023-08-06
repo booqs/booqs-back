@@ -3,7 +3,6 @@ import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
 import { extractMetadata, parseEpub } from '../parser'
 import { pretty } from '../server/utils'
-import { diagnoser } from 'booqs-epub'
 
 export async function parseEpubs(path: string, options: {
     verbose?: boolean,
