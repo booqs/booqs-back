@@ -7,6 +7,8 @@ type Query {
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
+    suggest(context: CopilotContext!): CopilotSuggestionResponse
+    answer(context: CopilotContext!, question: String!): CopilotQuestionResponse
 }
 type Mutation {
     addBookmark(bookmark: BookmarkInput!): Boolean
@@ -113,4 +115,27 @@ type BooqHistory {
 }
 type Collection {
     booqs: [Booq!]
+}
+
+input CopilotContext {
+    text: String!
+    context: String!
+    booqId: ID
+    path: [Int!]
+    title: String
+    author: String
+    language: String
+    start: [Int!]
+    end: [Int!]
+}
+type CopilotSuggestionResponse {
+    suggestions: [CopilotSuggestion!]
+    failure: String
+}
+type CopilotSuggestion {
+    question: String!
+}
+type CopilotQuestionResponse {
+    answer: String
+    failure: String
 }
