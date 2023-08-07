@@ -120,7 +120,6 @@ input CopilotContext {
     text: String!
     context: String!
     booqId: ID
-    path: [Int!]
     title: String
     author: String
     language: String
