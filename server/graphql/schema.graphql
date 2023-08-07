@@ -7,8 +7,7 @@ type Query {
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
-    suggest(context: CopilotContext!): CopilotSuggestionResponse
-    answer(context: CopilotContext!, question: String!): CopilotQuestionResponse
+    copilot(context: CopilotContext!): Copilot
 }
 type Mutation {
     addBookmark(bookmark: BookmarkInput!): Boolean
@@ -128,14 +127,7 @@ input CopilotContext {
     start: [Int!]
     end: [Int!]
 }
-type CopilotSuggestionResponse {
-    suggestions: [CopilotSuggestion!]
-    failure: String
-}
-type CopilotSuggestion {
-    question: String!
-}
-type CopilotQuestionResponse {
-    answer: String
-    failure: String
+type Copilot {
+    suggestions: [String!]
+    answer(question: String!): String
 }
