@@ -1,5 +1,5 @@
 import { IResolvers } from '@graphql-tools/utils'
-import { generateSuggestions } from '../ai'
+import { generateAnswer, generateSuggestions } from '../ai'
 
 export type CopilotInput = {
     text: string,
@@ -18,7 +18,7 @@ export const copilotResolver: IResolvers<CopilotParent> = {
             return generateSuggestions(parent)
         },
         async answer(parent, { question }) {
-            return `I don't know what "${question}" is, I am just silly stub. But let me give you some more characters, so you can see them in action: ${parent.text} ${parent.context}`
+            return generateAnswer(parent, question)
         },
     },
 }

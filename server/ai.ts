@@ -16,6 +16,15 @@ export async function generateSuggestions(context: ReadingContext) {
     return result.map(parseSuggestion).flat()
 }
 
+export async function generateAnswer(context: ReadingContext, question: string) {
+    let prompt = buildPromptForAnswer(context, question)
+    let result = await getChatCompletions(prompt)
+    if (!result) {
+        return undefined
+    }
+    return result.join('\n')
+}
+
 function parseSuggestion(suggestion: string) {
     return suggestion.split('|||').map(s => s.trim())
 }
@@ -27,6 +36,16 @@ function buildPromptForSuggestions(context: ReadingContext) {
     }, {
         role: 'user' as const,
         content: `I selected excerpt "${context.text}" within the context "${context.context}". Please suggest questions that I might want to ask about this excerpt.`,
+    }]
+}
+
+function buildPromptForAnswer(context: ReadingContext, question: string) {
+    return [{
+        role: 'system' as const,
+        content: `You are assisting user to read ${bookDescription(context)}. User want to ask question "${question}" about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should answer the question. For example: "The meaning of life is 42."`,
+    }, {
+        role: 'user' as const,
+        content: `I selected excerpt "${context.text}" within the context "${context.context}". My question is: ${question}.`,
     }]
 }
 
