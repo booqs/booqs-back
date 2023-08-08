@@ -25,16 +25,31 @@ export async function generateAnswer(context: ReadingContext, question: string) 
     return result.join('\n')
 }
 
-function parseSuggestion(suggestion: string) {
-    return suggestion.split('|||').map(s => s.trim())
+function parseSuggestion(suggestion: string): string[] {
+    return suggestion.split('?')
+        .map(s => {
+            let trimmed = trimNumberPrefix(s)
+            console.log('suggestion', `"${s}"`, `"${trimmed}"`)
+            if (trimmed === '') {
+                return undefined
+            } else {
+                return trimmed + '?'
+            }
+        })
+        .filter((s): s is string => s !== undefined)
+}
+
+function trimNumberPrefix(s: string) {
+    return s.replace(/^\s*\d*[. ]/, '').trim()
 }
 
 function buildPromptForSuggestions(context: ReadingContext) {
     return [{
         role: 'system' as const,
-        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest from 1 to 3 questions that user is likely to ask about the excerpt. Each question must be split with "|||" string. For example: "What is the meaning of life? ||| What is the meaning of death? ||| What is the meaning of everything?"
+        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest from 1 to 3 questions that user is likely to ask about the excerpt. Each question must be a single sentense and end with question mark.
         Prioritize this potential questions:
         - Questions about cultural references
+        - Questions about used special terms if they are not obvious
         - Questions about previous interactions with the character (if you know the book well and if the character is mentioned in the excerpt)
         - Questions about meaning of the excerpt if it is not obvious
         `,
