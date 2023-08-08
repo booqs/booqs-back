@@ -9,28 +9,24 @@ export type ReadingContext = {
 }
 export async function generateSuggestions(context: ReadingContext) {
     let prompt = buildPromptForSuggestions(context)
-    let result = await getChatCompletions(prompt, 3)
+    let result = await getChatCompletions(prompt)
     if (!result) {
         return []
     }
-    return parseSuggestions(result)
+    return result.map(parseSuggestion).flat()
 }
 
-function parseSuggestions(suggestions: string[]) {
-    return suggestions
-        .map(
-            s => s.startsWith('"') && s.endsWith('"')
-                ? s.substring(1, s.length - 1) : s,
-        )
+function parseSuggestion(suggestion: string) {
+    return suggestion.split('|||').map(s => s.trim())
 }
 
 function buildPromptForSuggestions(context: ReadingContext) {
     return [{
         role: 'system' as const,
-        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest a question that user is likely to ask about the excerpt.`,
+        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest from 1 to 3 questions that user is likely to ask about the excerpt. Each question should be split with "|||" string. For example: "What is the meaning of life? ||| What is the meaning of death? ||| What is the meaning of everything?"`,
     }, {
         role: 'user' as const,
-        content: `I selected excerpt "${context.text}" within the context "${context.context}". Please suggest a question that I might want to ask about this excerpt.`,
+        content: `I selected excerpt "${context.text}" within the context "${context.context}". Please suggest questions that I might want to ask about this excerpt.`,
     }]
 }
 
@@ -49,7 +45,7 @@ function bookDescription(context: ReadingContext) {
 }
 
 
-async function getChatCompletions(messages: ChatCompletionRequestMessage[], n: number) {
+async function getChatCompletions(messages: ChatCompletionRequestMessage[], n: number = 1) {
     const configuration = new Configuration({
         apiKey: process.env.OPENAI_API_KEY,
     })
