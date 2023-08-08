@@ -25,6 +25,7 @@ type Booq {
     id: ID!
     title: String
     author: String
+    language: String,
     length: Int
     cover(size: Int): String
     tags: [Tag]!

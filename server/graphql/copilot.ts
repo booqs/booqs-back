@@ -15,13 +15,15 @@ export const copilotResolver: IResolvers<CopilotParent> = {
     Copilot: {
         async suggestions(parent) {
             return [
-                'What is going on here?',
-                'What is the author trying to say?',
-                'What is the main idea?',
+                `Author is "${parent.author}"`,
+                `Title is "${parent.title}"`,
+                `Language is "${parent.language}"`,
+                `What is "${parent.text}"?`,
+                `What is "${parent.context}"?`,
             ]
         },
         async answer(parent, { question }) {
-            return 'Well, it is a good question! Let me think... I don\'t know really. I am just a stub for now.'
+            return `I don't know what "${question}" is, I am just silly stub. But let me give you some more characters, so you can see them in action: ${parent.text} ${parent.context}`
         },
     },
 }

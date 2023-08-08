@@ -52,8 +52,8 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
             const ids = await featuredIds(limit)
             return forIds(ids)
         },
-        copilot(_, parent: CopilotInput): CopilotParent {
-            return parent
+        copilot(_, { context }: { context: CopilotInput }): CopilotParent {
+            return context
         },
     },
 }
