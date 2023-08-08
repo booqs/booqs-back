@@ -32,7 +32,12 @@ function parseSuggestion(suggestion: string) {
 function buildPromptForSuggestions(context: ReadingContext) {
     return [{
         role: 'system' as const,
-        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest from 1 to 3 questions that user is likely to ask about the excerpt. Each question should be split with "|||" string. For example: "What is the meaning of life? ||| What is the meaning of death? ||| What is the meaning of everything?"`,
+        content: `You are assisting user to read ${bookDescription(context)}. User might want to ask different questions about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should suggest from 1 to 3 questions that user is likely to ask about the excerpt. Each question must be split with "|||" string. For example: "What is the meaning of life? ||| What is the meaning of death? ||| What is the meaning of everything?"
+        Prioritize this potential questions:
+        - Questions about cultural references
+        - Questions about previous interactions with the character (if you know the book well and if the character is mentioned in the excerpt)
+        - Questions about meaning of the excerpt if it is not obvious
+        `,
     }, {
         role: 'user' as const,
         content: `I selected excerpt "${context.text}" within the context "${context.context}". Please suggest questions that I might want to ask about this excerpt.`,
@@ -42,7 +47,7 @@ function buildPromptForSuggestions(context: ReadingContext) {
 function buildPromptForAnswer(context: ReadingContext, question: string) {
     return [{
         role: 'system' as const,
-        content: `You are assisting user to read ${bookDescription(context)}. User want to ask question "${question}" about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should answer the question. For example: "The meaning of life is 42."`,
+        content: `You are assisting user to read ${bookDescription(context)}. User want to ask question "${question}" about the particular part of the book. You'll be supplied with excerpt of the book and the context around it. You should answer the question. If the book is well-known and studied, you should prioritize references to scholar interpritations of the book. If the book is not well-known, you should prioritize your own interpritation of the book.`,
     }, {
         role: 'user' as const,
         content: `I selected excerpt "${context.text}" within the context "${context.context}". My question is: ${question}.`,
