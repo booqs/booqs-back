@@ -29,7 +29,6 @@ function parseSuggestion(suggestion: string): string[] {
     return suggestion.split('?')
         .map(s => {
             let trimmed = trimNumberPrefix(s)
-            console.log('suggestion', `"${s}"`, `"${trimmed}"`)
             if (trimmed === '') {
                 return undefined
             } else {
