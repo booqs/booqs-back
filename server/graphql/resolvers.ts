@@ -8,6 +8,7 @@ import { booqHistoryResolver } from './history'
 import { bookmarkResolver } from './bookmark'
 import { highlightResolver } from './highlight'
 import { userResolver } from './user'
+import { copilotResolver } from './copilot'
 
 export const resolvers: IResolvers = {
     ...queryResolver,
@@ -18,5 +19,6 @@ export const resolvers: IResolvers = {
     ...bookmarkResolver,
     ...highlightResolver,
     ...userResolver,
+    ...copilotResolver,
     BooqNode: GraphQLJSON,
 }
