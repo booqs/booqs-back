@@ -5,8 +5,9 @@ import { search, forId, forIds, featuredIds } from '../books'
 import { ResolverContext } from './context'
 import { BooqParent } from './booq'
 import { BooqHistoryParent } from './history'
+import { CopilotInput, CopilotParent } from './copilot'
 
-export const queryResolver: IResolvers<any, ResolverContext> = {
+export const queryResolver: IResolvers<unknown, ResolverContext> = {
     Query: {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)
@@ -50,6 +51,9 @@ export const queryResolver: IResolvers<any, ResolverContext> = {
         async featured(_, { limit }): Promise<Array<BooqParent | undefined>> {
             const ids = await featuredIds(limit)
             return forIds(ids)
+        },
+        copilot(_, { context }: { context: CopilotInput }): CopilotParent {
+            return context
         },
     },
 }
