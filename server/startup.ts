@@ -63,7 +63,7 @@ export async function startup() {
                 return context({
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
-                        res.setHeader('Set-Cookie', serialize(name, value, options))
+                        res.append('Set-Cookie', serialize(name, value, options))
                     },
                     clearCookie(name, options) {
                         res.setHeader('Set-Cookie', serialize(name, '', {

@@ -1,6 +1,5 @@
 import { fromCookie } from '../auth'
 import { DbUser } from '../users'
-import { config } from '../config'
 
 export type ResolverContext = {
     user?: DbUser & { _id?: string },
@@ -25,7 +24,7 @@ export async function context(ctx: RequestContext): Promise<ResolverContext> {
             if (token) {
                 ctx.setCookie('token', token, {
                     httpOnly: true,
-                    secure: config().https ? true : false,
+                    secure: true,
                 })
                 ctx.setCookie('signed', 'true', {
                     httpOnly: false,
