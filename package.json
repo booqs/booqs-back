@@ -19,7 +19,7 @@
     "start": "node dist/server/index.js",
     "dev": "npm run https",
     "http": "cross-env NODE_ENV=development nodemon server/index.ts",
-    "https": "cross-env NODE_ENV=development PORT=4001 nodemon server/index.ts & npx local-ssl-proxy --source 4000 --target 4001"
+    "https": "cross-env NODE_ENV=development PORT=4001 nodemon server/index.ts & npx local-ssl-proxy --key ../localhost-key.pem --cert ../localhost.pem --source 4000 --target 4001"
   },
   "repository": {
     "type": "git",

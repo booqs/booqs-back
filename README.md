@@ -17,7 +17,7 @@ Create a new local Certificate Authority (CA):
 
 ```mkcert -install```
 
-Create a certificate for the "localhost" domain:
+Create a certificate for the "localhost" domain. First, navigate to the repos *parent* directory. This is important because npm script configured to read key and cert from parent's dir. Then run mkcert:
 
 ```mkcert localhost```
 
