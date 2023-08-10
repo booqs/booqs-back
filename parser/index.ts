@@ -4,13 +4,14 @@ import { processEpub } from './book'
 import { openFirstEpubPackage } from './epub'
 import { buildMeta } from './metadata'
 
-export async function parseEpub({ fileData }: {
+export async function parseEpub({ fileData, title }: {
     fileData: Buffer,
+    title?: string,
 }): Promise<{
     value: Booq | undefined,
     diags: Diagnostic[],
 }> {
-    let diags = diagnoser('parse epub')
+    let diags = diagnoser(title ?? 'parseEpub')
     try {
         const file = await openFirstEpubPackage({ fileData, diagnoser: diags })
         if (!file) {

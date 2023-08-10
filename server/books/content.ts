@@ -25,6 +25,7 @@ async function parseBooqForId(booqId: string) {
     }
     const { value: booq, diags } = await logTime(() => parseEpub({
         fileData: file.file,
+        title: booqId,
     }), 'Parser')
     diags.forEach(console.log)
     return booq
