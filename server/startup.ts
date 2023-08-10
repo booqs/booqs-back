@@ -9,7 +9,6 @@ import http from 'http'
 import cors from 'cors'
 import express from 'express'
 import bodyParser from 'body-parser'
-import { serialize } from 'cookie'
 import { mongoDbConnection } from './mongoose'
 
 export async function startup() {
@@ -63,13 +62,13 @@ export async function startup() {
                 return context({
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
-                        res.append('Set-Cookie', serialize(name, value, options))
+                        res.cookie(name, value, options ?? {})
                     },
                     clearCookie(name, options) {
-                        res.setHeader('Set-Cookie', serialize(name, '', {
+                        res.cookie(name, '', {
                             ...options,
                             maxAge: 0,
-                        }))
+                        })
                     },
                 })
             },
