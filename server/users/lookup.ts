@@ -24,7 +24,9 @@ export async function forFacebook(facebookUser: UserInfo) {
         await result.save()
         doc = result
     } else {
+        let username = await proposeUsername(facebookUser)
         const toAdd: DbUser = {
+            username,
             facebookId: facebookUser.id,
             name: facebookUser.name,
             pictureUrl: facebookUser.pictureUrl,
@@ -64,7 +66,9 @@ export async function forApple({ id, name, email }: {
         await result.save()
         doc = result
     } else {
+        let username = await proposeUsername({ id, name, email })
         const toAdd: DbUser = {
+            username,
             appleId: id,
             name, email,
             joined: new Date(),
@@ -80,4 +84,32 @@ export async function forApple({ id, name, email }: {
         email: doc.email,
         joined: doc.joined,
     }
+}
+
+export async function proposeUsername(user: UserInfo) {
+    let base = generateUsername(user)
+    let current = base
+    let next = current
+    let idx = 0
+    let existing: any
+    do {
+        current = next
+        existing = await (await collection)
+            .findOne({ username: current })
+            .exec()
+        next = `${base}${++idx}`
+    } while (existing)
+    return current
+}
+
+function generateUsername(user: UserInfo) {
+    if (!user.name) {
+        return user.id
+    }
+    const names = user.name.split(' ')
+        .map(name => name.toLowerCase())
+        .map(name => name.replace(/[^a-z0-9]/g, ''))
+        .filter(name => name.length > 0)
+    let username = names.join('.')
+    return username
 }

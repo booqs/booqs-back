@@ -6,6 +6,10 @@ const schema = {
         type: Date,
         required: true,
     },
+    username: {
+        type: String,
+        required: true,
+    },
     facebookId: String,
     appleId: String,
     name: String,
