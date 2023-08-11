@@ -1,3 +1,4 @@
+import slugify from 'slugify'
 import { DbUser, collection } from './schema'
 
 
@@ -107,9 +108,12 @@ function generateUsername(user: UserInfo) {
         return user.id
     }
     const names = user.name.split(' ')
-        .map(name => name.toLowerCase())
+        .map(name => slugify(name, {
+            trim: true,
+            lower: true,
+        }))
         .map(name => name.replace(/[^a-z0-9]/g, ''))
         .filter(name => name.length > 0)
     let username = names.join('.')
-    return username
+    return username.length > 0 ? username : user.id
 }
