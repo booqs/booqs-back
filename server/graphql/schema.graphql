@@ -1,6 +1,4 @@
 type Query {
-    auth(token: String!, provider: String!, name: String): AuthResult
-    logout: Boolean
     me: User
     booq(id: ID!): Booq
     search(query: String!, limit: Int): [Booq]
@@ -10,6 +8,8 @@ type Query {
     copilot(context: CopilotContext!): Copilot
 }
 type Mutation {
+    auth(token: String!, provider: String!, name: String): AuthResult
+    signout: Boolean
     addBookmark(bookmark: BookmarkInput!): Boolean
     removeBookmark(id: ID!): Boolean
     addHighlight(highlight: HighlightInput!): Boolean

@@ -3,9 +3,28 @@ import { uniqueId } from '../../core'
 import { users } from '../users'
 import { highlights } from '../highlights'
 import { ResolverContext } from './context'
+import { authWithToken } from '../auth'
 
 export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
+        async auth(_, { token, provider, name }, { setAuthToken }) {
+            const result = await authWithToken({
+                provider, token, name,
+            })
+            if (result) {
+                setAuthToken(result.token)
+                return {
+                    token: result.token,
+                    user: result.user,
+                }
+            } else {
+                return undefined
+            }
+        },
+        signout(_, __, { setAuthToken }) {
+            setAuthToken(undefined)
+            return true
+        },
         async addBookmark(_, { bookmark }, { user }) {
             if (user?._id) {
                 return users.addBookmark(
