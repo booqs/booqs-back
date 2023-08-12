@@ -31,7 +31,7 @@ type Booq {
     tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
-    preview(path: [Int!], length: Int = 500): String
+    preview(path: [Int!], end: [Int!], length: Int = 500): String
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
     tableOfContents: [TocItem!]
