@@ -1,5 +1,6 @@
 import slugify from 'slugify'
 import { DbUser, collection } from './schema'
+import { FbUser } from '../auth/facebook'
 
 
 export async function forId(id: string) {
@@ -7,12 +8,14 @@ export async function forId(id: string) {
 }
 
 export type UserInfo = {
-    id: string,
+    _id: string,
+    username: string,
     name?: string,
     email?: string,
     pictureUrl?: string,
+    joined: Date,
 }
-export async function forFacebook(facebookUser: UserInfo) {
+export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
@@ -40,6 +43,7 @@ export async function forFacebook(facebookUser: UserInfo) {
 
     return {
         _id: doc._id.toString() as string,
+        username: doc.username,
         name: doc.name,
         pictureUrl: doc.pictureUrl,
         email: doc.email,
@@ -51,7 +55,7 @@ export async function forApple({ id, name, email }: {
     id: string,
     name?: string,
     email?: string,
-}) {
+}): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ appleId: id })
         .exec()
@@ -67,7 +71,7 @@ export async function forApple({ id, name, email }: {
         await result.save()
         doc = result
     } else {
-        let username = await proposeUsername({ id, name, email })
+        let username = await proposeUsername({ id, name })
         const toAdd: DbUser = {
             username,
             appleId: id,
@@ -80,6 +84,7 @@ export async function forApple({ id, name, email }: {
 
     return {
         _id: doc._id.toString() as string,
+        username: doc.username,
         name: doc.name,
         pictureUrl: doc.pictureUrl,
         email: doc.email,
@@ -87,7 +92,10 @@ export async function forApple({ id, name, email }: {
     }
 }
 
-export async function proposeUsername(user: UserInfo) {
+export async function proposeUsername(user: {
+    id: string,
+    name?: string,
+}) {
     let base = generateUsername(user)
     let current = base
     let next = current
@@ -103,7 +111,10 @@ export async function proposeUsername(user: UserInfo) {
     return current
 }
 
-function generateUsername(user: UserInfo) {
+function generateUsername(user: {
+    id: string,
+    name?: string,
+}) {
     if (!user.name) {
         return user.id
     }

@@ -1,6 +1,10 @@
-import type { UserInfo } from '../users'
-
-export async function fetchFbUser(token: string): Promise<UserInfo | undefined> {
+export type FbUser = {
+    id: string,
+    name: string,
+    email?: string,
+    pictureUrl?: string,
+}
+export async function fetchFbUser(token: string): Promise<FbUser | undefined> {
     const url = `https://graph.facebook.com/me?fields=name,picture,email
     &access_token=${token}`
 
