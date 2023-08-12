@@ -7,5 +7,8 @@ export const userResolver: IResolvers<UserParent> = {
         id(parent) {
             return parent._id
         },
+        joined(parent) {
+            return parent.joined.toISOString()
+        },
     },
 }
