@@ -25,6 +25,13 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
             setAuthToken(undefined)
             return true
         },
+        deleteAccount(_, __, { user }) {
+            if (user?._id) {
+                return users.deleteForId(user._id)
+            } else {
+                return false
+            }
+        },
         async addBookmark(_, { bookmark }, { user }) {
             if (user?._id) {
                 return users.addBookmark(

@@ -10,6 +10,7 @@ type Query {
 type Mutation {
     auth(token: String!, provider: String!, name: String): AuthResult
     signout: Boolean
+    deleteAccount: Boolean
     addBookmark(bookmark: BookmarkInput!): Boolean
     removeBookmark(id: ID!): Boolean
     addHighlight(highlight: HighlightInput!): Boolean

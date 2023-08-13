@@ -23,4 +23,5 @@ export type LibrarySource = {
         card: LibraryCard,
         booq?: Booq,
     } | undefined>,
+    deleteAllBooksForUserId?(userId: string): Promise<boolean>,
 };

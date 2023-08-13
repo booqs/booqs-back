@@ -4,6 +4,7 @@ import {
     addUpload, addToCollection, removeFromCollection, userCollection,
 } from './collections'
 import { userBooqHistory, addBooqHistory, deleteBooqHistory } from './history'
+import { deleteForId } from './update'
 
 export type { DbUser } from './schema'
 export type { DbBooqHistory } from './history'
@@ -14,4 +15,5 @@ export const users = {
     userBookmarks, addBookmark, deleteBookmark,
     userCollection, addUpload, addToCollection, removeFromCollection,
     userBooqHistory, addBooqHistory, deleteBooqHistory,
+    deleteForId,
 }
