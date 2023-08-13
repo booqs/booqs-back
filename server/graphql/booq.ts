@@ -1,5 +1,5 @@
 import { IResolvers } from '@graphql-tools/utils'
-import { previewForPath, filterUndefined } from '../../core'
+import { previewForPath, filterUndefined, textForRange } from '../../core'
 import { booqForId } from '../books'
 import { users } from '../users'
 import { LibraryCard } from '../sources'
@@ -28,13 +28,20 @@ export const booqResolver: IResolvers<BooqParent> = {
         async highlights(parent): Promise<HighlightParent[]> {
             return highlights.forBooqId(parent.id)
         },
-        async preview(parent, { path, length }) {
+        async preview(parent, { path, end, length }) {
             const booq = await booqForId(parent.id)
             if (!booq) {
                 return undefined
             }
-            const preview = previewForPath(booq.nodes, path, length)
-            return preview?.trim()?.substring(0, length)
+            if (end) {
+                const preview = textForRange(booq.nodes, { start: path ?? [], end })?.trim()
+                return length
+                    ? preview?.substring(0, length)
+                    : preview
+            } else {
+                const preview = previewForPath(booq.nodes, path ?? [], length)
+                return preview?.trim()?.substring(0, length)
+            }
         },
         async nodes(parent) {
             const booq = await booqForId(parent.id)

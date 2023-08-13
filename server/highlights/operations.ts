@@ -40,3 +40,15 @@ export async function update({
 
     return result ? true : false
 }
+
+export async function removeAllForUserId(id: string) {
+    try {
+        await (await collection)
+            .deleteMany({ userId: id })
+            .exec()
+        return true
+    } catch (e) {
+        console.error(e)
+        return false
+    }
+}

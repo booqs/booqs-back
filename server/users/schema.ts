@@ -6,9 +6,16 @@ const schema = {
         type: Date,
         required: true,
     },
+    username: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
     facebookId: String,
     appleId: String,
-    name: String,
     pictureUrl: String,
     email: String,
     bookmarks: taggedObject<StringMap<BookmarkData>>(),

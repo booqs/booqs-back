@@ -32,7 +32,7 @@ async function getUser(input: AuthInput) {
             if (userInfo) {
                 return users.forApple({
                     id: userInfo.userId,
-                    name: input.name,
+                    name: input.name ?? userInfo.email,
                     email: userInfo.email,
                 })
             }

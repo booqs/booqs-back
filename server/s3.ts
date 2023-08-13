@@ -3,6 +3,7 @@ import AWS_S3, {
     PutObjectCommand,
     GetObjectCommand, GetObjectCommandOutput,
     ListObjectsV2Command,
+    DeleteObjectCommand,
 } from '@aws-sdk/client-s3'
 
 let _service: S3Client | undefined
@@ -49,6 +50,14 @@ export async function uploadAsset(bucket: string, assetId: string, body: AssetCo
         Bucket: bucket,
         Key: assetId,
         Body: body,
+    })
+    return service().send(command)
+}
+
+export async function deleteAsset(bucket: string, assetId: string) {
+    const command = new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: assetId,
     })
     return service().send(command)
 }

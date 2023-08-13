@@ -4,7 +4,6 @@ import { inspect } from 'util'
 import { parseEpub } from '../../parser'
 import { nodesLength, Booq, uniqueId } from '../../core'
 import { uploadAsset } from '../s3'
-import { users } from '../users'
 import {
     uuCards, DbUuCard,
     userUploadedEpubsBucket, toLibraryCard,
@@ -53,6 +52,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
         assetId,
         length,
         fileHash,
+        users: [],
         subjects,
         title,
         author: authors.join(', '),
@@ -69,7 +69,14 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
 }
 
 async function addToRegistry(cardId: string, userId: string) {
-    return users.addUpload(userId, cardId)
+    let result = await (await uuCards).updateOne({ _id: cardId }, {
+        $addToSet: { users: userId },
+    }).exec()
+    if (result.modifiedCount === 0) {
+        console.error('Can\'t add user to registry')
+        return false
+    }
+    return true
 }
 
 type File = {

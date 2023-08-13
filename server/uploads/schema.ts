@@ -16,6 +16,10 @@ const cardsSchema = {
         type: String,
         required: true,
     },
+    users: {
+        type: [String],
+        required: true,
+    },
     title: String,
     author: String,
     language: String,

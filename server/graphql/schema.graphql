@@ -1,6 +1,4 @@
 type Query {
-    auth(token: String!, provider: String!, name: String): AuthResult
-    logout: Boolean
     me: User
     booq(id: ID!): Booq
     search(query: String!, limit: Int): [Booq]
@@ -10,6 +8,9 @@ type Query {
     copilot(context: CopilotContext!): Copilot
 }
 type Mutation {
+    auth(token: String!, provider: String!, name: String): AuthResult
+    signout: Boolean
+    deleteAccount: Boolean
     addBookmark(bookmark: BookmarkInput!): Boolean
     removeBookmark(id: ID!): Boolean
     addHighlight(highlight: HighlightInput!): Boolean
@@ -31,7 +32,7 @@ type Booq {
     tags: [Tag]!
     bookmarks: [Bookmark]
     highlights: [Highlight]
-    preview(path: [Int!], length: Int = 500): String
+    preview(path: [Int!], end: [Int!], length: Int = 500): String
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
     tableOfContents: [TocItem!]
@@ -39,7 +40,9 @@ type Booq {
 
 type User {
     id: ID!
-    name: String
+    username: ID!
+    joined: String!
+    name: String!
     pictureUrl: String
 }
 
