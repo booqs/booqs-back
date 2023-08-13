@@ -8,6 +8,9 @@ import { authWithToken } from '../auth'
 export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
         async auth(_, { token, provider, name }, { setAuthToken }) {
+            if (!token || !provider) {
+                return undefined
+            }
             const result = await authWithToken({
                 provider, token, name,
             })

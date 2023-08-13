@@ -10,7 +10,7 @@ export async function forId(id: string) {
 export type UserInfo = {
     _id: string,
     username: string,
-    name?: string,
+    name: string,
     email?: string,
     pictureUrl?: string,
     joined: Date,
@@ -53,7 +53,7 @@ export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
 
 export async function forApple({ id, name, email }: {
     id: string,
-    name?: string,
+    name: string,
     email?: string,
 }): Promise<UserInfo> {
     const result = await (await collection)

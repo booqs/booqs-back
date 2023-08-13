@@ -42,7 +42,7 @@ type User {
     id: ID!
     username: ID!
     joined: String!
-    name: String
+    name: String!
     pictureUrl: String
 }
 
