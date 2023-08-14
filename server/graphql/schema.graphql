@@ -1,7 +1,7 @@
 type Query {
     me: User
     booq(id: ID!): Booq
-    search(query: String!, limit: Int): [Booq]
+    search(query: String!, scope: [String!], limit: Int): [Booq]
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]

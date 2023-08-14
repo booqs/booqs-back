@@ -15,8 +15,9 @@ export type BookFile = {
     kind: 'epub',
     file: Buffer,
 };
+export type SearchScope = 'title' | 'author' | 'subject'
 export type LibrarySource = {
-    search(query: string, limit: number): Promise<LibraryCard[]>,
+    search(query: string, limit: number, scope: SearchScope[]): Promise<LibraryCard[]>,
     cards(ids: string[]): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,
     uploadEpub?(fileStream: ReadStream, userId: string): Promise<{

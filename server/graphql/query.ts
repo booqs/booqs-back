@@ -5,14 +5,21 @@ import { ResolverContext } from './context'
 import { BooqParent } from './booq'
 import { BooqHistoryParent } from './history'
 import { CopilotInput, CopilotParent } from './copilot'
+import { SearchScope } from '../sources'
 
 export const queryResolver: IResolvers<unknown, ResolverContext> = {
     Query: {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)
         },
-        async search(_, { query, limit }): Promise<BooqParent[]> {
-            const results = await search(query, limit ?? 100)
+        async search(_, { query, limit, scope }: {
+            query: string,
+            limit?: number,
+            scope?: string[],
+        }): Promise<BooqParent[]> {
+            let actualScope = (scope ?? ['title', 'author', 'subject'])
+                .filter((s): s is SearchScope => ['title', 'author', 'subject'].includes(s))
+            const results = await search(query, limit ?? 100, actualScope)
             return results
         },
         async me(_, __, { user }) {
