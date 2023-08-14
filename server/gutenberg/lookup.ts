@@ -1,28 +1,12 @@
-import { pgCards, pgEpubsBucket } from './schema'
+import { DbPgCard, pgCards, pgEpubsBucket } from './schema'
 import { downloadAsset } from '../s3'
 import { LibraryCard } from '../sources'
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
-    return (await pgCards)
-        .find(
-            { index: { $in: ids } },
-            {
-                index: true,
-                title: true, author: true,
-                language: true, subjects: true, description: true,
-                meta: true, cover: true,
-                length: true,
-            },
-        )
+    let docs = await (await pgCards)
+        .find({ index: { $in: ids } })
         .exec()
-        .then(docs => docs.map(({
-            index, title, author, language, subjects,
-            description, meta, cover, length,
-        }) => ({
-            id: index,
-            cover, title, author, language, subjects, description, meta,
-            length,
-        })))
+    return mapDocs(docs)
 }
 
 export async function fileForId(id: string) {
@@ -35,4 +19,29 @@ export async function fileForId(id: string) {
             ? { kind: 'epub', file: asset } as const
             : undefined
     }
+}
+
+export async function forAuthor(name: string, limit?: number, offset?: number) {
+    let query = (await pgCards)
+        .find({ author: name })
+        .sort({ index: 1 })
+    if (offset) {
+        query = query.skip(offset)
+    }
+    if (limit) {
+        query = query.limit(limit)
+    }
+    let docs = await query.exec()
+    return mapDocs(docs)
+}
+
+function mapDocs(docs: DbPgCard[]): LibraryCard[] {
+    return docs.map(({
+        index, title, author, language, subjects,
+        description, meta, cover, length,
+    }) => ({
+        id: index,
+        cover, title, author, language, subjects, description, meta,
+        length,
+    }))
 }

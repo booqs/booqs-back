@@ -9,12 +9,14 @@ import { bookmarkResolver } from './bookmark'
 import { highlightResolver } from './highlight'
 import { userResolver } from './user'
 import { copilotResolver } from './copilot'
+import { authorResolver } from './author'
 
 export const resolvers: IResolvers = {
     ...queryResolver,
     ...mutationResolver,
     ...collectionResolver,
     ...booqResolver,
+    ...authorResolver,
     ...booqHistoryResolver,
     ...bookmarkResolver,
     ...highlightResolver,

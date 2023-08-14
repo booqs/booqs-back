@@ -1,7 +1,8 @@
 type Query {
     me: User
     booq(id: ID!): Booq
-    search(query: String!, limit: Int): [Booq]
+    author(name: String!): Author
+    search(query: String!, scope: [String!], limit: Int): [SearchResult!]
     history: [BooqHistory]
     collection(name: String!): Collection
     featured(limit: Int!): [Booq]
@@ -38,6 +39,11 @@ type Booq {
     tableOfContents: [TocItem!]
 }
 
+type Author {
+    name: String!
+    booqs(limit: Int, offset: Int): [Booq!]!
+}
+
 type User {
     id: ID!
     username: ID!
@@ -45,6 +51,8 @@ type User {
     name: String!
     pictureUrl: String
 }
+
+union SearchResult = Booq | Author
 
 input BookmarkInput {
     id: ID
