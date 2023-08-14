@@ -22,7 +22,6 @@ export async function search(query: string, limit: number, scope: SearchScope[])
     }
     let allResults = (await Promise.all(promises)).flat()
     let sorted = allResults.sort((a, b) => b.score - a.score).slice(0, limit)
-    console.log('sorter', sorted)
     return sorted
 }
 
