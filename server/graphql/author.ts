@@ -4,6 +4,7 @@ import { forAuthor } from '../books'
 
 export type AuthorParent = {
     name: string,
+    kind: 'author',
 }
 export const authorResolver: IResolvers<AuthorParent> = {
     Author: {

@@ -9,7 +9,9 @@ import { BookmarkParent } from './bookmark'
 import { HighlightParent } from './highlight'
 import { highlights } from '../highlights'
 
-export type BooqParent = LibraryCard;
+export type BooqParent = LibraryCard & {
+    kind?: undefined,
+};
 export const booqResolver: IResolvers<BooqParent> = {
     Booq: {
         cover(parent, { size }) {

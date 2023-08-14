@@ -1,8 +1,7 @@
-import { flatten } from 'lodash'
-import { LibraryCard, SearchScope } from '../sources'
+import { SearchResult, SearchScope } from '../sources'
 import { sources, processCard } from './libSources'
 
-export async function search(query: string, limit: number, scope: SearchScope[]): Promise<LibraryCard[]> {
+export async function search(query: string, limit: number, scope: SearchScope[]): Promise<SearchResult[]> {
     if (!query) {
         return []
     }
@@ -10,7 +9,7 @@ export async function search(query: string, limit: number, scope: SearchScope[])
         async ([prefix, source]) => {
             if (source) {
                 const results = await source.search(query, limit, scope)
-                return results.map(processCard(prefix))
+                return results.map(processSearchResult(prefix))
             } else {
                 return []
             }
@@ -18,5 +17,19 @@ export async function search(query: string, limit: number, scope: SearchScope[])
     )
 
     const all = await Promise.all(cards)
-    return flatten(all)
+    return all.flat()
+}
+
+function processSearchResult(prefix: string) {
+    let cardProcessor = processCard(prefix)
+    return function (result: SearchResult): SearchResult {
+        if (result.kind === 'book') {
+            return {
+                ...result,
+                card: cardProcessor(result.card),
+            }
+        } else {
+            return result
+        }
+    }
 }

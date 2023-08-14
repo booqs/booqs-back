@@ -8,23 +8,36 @@ import { CopilotInput, CopilotParent } from './copilot'
 import { SearchScope } from '../sources'
 import { AuthorParent } from './author'
 
+type SearchResultParent = BooqParent | AuthorParent
+
 export const queryResolver: IResolvers<unknown, ResolverContext> = {
+    SearchResult: {
+        __resolveType(parent: BooqParent | AuthorParent): 'Booq' | 'Author' {
+            return parent.kind === 'author'
+                ? 'Author'
+                : 'Booq'
+        },
+    },
     Query: {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)
         },
         author(_, { name }): AuthorParent {
-            return { name }
+            return { name, kind: 'author' }
         },
         async search(_, { query, limit, scope }: {
             query: string,
             limit?: number,
             scope?: string[],
-        }): Promise<BooqParent[]> {
+        }): Promise<SearchResultParent[]> {
             let actualScope = (scope ?? ['title', 'author', 'subject'])
                 .filter((s): s is SearchScope => ['title', 'author', 'subject'].includes(s))
             const results = await search(query, limit ?? 100, actualScope)
-            return results
+            return results.map(
+                r => r.kind === 'book'
+                    ? r.card
+                    : { ...r.author, kind: 'author' },
+            )
         },
         async me(_, __, { user }) {
             return user

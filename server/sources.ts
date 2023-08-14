@@ -16,8 +16,17 @@ export type BookFile = {
     file: Buffer,
 };
 export type SearchScope = 'title' | 'author' | 'subject'
+export type SearchResult = {
+    kind: 'author',
+    author: {
+        name: string,
+    },
+} | {
+    kind: 'book',
+    card: LibraryCard,
+}
 export type LibrarySource = {
-    search(query: string, limit: number, scope: SearchScope[]): Promise<LibraryCard[]>,
+    search(query: string, limit: number, scope: SearchScope[]): Promise<SearchResult[]>,
     cards(ids: string[]): Promise<LibraryCard[]>,
     forAuthor(author: string, limit?: number, offset?: number): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,

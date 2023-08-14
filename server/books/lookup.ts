@@ -2,7 +2,6 @@ import { groupBy, flatten } from 'lodash'
 import { parseId, filterUndefined } from '../../core'
 import { LibraryCard } from '../sources'
 import { sources, processCard } from './libSources'
-import { cards } from '../uploads/lookup'
 
 export async function forId(id: string) {
     const [result] = await forIds([id])

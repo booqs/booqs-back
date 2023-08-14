@@ -1,8 +1,8 @@
 import { uuCards } from './schema'
-import { LibraryCard } from '../sources'
+import { SearchResult } from '../sources'
 
-export async function search(query: string, limit: number): Promise<LibraryCard[]> {
-    return (await uuCards).aggregate([{
+export async function search(query: string, limit: number): Promise<SearchResult[]> {
+    let docs = await (await uuCards).aggregate([{
         $search: {
             compound: {
                 should: [
@@ -21,14 +21,6 @@ export async function search(query: string, limit: number): Promise<LibraryCard[
                             fuzzy: {},
                         },
                     },
-                    // {
-                    //     term: {
-                    //         query,
-                    //         path: 'subjects',
-                    //         fuzzy: {},
-                    //         score: { boost: { value: 0.1 } },
-                    //     },
-                    // },
                 ],
             },
         },
@@ -42,4 +34,8 @@ export async function search(query: string, limit: number): Promise<LibraryCard[
         },
     },
     ]).exec()
+    return docs.map((doc) => ({
+        kind: 'book',
+        card: doc,
+    }))
 }
