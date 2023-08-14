@@ -1,5 +1,6 @@
 import { pgCards } from './schema'
 import { SearchResult, SearchScope } from '../sources'
+import { uniqBy } from 'lodash'
 
 export async function search(query: string, limit: number, scope: SearchScope[]): Promise<ScoredSearch[]> {
     let promises: Promise<ScoredSearch[]>[] = []
@@ -9,10 +10,10 @@ export async function search(query: string, limit: number, scope: SearchScope[])
                 promises.push(searchBooks({ path: 'title', query, limit }))
                 break
             case 'author':
-                promises.push(searchBooks({ path: 'author', query, limit }))
+                promises.push(searchAuthors({ query, limit, boost: 1.5 }))
                 break
             case 'subject':
-                promises.push(searchAuthors({ query, limit }))
+                promises.push(searchBooks({ path: 'subjects', query, limit }))
                 break
             default:
                 console.warn(`Unknown search scope ${s}`)
@@ -21,6 +22,7 @@ export async function search(query: string, limit: number, scope: SearchScope[])
     }
     let allResults = (await Promise.all(promises)).flat()
     let sorted = allResults.sort((a, b) => b.score - a.score).slice(0, limit)
+    console.log('sorter', sorted)
     return sorted
 }
 
@@ -40,7 +42,7 @@ async function searchBooks({
     boost?: number,
     limit?: number,
 }): Promise<ScoredSearch[]> {
-    let docs = await (await pgCards).aggregate([
+    let cursor = (await pgCards).aggregate([
         {
             $search: {
                 compound: {
@@ -66,7 +68,8 @@ async function searchBooks({
                 score: { '$meta': 'searchScore' },
             },
         },
-    ]).exec()
+    ])
+    let docs = await cursor.exec()
     return docs.map(({ score, ...rest }) => ({
         kind: 'book',
         score,
@@ -85,7 +88,7 @@ async function searchAuthors({
     boost?: number,
     limit?: number,
 }): Promise<ScoredSearch[]> {
-    let docs = await (await pgCards).aggregate([
+    let cursor = (await pgCards).aggregate([
         {
             $search: {
                 compound: {
@@ -111,12 +114,15 @@ async function searchAuthors({
                 name: '$author',
             },
         },
-    ]).exec()
-    return docs.map(d => ({
-        kind: 'author',
+    ])
+    let docs = await cursor.exec()
+    let mapped = docs.map(d => ({
+        kind: 'author' as const,
         score: d.score,
         author: {
             name: d.name,
         },
     }))
+    let unique = uniqBy(mapped, a => a.author.name)
+    return unique
 }
