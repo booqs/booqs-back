@@ -1,6 +1,7 @@
 type Query {
     me: User
     booq(id: ID!): Booq
+    author(name: String!): Author
     search(query: String!, scope: [String!], limit: Int): [Booq]
     history: [BooqHistory]
     collection(name: String!): Collection
@@ -36,6 +37,10 @@ type Booq {
     fragment(path: [Int!]): BooqFragment
     nodes: [BooqNode]
     tableOfContents: [TocItem!]
+}
+type Author {
+    name: String!
+    booqs(limit: Int, offset: Int): [Booq!]!
 }
 
 type User {

@@ -8,5 +8,7 @@ export const uuSource: LibrarySource = {
     search, cards, fileForId,
     uploadEpub,
     deleteAllBooksForUserId,
+    // TODO: implement
+    async forAuthor() { return [] },
 }
 

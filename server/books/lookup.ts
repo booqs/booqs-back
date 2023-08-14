@@ -2,6 +2,7 @@ import { groupBy, flatten } from 'lodash'
 import { parseId, filterUndefined } from '../../core'
 import { LibraryCard } from '../sources'
 import { sources, processCard } from './libSources'
+import { cards } from '../uploads/lookup'
 
 export async function forId(id: string) {
     const [result] = await forIds([id])
@@ -36,6 +37,17 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
     return ids.map(
         id => results.find(r => r.id === id),
     )
+}
+
+export async function forAuthor(author: string, limit?: number, offset?: number) {
+    let supported: Array<keyof typeof sources> = ['pg']
+    let results = await Promise.all(
+        supported.map(
+            source => sources[source]!.forAuthor(author, limit, offset)
+                .then(cards => cards.map(processCard(source))),
+        ),
+    )
+    return results.flat()
 }
 
 export async function featuredIds(limit: number) {

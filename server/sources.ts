@@ -19,6 +19,7 @@ export type SearchScope = 'title' | 'author' | 'subject'
 export type LibrarySource = {
     search(query: string, limit: number, scope: SearchScope[]): Promise<LibraryCard[]>,
     cards(ids: string[]): Promise<LibraryCard[]>,
+    forAuthor(author: string, limit?: number, offset?: number): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,
     uploadEpub?(fileStream: ReadStream, userId: string): Promise<{
         card: LibraryCard,

@@ -6,11 +6,15 @@ import { BooqParent } from './booq'
 import { BooqHistoryParent } from './history'
 import { CopilotInput, CopilotParent } from './copilot'
 import { SearchScope } from '../sources'
+import { AuthorParent } from './author'
 
 export const queryResolver: IResolvers<unknown, ResolverContext> = {
     Query: {
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)
+        },
+        author(_, { name }): AuthorParent {
+            return { name }
         },
         async search(_, { query, limit, scope }: {
             query: string,
