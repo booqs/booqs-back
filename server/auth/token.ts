@@ -3,9 +3,8 @@ import { config } from '../config'
 import { afterPrefix } from '../utils'
 
 const issuer = 'booqs'
-const secret = config().jwtSecret
 export function generateToken(userId: string) {
-    return sign({ userId }, secret, { issuer })
+    return sign({ userId }, config().jwtSecret, { issuer })
 }
 
 export function userIdFromHeader(header: string) {
@@ -16,7 +15,7 @@ export function userIdFromHeader(header: string) {
 
 export function userIdFromToken(token: string) {
     try {
-        const { userId } = verify(token, secret, { issuer }) as any
+        const { userId } = verify(token, config().jwtSecret, { issuer }) as any
         return userId
     } catch {
         return undefined
