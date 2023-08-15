@@ -9,6 +9,7 @@ type CookieOptions = {
     httpOnly?: boolean,
     secure?: boolean,
     maxAge?: number,
+    domain?: string,
 }
 type RequestContext = {
     getCookie(name: string): string | undefined,
@@ -29,10 +30,12 @@ export async function context(ctx: RequestContext): Promise<ResolverContext> {
                     httpOnly: true,
                     secure: true,
                     maxAge: 3600 * 24 * 7,
+                    domain: 'booqs.app',
                 })
                 ctx.setCookie('signed', 'true', {
                     httpOnly: false,
                     maxAge: 3600 * 24 * 7,
+                    domain: 'booqs.app',
                 })
             } else {
                 ctx.clearCookie('token', {
