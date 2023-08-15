@@ -16,8 +16,8 @@ type RequestContext = {
 };
 export async function context(ctx: RequestContext): Promise<ResolverContext> {
     const cookie = ctx.getCookie('token') ?? ''
-    console.log('TOKEN', cookie)
-    const user = await fromCookie(cookie) ?? undefined
+    console.log(`TOKEN: "${cookie}"`)
+    const user = await fromCookie(cookie.trim()) ?? undefined
     console.log('USER', user)
 
     return {
