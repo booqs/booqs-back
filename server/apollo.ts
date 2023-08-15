@@ -1,5 +1,4 @@
 import http from 'http'
-import cors from 'cors'
 import bodyParser from 'body-parser'
 import { Express } from 'express'
 import { ApolloServer } from '@apollo/server'
@@ -8,6 +7,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
 import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
 import { readTypeDefs, resolvers, context } from './graphql'
+import { parseCookies } from './cookie'
 
 export async function createApolloServer(httpServer: http.Server) {
     const server = new ApolloServer({
@@ -32,17 +32,6 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
     // and our expressMiddleware function.
     app.use(
         route,
-        cors<cors.CorsRequest>({
-            origin(origin, callback) {
-                // TODO: disallow undefined origin?
-                if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
-                    callback(null, true)
-                } else {
-                    callback(new Error(`${origin} is not allowed by CORS'`))
-                }
-            },
-            credentials: true,
-        }),
         bodyParser.json(),
         // expressMiddleware accepts the same arguments:
         // an Apollo Server instance and optional configuration options
@@ -64,17 +53,4 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
             },
         }),
     )
-}
-
-function parseCookies(cookie: string) {
-    const pairs = cookie.split('; ')
-    const result = pairs.reduce<{ [key: string]: string | undefined }>(
-        (res, pair) => {
-            const [name, value] = pair.split('=')
-            res[name] = value
-            return res
-        },
-        {},
-    )
-    return result
 }

@@ -3,9 +3,11 @@ import { Express } from 'express'
 import { fromCookie } from './auth'
 import { uploadToSource } from './books'
 import { addToCollection } from './users/collections'
+import { parseCookies } from './cookie'
 
 export const UPLOADS_COLLECTION = 'uploads'
 export function addUploadHandler(app: Express, route: string) {
+    console.log(`Adding upload handler: "${route}"`)
     const upload = multer({
         storage: multer.memoryStorage(),
         fileFilter: function (req, file, cb) {
@@ -17,21 +19,23 @@ export function addUploadHandler(app: Express, route: string) {
     })
 
     app.post(route, upload.single('file'), async (req, res) => {
-        const cookie = req.cookies.getCookie('token') ?? ''
-        const user = await fromCookie(cookie) ?? undefined
+        const { token } = parseCookies(req.headers?.['cookie'] ?? '')
+        const user = await fromCookie(token ?? '') ?? undefined
         if (!user) {
             return res.status(401).send('Unauthorized')
         }
         if (!req.file) {
             return res.status(400).send('No file uploaded')
         }
-        let { id } = await uploadToSource('uu', req.file.buffer, user.id) ?? {}
+        let { id, title, cover } = await uploadToSource('uu', req.file.buffer, user.id) ?? {}
         if (id) {
             let added = addToCollection(user.id, UPLOADS_COLLECTION, id)
             if (!added) {
                 console.error('Failed to add upload to collection')
             }
-            return res.status(200).send(id)
+            return res.status(200).send({
+                id, title, cover,
+            })
         } else {
             return res.status(500).send('Failed to upload file')
         }

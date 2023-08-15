@@ -1,5 +1,6 @@
 import http from 'http'
 import express from 'express'
+import cors from 'cors'
 import { booqsWorker } from './books'
 import { mongoDbConnection } from './mongoose'
 import { addUploadHandler } from './upload'
@@ -15,6 +16,17 @@ export async function startup() {
     const httpServer = http.createServer(app)
     const apolloServer = await createApolloServer(httpServer)
     await apolloServer.start()
+    app.use(cors<cors.CorsRequest>({
+        origin(origin, callback) {
+            // TODO: disallow undefined origin?
+            if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
+                callback(null, true)
+            } else {
+                callback(new Error(`${origin} is not allowed by CORS'`))
+            }
+        },
+        credentials: true,
+    }))
     addApolloHandler(app, '/graphql', apolloServer)
     addUploadHandler(app, '/upload')
 
