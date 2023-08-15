@@ -2,6 +2,7 @@ import { users } from '../users'
 import { fetchFbUser } from './facebook'
 import { generateToken, userIdFromHeader, userIdFromToken } from './token'
 import { verifyAppleIdToken } from './apple'
+import { config } from '../config'
 
 export type AuthInput = {
     provider: string,
@@ -53,6 +54,7 @@ export async function fromHeader(header: string) {
 export async function fromCookie(cookie: string) {
     const userId = userIdFromToken(cookie)
     console.log('userId', userId)
+    console.log('secret', config().jwtSecret)
     return userId
         ? users.forId(userId)
         : undefined
