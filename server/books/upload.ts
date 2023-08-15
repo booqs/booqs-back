@@ -1,11 +1,10 @@
-import { ReadStream } from 'fs'
 import { processCard, sources } from './libSources'
 import { uploadBooqImages } from '../images'
 
-export async function uploadToSource(sourcePrefix: string, fileStream: ReadStream, userId: string) {
+export async function uploadToSource(sourcePrefix: string, fileBuffer: Buffer, userId: string) {
     const uploadEpub = sources[sourcePrefix]?.uploadEpub
     if (uploadEpub) {
-        const result = await uploadEpub(fileStream, userId)
+        const result = await uploadEpub(fileBuffer, userId)
         if (result) {
             if (result.booq) {
                 uploadBooqImages(`${sourcePrefix}/${result.card.id}`, result.booq)

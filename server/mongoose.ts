@@ -7,8 +7,13 @@ let db: Promise<boolean> | undefined
 export async function mongoDbConnection() {
     if (!db) {
         db = connectToMongoDb()
-    } else if (!(await db)) {
-        db = connectToMongoDb()
+        return db
+    } else {
+        let current = db
+        let success = await current
+        if (!success && current === db) {
+            db = connectToMongoDb()
+        }
     }
     return db
 }
