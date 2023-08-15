@@ -41,7 +41,6 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
                 let domain = req.headers.origin?.startsWith('https://') ? req.headers.origin.substring('https://'.length)
                     : req.headers.origin?.startsWith('http://') ? req.headers.origin.substring('http://'.length)
                         : (process.env.BOOQS_DOMAIN ?? 'booqs.app')
-                console.log('DOMAIN', domain)
                 return context({
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
