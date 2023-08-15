@@ -42,10 +42,7 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
                     : req.headers.origin?.startsWith('http://') ? req.headers.origin.substring('http://'.length)
                         : (process.env.BOOQS_DOMAIN ?? 'booqs.app')
                 if (domain.startsWith('localhost')) {
-                    console.log('LOCALHOST')
-                    domain = undefined
-                } else {
-                    console.log('NOT LOCALHOST')
+                    domain = 'localhost'
                 }
                 console.log('DOMAIN', domain)
                 return context({
