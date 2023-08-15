@@ -20,10 +20,8 @@ export async function startup() {
         origin(origin, callback) {
             // TODO: disallow undefined origin?
             if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
-                console.log(`CORS: ${origin} is allowed by CORS`)
                 callback(null, true)
             } else {
-                console.log(`CORS: ${origin} is not allowed by CORS`)
                 callback(new Error(`${origin} is not allowed by CORS'`))
             }
         },

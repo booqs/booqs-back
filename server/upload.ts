@@ -8,7 +8,6 @@ import { booqImageUrl } from './images'
 
 export const UPLOADS_COLLECTION = 'uploads'
 export function addUploadHandler(app: Express, route: string) {
-    console.log(`Adding upload handler: "${route}"`)
     const upload = multer({
         storage: multer.memoryStorage(),
         fileFilter: function (req, file, cb) {

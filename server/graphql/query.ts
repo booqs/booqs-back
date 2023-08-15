@@ -49,6 +49,11 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
             return result
         },
         async collection(_, { name }, { user }) {
+            if (!user) {
+                console.warn('Collection query without user')
+            } else {
+                console.log('Collection query for user', user)
+            }
             return user
                 ? users.userCollection(user, name)
                 : []
