@@ -49,6 +49,7 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
             return result
         },
         async collection(_, { name }, { user }) {
+            console.log('COLLECTION', name, user)
             return user
                 ? users.userCollection(user, name)
                 : []
