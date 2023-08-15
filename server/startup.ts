@@ -6,7 +6,7 @@ import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
 
 export async function startup() {
-    mongoDbConnection()
+    let mongoPromise = mongoDbConnection()
     // Required logic for integrating with Express
     const app = express()
     // Our httpServer handles incoming requests to our Express app.
@@ -22,7 +22,8 @@ export async function startup() {
     const port = process.env.PORT
         ? parseInt(process.env.PORT)
         : 4000
-    await new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+    let listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+    await Promise.all([mongoPromise, listenPromise])
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()
