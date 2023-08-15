@@ -44,12 +44,9 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
                 if (domain.startsWith('localhost')) {
                     domain = undefined
                 }
-                console.log('DOMAIN', domain)
                 return context({
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
-                        console.log('domain', domain)
-                        console.log('origin', req.headers.origin)
                         res.cookie(name, value, {
                             ...options,
                             domain,
