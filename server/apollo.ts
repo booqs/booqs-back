@@ -41,7 +41,10 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
                 return context({
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
-                        res.cookie(name, value, options ?? {})
+                        res.cookie(name, value, {
+                            ...options,
+                            domain: req.headers.origin,
+                        })
                     },
                     clearCookie(name, options) {
                         res.cookie(name, '', {
