@@ -1,15 +1,17 @@
-import { ApolloServer } from '@apollo/server'
-import { readTypeDefs, resolvers, context } from './graphql'
-import { booqsWorker } from './books'
-import { expressMiddleware } from '@apollo/server/express4'
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
-import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
-import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
 import http from 'http'
 import cors from 'cors'
 import express from 'express'
 import bodyParser from 'body-parser'
+
+import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@apollo/server/express4'
+import { readTypeDefs, resolvers, context } from './graphql'
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
+import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
+import { booqsWorker } from './books'
 import { mongoDbConnection } from './mongoose'
+import { addUploadHandler } from './upload'
 
 export async function startup() {
     mongoDbConnection()
@@ -74,6 +76,8 @@ export async function startup() {
             },
         }),
     )
+
+    addUploadHandler(app, '/upload')
 
     // Modified server startup
     const port = process.env.PORT

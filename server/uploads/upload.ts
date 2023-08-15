@@ -9,8 +9,8 @@ import {
     userUploadedEpubsBucket, toLibraryCard,
 } from './schema'
 
-export async function uploadEpub(fileStream: ReadStream, userId: string) {
-    const { buffer, hash } = await buildFile(fileStream)
+export async function uploadEpub(fileBuffer: Buffer, userId: string) {
+    const { buffer, hash } = await buildFileFromBuffer(fileBuffer)
     const existing = await (await uuCards).findOne({ fileHash: hash }).exec()
     if (existing) {
         await addToRegistry(existing._id, userId)
@@ -83,7 +83,15 @@ type File = {
     buffer: Buffer,
     hash: string,
 };
-async function buildFile(fileStream: ReadStream) {
+export async function buildFileFromBuffer(buffer: Buffer) {
+    const hash = createHash('md5')
+    hash.update(buffer)
+    return {
+        buffer,
+        hash: hash.digest('base64'),
+    }
+}
+export async function buildFileFromReadStream(fileStream: ReadStream) {
     return new Promise<File>((resolve, reject) => {
         try {
             const hash = createHash('md5')

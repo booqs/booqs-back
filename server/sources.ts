@@ -1,4 +1,3 @@
-import { ReadStream } from 'fs'
 import { Booq } from '../core'
 
 export type LibraryCard = {
@@ -30,7 +29,7 @@ export type LibrarySource = {
     cards(ids: string[]): Promise<LibraryCard[]>,
     forAuthor(author: string, limit?: number, offset?: number): Promise<LibraryCard[]>,
     fileForId(id: string): Promise<BookFile | undefined>,
-    uploadEpub?(fileStream: ReadStream, userId: string): Promise<{
+    uploadEpub?(fileBuffer: Buffer, userId: string): Promise<{
         card: LibraryCard,
         booq?: Booq,
     } | undefined>,
