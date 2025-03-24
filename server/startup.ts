@@ -18,6 +18,7 @@ export async function startup() {
     await apolloServer.start()
     app.use(cors<cors.CorsRequest>({
         origin(origin, callback) {
+            console.log('CORS origin:', origin)
             // TODO: disallow undefined origin?
             if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
                 callback(null, true)
