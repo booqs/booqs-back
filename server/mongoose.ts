@@ -47,7 +47,7 @@ type ObjectIdConstructor = typeof ObjectId;
 
 export type DocumentType<T extends SchemaDefinition> =
     & TypeFromSchema<T>
-    & Document
+    & Document<string>
     ;
 export type TypeFromSchema<T extends SchemaDefinition> =
     & { [P in Extract<keyof T, RequiredProperties<T>>]: FieldType<T[P]>; }
