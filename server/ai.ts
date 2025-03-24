@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
+import OpenAI from 'openai'
 
 export type ReadingContext = {
     text: string,
@@ -83,19 +83,18 @@ function bookDescription(context: ReadingContext) {
 }
 
 
-async function getChatCompletions(messages: ChatCompletionRequestMessage[], n: number = 1) {
-    const configuration = new Configuration({
+async function getChatCompletions(messages: OpenAI.ChatCompletionMessageParam[], n: number = 1) {
+    const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
     })
-    const openai = new OpenAIApi(configuration)
     try {
-        let respones = await openai.createChatCompletion({
+        let response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages,
             n,
         })
-        if (respones.data) {
-            let completions = respones.data.choices
+        if (response) {
+            let completions = response.choices
                 .map(choice => choice.message?.content)
                 .filter((m): m is string => m !== undefined)
             return completions
