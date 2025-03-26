@@ -10,10 +10,7 @@ const schema = {
         type: String,
         required: true,
     },
-    name: {
-        type: String,
-        required: true,
-    },
+    name: String,
     facebookId: String,
     appleId: String,
     pictureUrl: String,
