@@ -118,7 +118,7 @@ async function insertRecord(booq: Booq, assetId: string) {
         tags,
     } = booq.meta
     const length = nodesLength(booq.nodes)
-    const doc: DbPgCard = {
+    const doc: Omit<DbPgCard, '_id'> = {
         assetId,
         index,
         length,

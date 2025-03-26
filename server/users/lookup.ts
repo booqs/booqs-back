@@ -1,22 +1,13 @@
 import slugify from 'slugify'
-import { DbUser, PasskeyCredentialData, collection } from './schema'
+import { DbUser, collection } from './schema'
 import { FbUser } from '../auth/facebook'
 
-export type UserInfo = {
-    _id: string,
-    username: string,
-    joined: Date,
-    name?: string,
-    email?: string,
-    pictureUrl?: string,
-    credentials?: PasskeyCredentialData[],
-}
 
-export async function forId(id: string): Promise<UserInfo | null> {
+export async function forId(id: string): Promise<DbUser | null> {
     return (await collection).findById(id).exec()
 }
 
-export async function getOrCreateForEmail(email: string): Promise<UserInfo> {
+export async function getOrCreateForEmail(email: string): Promise<DbUser> {
     const result = await (await collection)
         .findOne({ email })
         .exec()
@@ -24,7 +15,7 @@ export async function getOrCreateForEmail(email: string): Promise<UserInfo> {
         return result
     } else {
         let username = await proposeUsername({ id: email, email })
-        const toAdd: DbUser = {
+        const toAdd: Omit<DbUser, '_id'> = {
             username,
             joined: new Date(),
         }
@@ -33,7 +24,7 @@ export async function getOrCreateForEmail(email: string): Promise<UserInfo> {
     }
 }
 
-export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<UserInfo> {
+export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<DbUser> {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
@@ -46,7 +37,7 @@ export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<
         doc = result
     } else {
         let username = await proposeUsername(facebookUser)
-        const toAdd: DbUser = {
+        const toAdd: Omit<DbUser, '_id'> = {
             username,
             facebookId: facebookUser.id,
             name: facebookUser.name,
@@ -57,21 +48,14 @@ export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<
         doc = insertResult
     }
 
-    return {
-        _id: doc._id.toString() as string,
-        username: doc.username,
-        name: doc.name,
-        pictureUrl: doc.pictureUrl,
-        email: doc.email,
-        joined: doc.joined,
-    }
+    return doc
 }
 
 export async function getOrCreateForAppleUser({ id, name, email }: {
     id: string,
     name: string,
     email?: string,
-}): Promise<UserInfo> {
+}): Promise<DbUser> {
     const result = await (await collection)
         .findOne({ appleId: id })
         .exec()
@@ -85,7 +69,7 @@ export async function getOrCreateForAppleUser({ id, name, email }: {
         doc = result
     } else {
         let username = await proposeUsername({ id, name })
-        const toAdd: DbUser = {
+        const toAdd: Omit<DbUser, '_id'> = {
             username,
             appleId: id,
             name,
@@ -95,14 +79,7 @@ export async function getOrCreateForAppleUser({ id, name, email }: {
         doc = insertResult
     }
 
-    return {
-        _id: doc._id.toString() as string,
-        username: doc.username,
-        name: doc.name,
-        pictureUrl: doc.pictureUrl,
-        email: doc.email,
-        joined: doc.joined,
-    }
+    return doc
 }
 
 type UserDataForNameGeneration = {

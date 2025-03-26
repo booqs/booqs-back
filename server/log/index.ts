@@ -16,7 +16,7 @@ const schema = {
 export type DbLog = TypeFromSchema<typeof schema>;
 const logModel = typedModel('log', schema)
 
-export async function logItem(item: DbLog) {
+export async function logItem(item: Omit<DbLog, '_id'>) {
     return (await logModel).insertMany([item])
 }
 

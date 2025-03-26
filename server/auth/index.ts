@@ -1,4 +1,4 @@
-import { UserInfo, users } from '../users'
+import { DbUser, users } from '../users'
 import { fetchFbUser } from './facebook'
 import { generateToken, userIdFromHeader, userIdFromToken } from './token'
 import { verifyAppleIdToken } from './apple'
@@ -10,7 +10,7 @@ export type SocialAuthData = {
 }
 export type AuthResult = {
     token: string,
-    user: UserInfo,
+    user: DbUser,
 }
 export async function getAuthResultForSocialAuth(input: SocialAuthData) {
     const user = await getUserForSocialAuth(input)

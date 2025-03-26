@@ -48,7 +48,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
         tags,
     } = booq.meta
     const length = nodesLength(booq.nodes)
-    const doc: DbUuCard = {
+    const doc: Omit<DbUuCard, '_id'> = {
         assetId,
         length,
         fileHash,

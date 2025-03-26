@@ -9,7 +9,6 @@ import { deleteForId } from './update'
 export type { DbUser } from './schema'
 export type { DbBooqHistory } from './history'
 export type { DbBookmark } from './bookmarks'
-export type { UserInfo } from './lookup'
 export const users = {
     forId,
     getOrCreateForFacebookUser, getOrCreateForAppleUser, getOrCreateForEmail,
