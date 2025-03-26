@@ -5,22 +5,31 @@ import { FbUser } from '../auth/facebook'
 export type UserInfo = {
     _id: string,
     username: string,
-    name: string,
+    joined: Date,
+    name?: string,
     email?: string,
     pictureUrl?: string,
-    joined: Date,
 }
 
-export async function forId(id: string): Promise<UserInfo | undefined> {
-    const result = await (await collection).findById(id).exec()
-    return result ?? undefined
+export async function forId(id: string): Promise<UserInfo | null> {
+    return (await collection).findById(id).exec()
 }
 
-export async function forEmail(email: string): Promise<UserInfo | undefined> {
+export async function forEmail(email: string): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ email })
         .exec()
-    return result ?? undefined
+    if (result) {
+        return result
+    } else {
+        let username = await proposeUsername({ id: email, email })
+        const toAdd: DbUser = {
+            username,
+            joined: new Date(),
+        }
+        const [insertResult] = await (await collection).insertMany([toAdd])
+        return insertResult
+    }
 }
 
 export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
@@ -117,31 +126,12 @@ export async function proposeUsername(user: UserDataForNameGeneration) {
 }
 
 function generateUsername({ name, id, email }: UserDataForNameGeneration) {
-    if (name) {
-        const names = name.split(' ')
-            .map(n => slugify(n, {
-                trim: true,
-                lower: true,
-            }))
-            .map(n => n.replace(/[^a-z0-9]/g, ''))
-            .filter(n => n.length > 0)
-        let username = names.join('.')
-        return username.length > 0 ? username : id
-    } else if (email) {
-        const emailParts = email.split('@')
-        if (emailParts.length > 1) {
-            return emailParts[0]
-                .split('.')
-                .map(n => slugify(n, {
-                    trim: true,
-                    lower: true,
-                }))
-                .map(n => n.replace(/[^a-z0-9]/g, ''))
-                .filter(n => n.length > 0)
-                .join('.')
-        }
-    }
-
-    // Fallback to ID if no name or email is available
-    return id
+    let base = name ?? email ?? id ?? 'user'
+    let username = slugify(base, {
+        replacement: '.',
+        lower: true,
+        strict: true,
+        locale: 'en',
+    })
+    return username
 }

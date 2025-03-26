@@ -27,9 +27,9 @@ export function addUploadHandler(app: Express, route: string) {
         if (!req.file) {
             return res.status(400).send('No file uploaded')
         }
-        let { id, title, cover } = await uploadToSource('uu', req.file.buffer, user.id) ?? {}
+        let { id, title, cover } = await uploadToSource('uu', req.file.buffer, user._id) ?? {}
         if (id) {
-            let added = addToCollection(user.id, UPLOADS_COLLECTION, id)
+            let added = addToCollection(user._id, UPLOADS_COLLECTION, id)
             if (!added) {
                 console.error('Failed to add upload to collection')
             }

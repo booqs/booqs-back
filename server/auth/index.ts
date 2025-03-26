@@ -58,5 +58,5 @@ export async function fromCookie(cookie: string) {
     const userId = userIdFromToken(cookie)
     return userId
         ? users.forId(userId)
-        : undefined
+        : null
 }
