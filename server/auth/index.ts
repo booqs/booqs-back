@@ -1,15 +1,19 @@
-import { users } from '../users'
+import { UserInfo, users } from '../users'
 import { fetchFbUser } from './facebook'
 import { generateToken, userIdFromHeader, userIdFromToken } from './token'
 import { verifyAppleIdToken } from './apple'
 
-export type AuthInput = {
+export type SocialAuthData = {
     provider: string,
     token: string,
     name?: string,
-};
-export async function authWithToken(input: AuthInput) {
-    const user = await getUser(input)
+}
+export type AuthResult = {
+    token: string,
+    user: UserInfo,
+}
+export async function getAuthResultForSocialAuth(input: SocialAuthData) {
+    const user = await getUserForSocialAuth(input)
     if (user) {
         const token = generateToken(user._id)
         return {
@@ -21,7 +25,7 @@ export async function authWithToken(input: AuthInput) {
     }
 }
 
-async function getUser(input: AuthInput) {
+async function getUserForSocialAuth(input: SocialAuthData) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token)

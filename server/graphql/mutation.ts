@@ -3,7 +3,7 @@ import { uniqueId } from '../../core'
 import { users } from '../users'
 import { highlights } from '../highlights'
 import { ResolverContext } from './context'
-import { authWithToken } from '../auth'
+import { getAuthResultForSocialAuth } from '../auth'
 
 export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
@@ -11,7 +11,7 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
             if (!token || !provider) {
                 return undefined
             }
-            const result = await authWithToken({
+            const result = await getAuthResultForSocialAuth({
                 provider, token, name,
             })
             if (result) {

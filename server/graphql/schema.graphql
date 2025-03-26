@@ -9,6 +9,7 @@ type Query {
     copilot(context: CopilotContext!): Copilot
 }
 type Mutation {
+    # TODO: rename to `socialAuth`
     auth(token: String!, provider: String!, name: String): AuthResult
     signout: Boolean
     deleteAccount: Boolean
