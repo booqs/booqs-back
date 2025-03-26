@@ -15,7 +15,7 @@ export async function forId(id: string): Promise<UserInfo | null> {
     return (await collection).findById(id).exec()
 }
 
-export async function getOrCreateFroEmail(email: string): Promise<UserInfo> {
+export async function getOrCreateForEmail(email: string): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ email })
         .exec()

@@ -1,4 +1,4 @@
-import { forId, getOrCreateForFacebookUser, getOrCreateForAppleUser, getOrCreateFroEmail } from './lookup'
+import { forId, getOrCreateForFacebookUser, getOrCreateForAppleUser, getOrCreateForEmail } from './lookup'
 import { addBookmark, deleteBookmark, userBookmarks } from './bookmarks'
 import {
     addUpload, addToCollection, removeFromCollection, userCollection,
@@ -12,7 +12,7 @@ export type { DbBookmark } from './bookmarks'
 export type { UserInfo } from './lookup'
 export const users = {
     forId,
-    getOrCreateForFacebookUser, getOrCreateForAppleUser, getOrCreateFroEmail,
+    getOrCreateForFacebookUser, getOrCreateForAppleUser, getOrCreateForEmail,
     userBookmarks, addBookmark, deleteBookmark,
     userCollection, addUpload, addToCollection, removeFromCollection,
     userBooqHistory, addBooqHistory, deleteBooqHistory,
