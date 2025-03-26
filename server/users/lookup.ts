@@ -2,11 +2,6 @@ import slugify from 'slugify'
 import { DbUser, collection } from './schema'
 import { FbUser } from '../auth/facebook'
 
-
-export async function forId(id: string) {
-    return (await collection).findById(id).exec()
-}
-
 export type UserInfo = {
     _id: string,
     username: string,
@@ -15,6 +10,19 @@ export type UserInfo = {
     pictureUrl?: string,
     joined: Date,
 }
+
+export async function forId(id: string): Promise<UserInfo | undefined> {
+    const result = await (await collection).findById(id).exec()
+    return result ?? undefined
+}
+
+export async function forEmail(email: string): Promise<UserInfo | undefined> {
+    const result = await (await collection)
+        .findOne({ email })
+        .exec()
+    return result ?? undefined
+}
+
 export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
