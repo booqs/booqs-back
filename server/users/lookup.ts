@@ -92,10 +92,12 @@ export async function forApple({ id, name, email }: {
     }
 }
 
-export async function proposeUsername(user: {
+type UserDataForNameGeneration = {
     id: string,
     name?: string,
-}) {
+    email?: string,
+}
+export async function proposeUsername(user: UserDataForNameGeneration) {
     let base = generateUsername(user)
     let current = base
     let next = current
@@ -111,20 +113,32 @@ export async function proposeUsername(user: {
     return current
 }
 
-function generateUsername(user: {
-    id: string,
-    name?: string,
-}) {
-    if (!user.name) {
-        return user.id
+function generateUsername({ name, id, email }: UserDataForNameGeneration) {
+    if (name) {
+        const names = name.split(' ')
+            .map(n => slugify(n, {
+                trim: true,
+                lower: true,
+            }))
+            .map(n => n.replace(/[^a-z0-9]/g, ''))
+            .filter(n => n.length > 0)
+        let username = names.join('.')
+        return username.length > 0 ? username : id
+    } else if (email) {
+        const emailParts = email.split('@')
+        if (emailParts.length > 1) {
+            return emailParts[0]
+                .split('.')
+                .map(n => slugify(n, {
+                    trim: true,
+                    lower: true,
+                }))
+                .map(n => n.replace(/[^a-z0-9]/g, ''))
+                .filter(n => n.length > 0)
+                .join('.')
+        }
     }
-    const names = user.name.split(' ')
-        .map(name => slugify(name, {
-            trim: true,
-            lower: true,
-        }))
-        .map(name => name.replace(/[^a-z0-9]/g, ''))
-        .filter(name => name.length > 0)
-    let username = names.join('.')
-    return username.length > 0 ? username : user.id
+
+    // Fallback to ID if no name or email is available
+    return id
 }
