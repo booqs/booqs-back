@@ -24,7 +24,6 @@ export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
     if (result) {
         result.name = facebookUser.name
         result.pictureUrl = facebookUser.pictureUrl
-        result.email = facebookUser.email
         await result.save()
         doc = result
     } else {
@@ -34,7 +33,6 @@ export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
             facebookId: facebookUser.id,
             name: facebookUser.name,
             pictureUrl: facebookUser.pictureUrl,
-            email: facebookUser.email,
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
@@ -65,9 +63,6 @@ export async function forApple({ id, name, email }: {
         if (name) {
             result.name = name
         }
-        if (email) {
-            result.email = email
-        }
         await result.save()
         doc = result
     } else {
@@ -75,7 +70,7 @@ export async function forApple({ id, name, email }: {
         const toAdd: DbUser = {
             username,
             appleId: id,
-            name, email,
+            name,
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
