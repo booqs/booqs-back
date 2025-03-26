@@ -58,6 +58,8 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "@aws-sdk/client-s3": "^3.772.0",
+    "@simplewebauthn/server": "^13.1.1",
+    "@simplewebauthn/types": "^12.0.0",
     "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "booqs-epub": "^0.2.0",
