@@ -40,7 +40,7 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
                 const parsed = parseCookies(req.headers.cookie ?? '')
                 let domain: string | undefined = req.headers.origin?.startsWith('https://') ? req.headers.origin.substring('https://'.length)
                     : req.headers.origin?.startsWith('http://') ? req.headers.origin.substring('http://'.length)
-                        : (process.env.BOOQS_DOMAIN ?? 'booqs.app')
+                        : (process.env.APP_DOMAIN ?? 'booqs.app')
                 if (domain.startsWith('localhost')) {
                     domain = undefined
                 }
