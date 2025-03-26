@@ -1,5 +1,5 @@
 import slugify from 'slugify'
-import { DbUser, collection } from './schema'
+import { DbUser, PasskeyCredentialData, collection } from './schema'
 import { FbUser } from '../auth/facebook'
 
 export type UserInfo = {
@@ -9,6 +9,7 @@ export type UserInfo = {
     name?: string,
     email?: string,
     pictureUrl?: string,
+    credentials?: PasskeyCredentialData[],
 }
 
 export async function forId(id: string): Promise<UserInfo | null> {
