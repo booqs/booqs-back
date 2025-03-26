@@ -15,7 +15,7 @@ export async function forId(id: string): Promise<UserInfo | null> {
     return (await collection).findById(id).exec()
 }
 
-export async function forEmail(email: string): Promise<UserInfo> {
+export async function getOrCreateFroEmail(email: string): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ email })
         .exec()
@@ -32,7 +32,7 @@ export async function forEmail(email: string): Promise<UserInfo> {
     }
 }
 
-export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
+export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<UserInfo> {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
@@ -66,7 +66,7 @@ export async function forFacebook(facebookUser: FbUser): Promise<UserInfo> {
     }
 }
 
-export async function forApple({ id, name, email }: {
+export async function getOrCreateForAppleUser({ id, name, email }: {
     id: string,
     name: string,
     email?: string,

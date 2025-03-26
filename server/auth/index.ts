@@ -29,12 +29,12 @@ async function getUserForSocialAuth(input: SocialAuthData) {
     switch (input.provider) {
         case 'facebook': {
             const fb = await fetchFbUser(input.token)
-            return fb && users.forFacebook(fb)
+            return fb && users.getOrCreateForFacebookUser(fb)
         }
         case 'apple': {
             const userInfo = await verifyAppleIdToken(input.token)
             if (userInfo) {
-                return users.forApple({
+                return users.getOrCreateForAppleUser({
                     id: userInfo.userId,
                     name: input.name ?? userInfo.email,
                     email: userInfo.email,
