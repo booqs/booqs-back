@@ -9,20 +9,11 @@ import {
 
 export type PasskeyRequestOrigin = 'production' | 'localhost'
 export async function initiatePasskeyRegistration({
-    email, requestOrigin,
+    requestOrigin,
 }: {
-    email: string,
     requestOrigin?: PasskeyRequestOrigin,
 }) {
-    const { user, exists } = await users.createIfNewForEmail(email)
-    if (exists) {
-        return {
-            error: `User already exists with email: ${email}`,
-            success: false,
-        }
-    }
-    const userCredentials = await getUserCredentials(user._id)
-
+    const user = await users.createUser({})
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
         : config().domain
@@ -30,17 +21,12 @@ export async function initiatePasskeyRegistration({
     const options = await generateRegistrationOptions({
         rpName: config().appName,
         rpID,
-        userID: new TextEncoder().encode(user._id), // TODO: rethink? generate user id?
-        userName: email,
-        userDisplayName: user.name ?? user.username ?? email,
+        userID: new TextEncoder().encode(user._id),
+        userName: user.username,
         timeout: 60000,
         attestationType: 'none',
-        excludeCredentials: userCredentials.map(c => ({
-            id: c.id,
-            transports: c.transports,
-        })),
         authenticatorSelection: {
-            residentKey: 'preferred',
+            residentKey: 'required',
             userVerification: 'preferred',
         },
     })
@@ -114,61 +100,58 @@ export async function verifyPasskeyRegistration({
 }
 
 export async function initiatePasskeyLogin({
-    email, requestOrigin,
+    credentialId,
+    requestOrigin,
 }: {
-    email: string,
+    credentialId: string,
     requestOrigin?: PasskeyRequestOrigin,
 }) {
-    // Endpoint: Initiate passkey authentication (login)
-    // Look up the user and their registered credentials
-    const user = await users.forEmail(email)
-    if (!user) {
+    const record = await getCredentialRecordByCredentialId(credentialId)
+    if (!record || !record.userId) {
         return {
-            error: `User not found with email: ${email}`,
+            error: 'Credential ID not registered',
             success: false,
         }
     }
-    const userCredentials = await getUserCredentials(user._id) ?? []
-    if (userCredentials.length === 0) {
-        return {
-            error: 'No credentials found for this user',
-            success: false,
-        }
-    }
-
+    const userId = record.userId
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
         : config().domain
-    const allowCredentials = userCredentials.map(cred => ({
-        id: cred.id,
-        transports: cred.transports,
-    }))
 
     const options = await generateAuthenticationOptions({
         timeout: 60000,
         rpID,
-        allowCredentials,
         userVerification: 'preferred',
     })
 
     // Store the challenge for this login attempt
     await saveChallengeForUser({
-        userId: user._id,
+        userId,
         challenge: options.challenge,
         kind: 'login',
     })
 
-    return options
+    return {
+        success: true,
+        options,
+    }
 }
 
 export async function verifyPasskeyLogin({
-    userId, credentialId, response, requestOrigin,
+    response, requestOrigin,
 }: {
-    userId: string,
-    credentialId: string,
     response: AuthenticationResponseJSON, // The credential assertion JSON received from the client
     requestOrigin?: PasskeyRequestOrigin,
 }) {
+    const credentialId = response.id
+    const record = await getCredentialRecordByCredentialId(credentialId)
+    if (!record || !record.userId) {
+        return {
+            error: 'Credential ID not registered',
+            success: false,
+        }
+    }
+    const userId = record.userId
 
     // Retrieve expected challenge
     const expectedChallenge = await getChallengeForUser({
@@ -181,7 +164,7 @@ export async function verifyPasskeyLogin({
         }
     }
 
-    const userCredentials = await getUserCredentials(userId) ?? []
+    const userCredentials = record.credentials ?? []
     const matchingCredential = userCredentials.find(c => c.id === credentialId)
     if (!matchingCredential) {
         return {
@@ -307,9 +290,11 @@ const credentialsCollection = typedModel('credentials', credentialsSchema)
 
 type PasskeyCredentialData = WebAuthnCredential
 
-async function getUserCredentials(userId: string) {
-    const user = await (await credentialsCollection).findOne({ userId })
-    return user?.credentials ?? []
+async function getCredentialRecordByCredentialId(credentialId: string) {
+    const record = await (await credentialsCollection).findOne({
+        'credentials.id': credentialId,
+    })
+    return record
 }
 
 async function saveUserCredential({ userId, credential }: {

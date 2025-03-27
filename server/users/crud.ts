@@ -12,28 +12,15 @@ export async function forEmail(email: string) {
     return (await collection).findOne({ email }).exec()
 }
 
-export async function createIfNewForEmail(email: string) {
-    const result = await (await collection)
-        .findOne({ email })
-        .exec()
-    if (result) {
-        return {
-            exists: true,
-            user: result,
-        }
-    } else {
-        let username = await proposeUsername({ id: email, email })
-        const toAdd: Omit<DbUser, '_id'> = {
-            email,
-            username,
-            joined: new Date(),
-        }
-        const [insertResult] = await (await collection).insertMany([toAdd])
-        return {
-            exists: false,
-            user: insertResult,
-        }
+export async function createUser(user: Omit<DbUser, '_id' | 'username' | 'joined'>) {
+    let username = await proposeUsername(user)
+    const toAdd: Omit<DbUser, '_id'> = {
+        ...user,
+        username,
+        joined: new Date(),
     }
+    const [insertResult] = await (await collection).insertMany([toAdd])
+    return insertResult
 }
 
 export async function updateOrCreateForFacebookUser(facebookUser: FbUser) {
@@ -76,7 +63,7 @@ export async function updateOrCreateForAppleUser({ id, name }: {
         await result.save()
         return result
     } else {
-        let username = await proposeUsername({ id, name })
+        let username = await proposeUsername({ name })
         const toAdd: Omit<DbUser, '_id'> = {
             username,
             appleId: id,
@@ -101,7 +88,6 @@ export async function deleteForId(id: string): Promise<boolean> {
 }
 
 type UserDataForNameGeneration = {
-    id: string,
     name?: string,
     email?: string,
 }
@@ -109,7 +95,7 @@ export async function proposeUsername(user: UserDataForNameGeneration) {
     let base = generateUsername(user)
     let current = base
     let next = current
-    let idx = 0
+    let idx = await (await collection).estimatedDocumentCount()
     let existing: any
     do {
         current = next
@@ -121,8 +107,8 @@ export async function proposeUsername(user: UserDataForNameGeneration) {
     return current
 }
 
-function generateUsername({ name, id, email }: UserDataForNameGeneration) {
-    let base = name ?? email ?? id ?? 'user'
+function generateUsername({ name, email }: UserDataForNameGeneration) {
+    let base = name ?? email ?? 'user'
     let username = slugify(base, {
         replacement: '.',
         lower: true,

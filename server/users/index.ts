@@ -1,7 +1,7 @@
 import {
     forId, forEmail,
     updateOrCreateForAppleUser, updateOrCreateForFacebookUser,
-    createIfNewForEmail,
+    createUser,
     deleteForId,
 } from './crud'
 import { addBookmark, deleteBookmark, userBookmarks } from './bookmarks'
@@ -16,7 +16,7 @@ export type { DbBookmark } from './bookmarks'
 export const users = {
     forId, forEmail,
     updateOrCreateForAppleUser, updateOrCreateForFacebookUser,
-    createIfNewForEmail,
+    createUser,
     userBookmarks, addBookmark, deleteBookmark,
     userCollection, addUpload, addToCollection, removeFromCollection,
     userBooqHistory, addBooqHistory, deleteBooqHistory,
