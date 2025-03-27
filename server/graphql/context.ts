@@ -23,7 +23,7 @@ export async function context(ctx: RequestContext): Promise<ResolverContext> {
     const cookie = ctx.getCookie('token') ?? ''
     const user = await fromCookie(cookie) ?? undefined
     const origins = config().origins
-    let requestOrigin: RequestOrigin = origin === origins.localhost || origin === origins.secureLocalhost
+    const requestOrigin: RequestOrigin = ctx.origin === origins.localhost || origin === origins.secureLocalhost
         ? 'localhost'
         : 'production'
 
