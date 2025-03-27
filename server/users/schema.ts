@@ -18,7 +18,6 @@ const schema = {
     bookmarks: taggedObject<StringMap<BookmarkData>>(),
     history: taggedObject<StringMap<StringMap<BooqHistoryData>>>(),
     collections: [String],
-    credentials: [taggedObject<PasskeyCredentialData>()],
 } as const
 export const collection = typedModel('users', schema)
 
@@ -41,8 +40,3 @@ export type BooqHistoryData = {
     path: BooqPath,
     date: Date,
 };
-export type PasskeyCredentialData = {
-    id: string,
-    publicKey: string,
-    counter: number,
-}

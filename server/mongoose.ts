@@ -30,6 +30,7 @@ async function connectToMongoDb() {
     }
 }
 
+// TODO: remove this extra inderection layer
 export async function typedModel<T extends SchemaDefinition>(name: string, schema: T): Promise<Model<DocumentType<T>>> {
     await mongoDbConnection()
     const key = `mongodb_${name}`;
