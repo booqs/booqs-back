@@ -17,19 +17,7 @@ export async function startup() {
     const httpServer = http.createServer(app)
     const apolloServer = await createApolloServer(httpServer)
     await apolloServer.start()
-    app.use(cors<cors.CorsRequest>({
-        origin(origin, callback) {
-            console.log('CORS origin:', origin)
-            for (let allowed of Object.values(config().origins)) {
-                if (origin === allowed) {
-                    callback(null, true)
-                    return
-                }
-            }
-            callback(new Error(`${origin} is not allowed by CORS'`))
-        },
-        credentials: true,
-    }))
+    addCorsHandler(app, Object.values(config().origins))
     addApolloHandler(app, '/graphql', apolloServer)
     addUploadHandler(app, '/upload')
 
@@ -42,6 +30,21 @@ export async function startup() {
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()
+}
+
+function addCorsHandler(app: express.Express, allowedOrigins: Array<string | undefined>) {
+    app.use(cors<cors.CorsRequest>({
+        origin(origin, callback) {
+            for (let allowed of allowedOrigins) {
+                if (origin === allowed) {
+                    callback(null, true)
+                    return
+                }
+            }
+            callback(new Error(`${origin} is not allowed by CORS'`))
+        },
+        credentials: true,
+    }))
 }
 
 async function runWorkers() {

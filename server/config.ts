@@ -9,6 +9,7 @@ export function config() {
         production: `https://${domain}`,
         localhost: 'http://localhost:3000',
         secureLocalhost: 'https://localhost:3000',
+        undefined: undefined,
     }
     return {
         jwtSecret: process.env.BOOQS_AUTH_SECRET ?? 'fake secret',
