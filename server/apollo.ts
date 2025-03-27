@@ -1,7 +1,7 @@
 import http from 'http'
 import bodyParser from 'body-parser'
 import { Express } from 'express'
-import { ApolloServer } from '@apollo/server'
+import { ApolloServer, ApolloServerPlugin } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
@@ -21,9 +21,25 @@ export async function createApolloServer(httpServer: http.Server) {
             ApolloServerPluginDrainHttpServer({ httpServer }),
             ApolloServerPluginUsageReporting(),
             ApolloServerPluginSchemaReporting(),
+            ApolloServerPluginLogging(),
         ],
     })
     return server
+}
+
+export function ApolloServerPluginLogging(): ApolloServerPlugin {
+    return {
+        async requestDidStart() {
+            return {
+                async didResolveOperation({ request }) {
+                    console.log('Request:', request.query)
+                },
+                async didEncounterErrors({ errors }) {
+                    console.error('Errors:', errors)
+                },
+            }
+        },
+    }
 }
 
 
