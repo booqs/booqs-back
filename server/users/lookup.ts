@@ -7,12 +7,15 @@ export async function forId(id: string): Promise<DbUser | null> {
     return (await collection).findById(id).exec()
 }
 
-export async function getOrCreateForEmail(email: string): Promise<DbUser> {
+export async function getOrCreateForEmail(email: string) {
     const result = await (await collection)
         .findOne({ email })
         .exec()
     if (result) {
-        return result
+        return {
+            exists: true,
+            user: result,
+        }
     } else {
         let username = await proposeUsername({ id: email, email })
         const toAdd: Omit<DbUser, '_id'> = {
@@ -20,21 +23,26 @@ export async function getOrCreateForEmail(email: string): Promise<DbUser> {
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
-        return insertResult
+        return {
+            exists: false,
+            user: insertResult,
+        }
     }
 }
 
-export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<DbUser> {
+export async function getOrCreateForFacebookUser(facebookUser: FbUser) {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
 
-    let doc: typeof result
     if (result) {
         result.name = facebookUser.name
         result.pictureUrl = facebookUser.pictureUrl
         await result.save()
-        doc = result
+        return {
+            exists: true,
+            user: result,
+        }
     } else {
         let username = await proposeUsername(facebookUser)
         const toAdd: Omit<DbUser, '_id'> = {
@@ -45,28 +53,31 @@ export async function getOrCreateForFacebookUser(facebookUser: FbUser): Promise<
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
-        doc = insertResult
+        return {
+            exists: false,
+            user: insertResult,
+        }
     }
-
-    return doc
 }
 
-export async function getOrCreateForAppleUser({ id, name, email }: {
+export async function getOrCreateForAppleUser({ id, name }: {
     id: string,
     name: string,
     email?: string,
-}): Promise<DbUser> {
+}) {
     const result = await (await collection)
         .findOne({ appleId: id })
         .exec()
 
-    let doc: typeof result
     if (result) {
         if (name) {
             result.name = name
         }
         await result.save()
-        doc = result
+        return {
+            exists: true,
+            user: result,
+        }
     } else {
         let username = await proposeUsername({ id, name })
         const toAdd: Omit<DbUser, '_id'> = {
@@ -76,10 +87,11 @@ export async function getOrCreateForAppleUser({ id, name, email }: {
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
-        doc = insertResult
+        return {
+            exists: false,
+            user: insertResult,
+        }
     }
-
-    return doc
 }
 
 type UserDataForNameGeneration = {

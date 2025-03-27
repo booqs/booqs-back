@@ -13,7 +13,13 @@ export async function initiatePasskeyRegistration({
     email: string,
     requestOrigin?: PasskeyRequestOrigin,
 }) {
-    const user = await users.getOrCreateForEmail(email)
+    const { user, exists } = await users.getOrCreateForEmail(email)
+    if (exists) {
+        return {
+            error: 'User already exists',
+            success: false,
+        }
+    }
     const userCredentials = await getCredentialsForUser(user._id)
 
     const rpID = requestOrigin === 'localhost'
@@ -44,7 +50,10 @@ export async function initiatePasskeyRegistration({
         kind: 'registration',
     })
 
-    return options
+    return {
+        success: true,
+        options,
+    }
 }
 
 export async function verifyPasskeyRegistration({
