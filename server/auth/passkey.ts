@@ -38,7 +38,7 @@ export async function initiatePasskeyRegistration({
     })
 
     return {
-        success: true,
+        success: true as const,
         options,
     }
 }
@@ -55,7 +55,7 @@ export async function verifyPasskeyRegistration({
     if (!expectedChallenge) {
         return {
             error: 'Registration challenge not found or expired',
-            verified: false,
+            success: false as const,
         }
     }
 
@@ -79,7 +79,7 @@ export async function verifyPasskeyRegistration({
     if (!verified || !registrationInfo) {
         return {
             error: 'Registration verification failed',
-            verified: false,
+            success: false as const,
         }
     }
 
@@ -94,7 +94,7 @@ export async function verifyPasskeyRegistration({
     })
 
     return {
-        verified: true,
+        success: true as const,
         credential: registrationInfo.credential,
     }
 }
@@ -110,7 +110,7 @@ export async function initiatePasskeyLogin({
     if (!record || !record.userId) {
         return {
             error: 'Credential ID not registered',
-            success: false,
+            success: false as const,
         }
     }
     const userId = record.userId
@@ -132,7 +132,7 @@ export async function initiatePasskeyLogin({
     })
 
     return {
-        success: true,
+        success: true as const,
         options,
     }
 }
@@ -148,7 +148,7 @@ export async function verifyPasskeyLogin({
     if (!record || !record.userId) {
         return {
             error: 'Credential ID not registered',
-            success: false,
+            success: false as const,
         }
     }
     const userId = record.userId
@@ -160,7 +160,7 @@ export async function verifyPasskeyLogin({
     if (!expectedChallenge) {
         return {
             error: 'Authentication challenge not found or expired',
-            success: false,
+            success: false as const,
         }
     }
 
@@ -169,7 +169,7 @@ export async function verifyPasskeyLogin({
     if (!matchingCredential) {
         return {
             error: 'Credential ID not registered for this user',
-            success: false,
+            success: false as const,
         }
     }
 
@@ -194,7 +194,7 @@ export async function verifyPasskeyLogin({
     if (!verified || !authenticationInfo) {
         return {
             error: 'Authentication verification failed',
-            success: false,
+            success: false as const,
         }
     }
 
@@ -214,7 +214,8 @@ export async function verifyPasskeyLogin({
     await invalidateChallengeForUser({ userId, kind: 'login' })
 
     return {
-        success: true,
+        success: true as const,
+        userId,
     }
 }
 
