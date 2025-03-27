@@ -3,8 +3,8 @@ import { taggedObject, typedModel } from '../mongoose'
 import { users } from '../users'
 import {
     generateRegistrationOptions, verifyRegistrationResponse,
-    generateAuthenticationOptions,
-    RegistrationResponseJSON, WebAuthnCredential,
+    generateAuthenticationOptions, verifyAuthenticationResponse,
+    RegistrationResponseJSON, AuthenticationResponseJSON, WebAuthnCredential,
 } from '@simplewebauthn/server'
 
 export type PasskeyRequestOrigin = 'production' | 'localhost'
@@ -21,7 +21,7 @@ export async function initiatePasskeyRegistration({
             success: false,
         }
     }
-    const userCredentials = await getCredentialsForUserId(user._id)
+    const userCredentials = await getUserCredentials(user._id)
 
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
@@ -128,7 +128,7 @@ export async function initiatePasskeyLogin({
             success: false,
         }
     }
-    const userCredentials = await getCredentialsForUserId(user._id) ?? []
+    const userCredentials = await getUserCredentials(user._id) ?? []
     if (userCredentials.length === 0) {
         return {
             error: 'No credentials found for this user',
@@ -159,6 +159,80 @@ export async function initiatePasskeyLogin({
     })
 
     return options
+}
+
+export async function verifyPasskeyLogin({
+    userId, credentialId, response, requestOrigin,
+}: {
+    userId: string,
+    credentialId: string,
+    response: AuthenticationResponseJSON, // The credential assertion JSON received from the client
+    requestOrigin?: PasskeyRequestOrigin,
+}) {
+
+    // Retrieve expected challenge
+    const expectedChallenge = await getChallengeForUser({
+        userId, kind: 'login',
+    })
+    if (!expectedChallenge) {
+        return {
+            error: 'Authentication challenge not found or expired',
+            success: false,
+        }
+    }
+
+    const userCredentials = await getUserCredentials(userId) ?? []
+    const matchingCredential = userCredentials.find(c => c.id === credentialId)
+    if (!matchingCredential) {
+        return {
+            error: 'Credential ID not registered for this user',
+            success: false,
+        }
+    }
+
+    const expectedOrigin = requestOrigin === 'localhost'
+        ? config().origins.secureLocalhost
+        : config().origins.production
+    const rpID = requestOrigin === 'localhost'
+        ? 'localhost'
+        : config().domain
+
+    // Verify the authentication response
+    const verification = await verifyAuthenticationResponse({
+        response,
+        expectedChallenge: `${expectedChallenge}`,
+        expectedOrigin,
+        expectedRPID: rpID,
+        credential: matchingCredential,
+        requireUserVerification: true,
+    })
+
+    const { verified, authenticationInfo } = verification
+    if (!verified || !authenticationInfo) {
+        return {
+            error: 'Authentication verification failed',
+            success: false,
+        }
+    }
+
+    // Authentication succeeded. Update the credential's counter to prevent replay attacks.
+    const { newCounter } = authenticationInfo
+    if (typeof newCounter === 'number') {
+        await saveUserCredential({
+            userId,
+            credential: {
+                ...matchingCredential,
+                counter: newCounter,
+            },
+        })
+    }
+
+    // Clear the challenge as it's been used
+    await invalidateChallengeForUser({ userId, kind: 'login' })
+
+    return {
+        success: true,
+    }
 }
 
 const challengesSchema = {
@@ -233,7 +307,7 @@ const credentialsCollection = typedModel('credentials', credentialsSchema)
 
 type PasskeyCredentialData = WebAuthnCredential
 
-async function getCredentialsForUserId(userId: string) {
+async function getUserCredentials(userId: string) {
     const user = await (await credentialsCollection).findOne({ userId })
     return user?.credentials ?? []
 }
