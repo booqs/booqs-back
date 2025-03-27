@@ -1,13 +1,18 @@
 import slugify from 'slugify'
 import { DbUser, collection } from './schema'
 import { FbUser } from '../auth/facebook'
+import { highlights } from '../highlights'
+import { uuSource } from '../uploads'
 
-
-export async function forId(id: string): Promise<DbUser | null> {
+export async function forId(id: string) {
     return (await collection).findById(id).exec()
 }
 
-export async function getOrCreateForEmail(email: string) {
+export async function forEmail(email: string) {
+    return (await collection).findOne({ email }).exec()
+}
+
+export async function createIfNewForEmail(email: string) {
     const result = await (await collection)
         .findOne({ email })
         .exec()
@@ -19,6 +24,7 @@ export async function getOrCreateForEmail(email: string) {
     } else {
         let username = await proposeUsername({ id: email, email })
         const toAdd: Omit<DbUser, '_id'> = {
+            email,
             username,
             joined: new Date(),
         }
@@ -30,7 +36,7 @@ export async function getOrCreateForEmail(email: string) {
     }
 }
 
-export async function getOrCreateForFacebookUser(facebookUser: FbUser) {
+export async function updateOrCreateForFacebookUser(facebookUser: FbUser) {
     const result = await (await collection)
         .findOne({ facebookId: facebookUser.id })
         .exec()
@@ -39,10 +45,7 @@ export async function getOrCreateForFacebookUser(facebookUser: FbUser) {
         result.name = facebookUser.name
         result.pictureUrl = facebookUser.pictureUrl
         await result.save()
-        return {
-            exists: true,
-            user: result,
-        }
+        return result
     } else {
         let username = await proposeUsername(facebookUser)
         const toAdd: Omit<DbUser, '_id'> = {
@@ -53,14 +56,11 @@ export async function getOrCreateForFacebookUser(facebookUser: FbUser) {
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
-        return {
-            exists: false,
-            user: insertResult,
-        }
+        return insertResult
     }
 }
 
-export async function getOrCreateForAppleUser({ id, name }: {
+export async function updateOrCreateForAppleUser({ id, name }: {
     id: string,
     name: string,
     email?: string,
@@ -74,10 +74,7 @@ export async function getOrCreateForAppleUser({ id, name }: {
             result.name = name
         }
         await result.save()
-        return {
-            exists: true,
-            user: result,
-        }
+        return result
     } else {
         let username = await proposeUsername({ id, name })
         const toAdd: Omit<DbUser, '_id'> = {
@@ -87,11 +84,20 @@ export async function getOrCreateForAppleUser({ id, name }: {
             joined: new Date(),
         }
         const [insertResult] = await (await collection).insertMany([toAdd])
-        return {
-            exists: false,
-            user: insertResult,
-        }
+        return insertResult
     }
+}
+
+export async function deleteForId(id: string): Promise<boolean> {
+    let deleteUserPromise = (await collection).deleteOne({ _id: id }).exec()
+    let deleteHighlightsPromise = highlights.removeAllForUserId(id)
+    let deleteBooksPromise = uuSource.deleteAllBooksForUserId
+        ? uuSource.deleteAllBooksForUserId(id) : Promise.resolve(true)
+
+    let [deleteUserResult, deleteHighlightsResult, deleteBooksResult] = await Promise.all([
+        deleteUserPromise, deleteHighlightsPromise, deleteBooksPromise,
+    ])
+    return deleteUserResult.deletedCount > 0 && deleteHighlightsResult && deleteBooksResult
 }
 
 type UserDataForNameGeneration = {

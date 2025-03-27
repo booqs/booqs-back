@@ -2,8 +2,9 @@ import { config } from '../config'
 import { taggedObject, typedModel } from '../mongoose'
 import { users } from '../users'
 import {
-    generateRegistrationOptions, RegistrationResponseJSON, verifyRegistrationResponse,
-    WebAuthnCredential,
+    generateRegistrationOptions, verifyRegistrationResponse,
+    generateAuthenticationOptions,
+    RegistrationResponseJSON, WebAuthnCredential,
 } from '@simplewebauthn/server'
 
 export type PasskeyRequestOrigin = 'production' | 'localhost'
@@ -13,14 +14,14 @@ export async function initiatePasskeyRegistration({
     email: string,
     requestOrigin?: PasskeyRequestOrigin,
 }) {
-    const { user, exists } = await users.getOrCreateForEmail(email)
+    const { user, exists } = await users.createIfNewForEmail(email)
     if (exists) {
         return {
-            error: 'User already exists',
+            error: `User already exists with email: ${email}`,
             success: false,
         }
     }
-    const userCredentials = await getCredentialsForUser(user._id)
+    const userCredentials = await getCredentialsForUserId(user._id)
 
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
@@ -63,61 +64,101 @@ export async function verifyPasskeyRegistration({
     response: RegistrationResponseJSON, // The credential JSON received from the client
     requestOrigin?: PasskeyRequestOrigin,
 }) {
-    try {
-        // Retrieve the original challenge we generated for this user
-        const expectedChallenge = await getChallengeForUser({ userId, kind: 'registration' })
-        if (!expectedChallenge) {
-            return {
-                error: 'Registration challenge not found or expired',
-                verified: false,
-            }
-        }
-
-        const expectedOrigin = requestOrigin === 'localhost'
-            ? config().origins.secureLocalhost
-            : config().origins.production
-        const rpID = requestOrigin === 'localhost'
-            ? 'localhost'
-            : config().domain
-
-        // Verify the registration response
-        const verification = await verifyRegistrationResponse({
-            response,
-            expectedChallenge: `${expectedChallenge}`,
-            expectedOrigin,
-            expectedRPID: rpID,
-            requireUserVerification: true,
-        })
-
-        const { verified, registrationInfo } = verification
-        if (!verified || !registrationInfo) {
-            return {
-                error: 'Registration verification failed',
-                verified: false,
-            }
-        }
-
-        await saveUserCredential({
-            userId: userId,
-            credential: registrationInfo.credential,
-        })
-
-        // Invalidate or clear the stored challenge as it's used up
-        await invalidateChallengeForUser({
-            userId, kind: 'registration',
-        })
-
+    // Retrieve the original challenge we generated for this user
+    const expectedChallenge = await getChallengeForUser({ userId, kind: 'registration' })
+    if (!expectedChallenge) {
         return {
-            verified: true,
-            credential: registrationInfo.credential,
-        }
-    } catch (err) {
-        console.error(err)
-        return {
-            error: `Error during verification: ${err}`,
+            error: 'Registration challenge not found or expired',
             verified: false,
         }
     }
+
+    const expectedOrigin = requestOrigin === 'localhost'
+        ? config().origins.secureLocalhost
+        : config().origins.production
+    const rpID = requestOrigin === 'localhost'
+        ? 'localhost'
+        : config().domain
+
+    // Verify the registration response
+    const verification = await verifyRegistrationResponse({
+        response,
+        expectedChallenge: `${expectedChallenge}`,
+        expectedOrigin,
+        expectedRPID: rpID,
+        requireUserVerification: true,
+    })
+
+    const { verified, registrationInfo } = verification
+    if (!verified || !registrationInfo) {
+        return {
+            error: 'Registration verification failed',
+            verified: false,
+        }
+    }
+
+    await saveUserCredential({
+        userId: userId,
+        credential: registrationInfo.credential,
+    })
+
+    // Invalidate or clear the stored challenge as it's used up
+    await invalidateChallengeForUser({
+        userId, kind: 'registration',
+    })
+
+    return {
+        verified: true,
+        credential: registrationInfo.credential,
+    }
+}
+
+export async function initiatePasskeyLogin({
+    email, requestOrigin,
+}: {
+    email: string,
+    requestOrigin?: PasskeyRequestOrigin,
+}) {
+    // Endpoint: Initiate passkey authentication (login)
+    // Look up the user and their registered credentials
+    const user = await users.forEmail(email)
+    if (!user) {
+        return {
+            error: `User not found with email: ${email}`,
+            success: false,
+        }
+    }
+    const userCredentials = await getCredentialsForUserId(user._id) ?? []
+    if (userCredentials.length === 0) {
+        return {
+            error: 'No credentials found for this user',
+            success: false,
+        }
+    }
+
+    const rpID = requestOrigin === 'localhost'
+        ? 'localhost'
+        : config().domain
+    const allowCredentials = userCredentials.map(cred => ({
+        id: cred.id,
+        transports: cred.transports,
+    }))
+
+    const options = await generateAuthenticationOptions({
+        timeout: 60000,
+        rpID,
+        allowCredentials,
+        userVerification: 'preferred',
+    })
+
+    // Store the challenge for this login attempt
+    await saveChallengeForUser({
+        userId: user._id,
+        challenge: options.challenge,
+        kind: 'login',
+    })
+
+    return options
 }
 
 const challengesSchema = {
@@ -192,7 +233,7 @@ const credentialsCollection = typedModel('credentials', credentialsSchema)
 
 type PasskeyCredentialData = WebAuthnCredential
 
-async function getCredentialsForUser(userId: string) {
+async function getCredentialsForUserId(userId: string) {
     const user = await (await credentialsCollection).findOne({ userId })
     return user?.credentials ?? []
 }
