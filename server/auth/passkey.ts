@@ -59,7 +59,7 @@ export async function verifyPasskeyRegistration({ userId, response }: {
             }
         }
 
-        const expectedOrigin = config().origin
+        const expectedOrigin = config().origins.production
 
         // Verify the registration response
         const verification = await verifyRegistrationResponse({

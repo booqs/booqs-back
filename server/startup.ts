@@ -5,6 +5,7 @@ import { booqsWorker } from './books'
 import { mongoDbConnection } from './mongoose'
 import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
+import { config } from './config'
 
 export async function startup() {
     let mongoPromise = mongoDbConnection()
@@ -19,12 +20,13 @@ export async function startup() {
     app.use(cors<cors.CorsRequest>({
         origin(origin, callback) {
             console.log('CORS origin:', origin)
-            // TODO: disallow undefined origin?
-            if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
-                callback(null, true)
-            } else {
-                callback(new Error(`${origin} is not allowed by CORS'`))
+            for (let allowed of Object.values(config().origins)) {
+                if (origin === allowed) {
+                    callback(null, true)
+                    return
+                }
             }
+            callback(new Error(`${origin} is not allowed by CORS'`))
         },
         credentials: true,
     }))
