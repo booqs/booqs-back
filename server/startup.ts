@@ -9,14 +9,14 @@ import { config } from './config'
 
 export async function startup() {
     let mongoPromise = mongoDbConnection()
-    // Required logic for integrating with Express
+
     const app = express()
-    // Our httpServer handles incoming requests to our Express app.
-    // Below, we tell Apollo Server to "drain" this httpServer,
-    // enabling our servers to shut down gracefully.
+
     const httpServer = http.createServer(app)
     const apolloServer = await createApolloServer(httpServer)
     await apolloServer.start()
+
+    addLoggingHandler(app)
     addCorsHandler(app, Object.values(config().origins))
     addApolloHandler(app, '/graphql', apolloServer)
     addUploadHandler(app, '/upload')
@@ -30,6 +30,25 @@ export async function startup() {
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()
+}
+
+function addLoggingHandler(app: express.Express) {
+    app.use((req, res, next) => {
+        console.log(`${req.method} ${req.url}`)
+        next()
+    })
+    app.use((req, res, next) => {
+        res.on('finish', () => {
+            console.log(`Response: ${res.statusCode} ${res.statusMessage}`)
+        })
+        next()
+    })
+    app.use((req, res, next) => {
+        res.on('error', (err) => {
+            console.error(`Response error: ${err}`)
+        })
+        next()
+    })
 }
 
 function addCorsHandler(app: express.Express, allowedOrigins: Array<string | undefined>) {
