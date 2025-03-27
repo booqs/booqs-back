@@ -22,7 +22,25 @@ type Mutation {
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
+
+    initPasskeyRegistration: WebAtuhnCredentialCreationOptions
+    verifyPasskeyRegistration(
+        response: WebAuthnRegistrationResponseJSON!
+        userId: String!
+    ): Boolean
+    initPasskeyLogin(
+        credentialId: String!
+    ): WebAtuhnCredentialRequestOptions
+    verifyPasskeyLogin(
+        response: WebAuthnAuthenticationResponseJSON!
+    ): AuthResult
 }
+
+scalar WebAtuhnCredentialCreationOptions
+scalar WebAtuhnCredentialRequestOptions
+scalar WebAtuhnCredential
+scalar WebAuthnRegistrationResponseJSON
+scalar WebAuthnAuthenticationResponseJSON
 
 type Booq {
     id: ID!

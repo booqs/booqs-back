@@ -38,13 +38,15 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
         expressMiddleware(server, {
             context({ req, res }) {
                 const parsed = parseCookies(req.headers.cookie ?? '')
-                let domain: string | undefined = req.headers.origin?.startsWith('https://') ? req.headers.origin.substring('https://'.length)
-                    : req.headers.origin?.startsWith('http://') ? req.headers.origin.substring('http://'.length)
+                const origin = req.headers.origin
+                let domain: string | undefined = origin?.startsWith('https://') ? origin.substring('https://'.length)
+                    : origin?.startsWith('http://') ? origin.substring('http://'.length)
                         : (process.env.APP_DOMAIN ?? 'booqs.app')
                 if (domain.startsWith('localhost')) {
                     domain = undefined
                 }
                 return context({
+                    origin,
                     getCookie(name) { return parsed[name] },
                     setCookie(name, value, options) {
                         res.cookie(name, value, {

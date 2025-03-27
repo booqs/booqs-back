@@ -1,4 +1,5 @@
 import { config } from '../config'
+import { RequestOrigin } from '../graphql'
 import { taggedObject, typedModel } from '../mongoose'
 import { users } from '../users'
 import {
@@ -7,11 +8,10 @@ import {
     RegistrationResponseJSON, AuthenticationResponseJSON, WebAuthnCredential,
 } from '@simplewebauthn/server'
 
-export type PasskeyRequestOrigin = 'production' | 'localhost'
 export async function initiatePasskeyRegistration({
     requestOrigin,
 }: {
-    requestOrigin?: PasskeyRequestOrigin,
+    requestOrigin?: RequestOrigin,
 }) {
     const user = await users.createUser({})
     const rpID = requestOrigin === 'localhost'
@@ -48,7 +48,7 @@ export async function verifyPasskeyRegistration({
 }: {
     userId: string,
     response: RegistrationResponseJSON, // The credential JSON received from the client
-    requestOrigin?: PasskeyRequestOrigin,
+    requestOrigin?: RequestOrigin,
 }) {
     // Retrieve the original challenge we generated for this user
     const expectedChallenge = await getChallengeForUser({ userId, kind: 'registration' })
@@ -104,7 +104,7 @@ export async function initiatePasskeyLogin({
     requestOrigin,
 }: {
     credentialId: string,
-    requestOrigin?: PasskeyRequestOrigin,
+    requestOrigin?: RequestOrigin,
 }) {
     const record = await getCredentialRecordByCredentialId(credentialId)
     if (!record || !record.userId) {
@@ -141,7 +141,7 @@ export async function verifyPasskeyLogin({
     response, requestOrigin,
 }: {
     response: AuthenticationResponseJSON, // The credential assertion JSON received from the client
-    requestOrigin?: PasskeyRequestOrigin,
+    requestOrigin?: RequestOrigin,
 }) {
     const credentialId = response.id
     const record = await getCredentialRecordByCredentialId(credentialId)

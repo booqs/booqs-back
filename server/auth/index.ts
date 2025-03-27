@@ -3,6 +3,11 @@ import { fetchFbUser } from './facebook'
 import { generateToken, userIdFromHeader, userIdFromToken } from './token'
 import { verifyAppleIdToken } from './apple'
 
+export {
+    initiatePasskeyRegistration, verifyPasskeyRegistration,
+    initiatePasskeyLogin, verifyPasskeyLogin,
+} from './passkey'
+
 export type SocialAuthData = {
     provider: string,
     token: string,
@@ -23,6 +28,18 @@ export async function getAuthResultForSocialAuth(input: SocialAuthData) {
     } else {
         return undefined
     }
+}
+
+export async function getAuthResultForUserId(userId: string) {
+    const user = await users.forId(userId)
+    if (user) {
+        const token = generateToken(user._id)
+        return {
+            token,
+            user,
+        }
+    }
+    return undefined
 }
 
 async function getUserForSocialAuth(input: SocialAuthData) {
