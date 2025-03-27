@@ -185,7 +185,6 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                     response, requestOrigin,
                 })
                 if (result.success) {
-                    // TODO: set auth token
                     const authResult = await getAuthResultForUserId(result.userId)
                     if (authResult) {
                         setAuthToken(authResult.token)
