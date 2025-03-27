@@ -6,48 +6,53 @@ import {
     WebAuthnCredential,
 } from '@simplewebauthn/server'
 
-export async function initiatePasskeyRegistration({ email }: {
+export type PasskeyRequestOrigin = 'production' | 'localhost'
+export async function initiatePasskeyRegistration({
+    email, requestOrigin,
+}: {
     email: string,
+    requestOrigin?: PasskeyRequestOrigin,
 }) {
-    try {
-        const user = await users.getOrCreateForEmail(email)
+    const user = await users.getOrCreateForEmail(email)
+    const userCredentials = await getCredentialsForUser(user._id)
 
-        const userCredentials = await getCredentialsForUser(user._id)
+    const rpID = requestOrigin === 'localhost'
+        ? 'localhost'
+        : config().domain
 
-        const options = await generateRegistrationOptions({
-            rpName: config().appName,
-            rpID: config().domain,
-            userID: new TextEncoder().encode(user._id),
-            userName: email,
-            userDisplayName: user.name ?? user.username ?? email,
-            timeout: 60000,
-            attestationType: 'none',
-            excludeCredentials: userCredentials.map(c => ({
-                id: c.id,
-                transports: c.transports,
-            })),
-            authenticatorSelection: {
-                residentKey: 'preferred',
-                userVerification: 'preferred',
-            },
-        })
+    const options = await generateRegistrationOptions({
+        rpName: config().appName,
+        rpID,
+        userID: new TextEncoder().encode(user._id), // TODO: rethink? generate user id?
+        userName: email,
+        userDisplayName: user.name ?? user.username ?? email,
+        timeout: 60000,
+        attestationType: 'none',
+        excludeCredentials: userCredentials.map(c => ({
+            id: c.id,
+            transports: c.transports,
+        })),
+        authenticatorSelection: {
+            residentKey: 'preferred',
+            userVerification: 'preferred',
+        },
+    })
 
-        await saveChallengeForUser({
-            userId: user._id,
-            challenge: options.challenge,
-            kind: 'registration',
-        })
+    await saveChallengeForUser({
+        userId: user._id,
+        challenge: options.challenge,
+        kind: 'registration',
+    })
 
-        return options
-    } catch (err) {
-        console.error(err)
-        return undefined
-    }
+    return options
 }
 
-export async function verifyPasskeyRegistration({ userId, response }: {
+export async function verifyPasskeyRegistration({
+    userId, response, requestOrigin,
+}: {
     userId: string,
     response: RegistrationResponseJSON, // The credential JSON received from the client
+    requestOrigin?: PasskeyRequestOrigin,
 }) {
     try {
         // Retrieve the original challenge we generated for this user
@@ -59,14 +64,19 @@ export async function verifyPasskeyRegistration({ userId, response }: {
             }
         }
 
-        const expectedOrigin = config().origins.production
+        const expectedOrigin = requestOrigin === 'localhost'
+            ? config().origins.secureLocalhost
+            : config().origins.production
+        const rpID = requestOrigin === 'localhost'
+            ? 'localhost'
+            : config().domain
 
         // Verify the registration response
         const verification = await verifyRegistrationResponse({
             response,
             expectedChallenge: `${expectedChallenge}`,
             expectedOrigin,
-            expectedRPID: config().domain,
+            expectedRPID: rpID,
             requireUserVerification: true,
         })
 
