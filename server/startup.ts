@@ -41,6 +41,7 @@ function addLoggingHandler(app: express.Express) {
         res.on('finish', () => {
             if (res.statusCode >= 400) {
                 console.log(`Eroor on ${req.method} ${req.url}`)
+                console.error('Body', req.body)
                 console.error(`Response: ${res.statusCode} ${res.statusMessage}`)
             }
         })
