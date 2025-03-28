@@ -149,40 +149,46 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
         async initPasskeyRegistration(_, __, { requestOrigin }) {
             const result = await initiatePasskeyRegistration({ requestOrigin })
             if (result.success) {
-                return result.options
+                return {
+                    id: result.id,
+                    options: result.options,
+                }
             } else {
                 return undefined
             }
         },
-        async verifyPasskeyRegistration(_, { userId, response }, { requestOrigin }) {
-            if (!userId || !response) {
+        async verifyPasskeyRegistration(_, { id, response }, { requestOrigin }) {
+            if (!id || !response) {
                 return undefined
             }
             const result = await verifyPasskeyRegistration({
-                userId,
+                id,
                 response,
                 requestOrigin,
             })
             if (result.success) {
-                return result.credential
+                return true
             } else {
-                return undefined
+                return false
             }
         },
-        async initPasskeyLogin(_, { credentialId }, { requestOrigin }) {
+        async initPasskeyLogin(_, __, { requestOrigin }) {
             const result = await initiatePasskeyLogin({
-                credentialId, requestOrigin,
+                requestOrigin,
             })
             if (result.success) {
-                return result.options
+                return {
+                    id: result.id,
+                    options: result.options,
+                }
             } else {
                 return undefined
             }
         },
-        async verifyPasskeyLogin(_, { response }, { requestOrigin, setAuthToken }) {
+        async verifyPasskeyLogin(_, { id, response }, { requestOrigin, setAuthToken }) {
             if (response) {
                 const result = await verifyPasskeyLogin({
-                    response, requestOrigin,
+                    id, response, requestOrigin,
                 })
                 if (result.success) {
                     const authResult = await getAuthResultForUserId(result.userId)

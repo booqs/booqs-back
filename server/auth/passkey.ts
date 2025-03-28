@@ -13,7 +13,6 @@ export async function initiatePasskeyRegistration({
 }: {
     requestOrigin?: RequestOrigin,
 }) {
-    const user = await users.createUser({})
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
         : config().domain
@@ -21,8 +20,7 @@ export async function initiatePasskeyRegistration({
     const options = await generateRegistrationOptions({
         rpName: config().appName,
         rpID,
-        userID: new TextEncoder().encode(user._id),
-        userName: user.username,
+        userName: 'placeholder', // This will be replaced with the actual user ID
         timeout: 60000,
         attestationType: 'none',
         authenticatorSelection: {
@@ -31,8 +29,7 @@ export async function initiatePasskeyRegistration({
         },
     })
 
-    await saveChallengeForUser({
-        userId: user._id,
+    const challengeRecord = await createChallenge({
         challenge: options.challenge,
         kind: 'registration',
     })
@@ -40,18 +37,19 @@ export async function initiatePasskeyRegistration({
     return {
         success: true as const,
         options,
+        id: challengeRecord._id,
     }
 }
 
 export async function verifyPasskeyRegistration({
-    userId, response, requestOrigin,
+    id, response, requestOrigin,
 }: {
-    userId: string,
+    id: string,
     response: RegistrationResponseJSON, // The credential JSON received from the client
     requestOrigin?: RequestOrigin,
 }) {
     // Retrieve the original challenge we generated for this user
-    const expectedChallenge = await getChallengeForUser({ userId, kind: 'registration' })
+    const expectedChallenge = await getChallengeForId({ id, kind: 'registration' })
     if (!expectedChallenge) {
         return {
             error: 'Registration challenge not found or expired',
@@ -82,38 +80,30 @@ export async function verifyPasskeyRegistration({
             success: false as const,
         }
     }
+    const user = await users.createUser({})
 
     await saveUserCredential({
-        userId: userId,
+        userId: user._id,
         credential: registrationInfo.credential,
     })
 
     // Invalidate or clear the stored challenge as it's used up
-    await invalidateChallengeForUser({
-        userId, kind: 'registration',
+    await invalidateChallengeForId({
+        id,
     })
 
     return {
         success: true as const,
+        userId: user._id,
         credential: registrationInfo.credential,
     }
 }
 
 export async function initiatePasskeyLogin({
-    credentialId,
     requestOrigin,
 }: {
-    credentialId: string,
     requestOrigin?: RequestOrigin,
 }) {
-    const record = await getCredentialRecordByCredentialId(credentialId)
-    if (!record || !record.userId) {
-        return {
-            error: 'Credential ID not registered',
-            success: false as const,
-        }
-    }
-    const userId = record.userId
     const rpID = requestOrigin === 'localhost'
         ? 'localhost'
         : config().domain
@@ -125,8 +115,7 @@ export async function initiatePasskeyLogin({
     })
 
     // Store the challenge for this login attempt
-    await saveChallengeForUser({
-        userId,
+    const challengeRecord = await createChallenge({
         challenge: options.challenge,
         kind: 'login',
     })
@@ -134,12 +123,14 @@ export async function initiatePasskeyLogin({
     return {
         success: true as const,
         options,
+        id: challengeRecord._id,
     }
 }
 
 export async function verifyPasskeyLogin({
-    response, requestOrigin,
+    id, response, requestOrigin,
 }: {
+    id: string,
     response: AuthenticationResponseJSON, // The credential assertion JSON received from the client
     requestOrigin?: RequestOrigin,
 }) {
@@ -154,8 +145,8 @@ export async function verifyPasskeyLogin({
     const userId = record.userId
 
     // Retrieve expected challenge
-    const expectedChallenge = await getChallengeForUser({
-        userId, kind: 'login',
+    const expectedChallenge = await getChallengeForId({
+        id, kind: 'login',
     })
     if (!expectedChallenge) {
         return {
@@ -211,7 +202,7 @@ export async function verifyPasskeyLogin({
     }
 
     // Clear the challenge as it's been used
-    await invalidateChallengeForUser({ userId, kind: 'login' })
+    await invalidateChallengeForId({ id })
 
     return {
         success: true as const,
@@ -220,10 +211,6 @@ export async function verifyPasskeyLogin({
 }
 
 const challengesSchema = {
-    userId: {
-        requred: true,
-        type: String,
-    },
     kind: {
         type: String,
         required: true,
@@ -240,11 +227,11 @@ const challengesSchema = {
 const challengesCollection = typedModel('challenges', challengesSchema)
 
 type ChallengeKind = 'registration' | 'login'
-async function getChallengeForUser({ userId, kind }: {
-    userId: string,
+async function getChallengeForId({ id, kind }: {
+    id: string,
     kind: ChallengeKind,
 }) {
-    const challenge = await (await challengesCollection).findOne({ userId, kind })
+    const challenge = await (await challengesCollection).findById(id)
     if (!challenge) {
         return undefined
     }
@@ -252,31 +239,28 @@ async function getChallengeForUser({ userId, kind }: {
         console.warn('Challenge expired', challenge)
         await (await challengesCollection).deleteOne({ _id: challenge._id })
         return undefined
+    } else if (challenge.kind !== kind) {
+        console.warn('Challenge kind mismatch', challenge)
+        await (await challengesCollection).deleteOne({ _id: challenge._id })
+        return undefined
     }
     return challenge.challenge
 }
 
-async function saveChallengeForUser({ userId, challenge, kind }: {
-    userId: string,
+async function createChallenge({ challenge, kind }: {
     challenge: string,
     kind: ChallengeKind,
 }) {
     const expiration = new Date(Date.now() + 60000)
-    return (await challengesCollection).findOneAndUpdate(
-        { userId, kind },
-        { userId, kind, challenge, expiration },
-        {
-            upsert: true, // insert if not exists
-            new: true, // return the new document
-            setDefaultsOnInsert: true, // apply default values if inserting
-        },
+    const doc = await (await challengesCollection).insertOne(
+        { kind, challenge, expiration },
     )
+
+    return doc
 }
 
-async function invalidateChallengeForUser({ userId, kind }: {
-    userId: string, kind: ChallengeKind,
-}) {
-    return (await challengesCollection).deleteMany({ userId, kind })
+async function invalidateChallengeForId({ id }: { id: string }) {
+    return (await challengesCollection).deleteOne({ _id: id })
 }
 
 const credentialsSchema = {

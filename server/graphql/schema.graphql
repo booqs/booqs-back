@@ -24,17 +24,25 @@ type Mutation {
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
 
-    initPasskeyRegistration: WebAtuhnCredentialCreationOptions
+    initPasskeyRegistration: InitPasskeyRegistrationResponse
     verifyPasskeyRegistration(
+        id: String!
         response: WebAuthnRegistrationResponseJSON!
-        userId: String!
     ): Boolean
-    initPasskeyLogin(
-        credentialId: String!
-    ): WebAtuhnCredentialRequestOptions
+    initPasskeyLogin: InitPasskeyLoginResponse
     verifyPasskeyLogin(
+        id: String!
         response: WebAuthnAuthenticationResponseJSON!
     ): AuthResult
+}
+
+type InitPasskeyRegistrationResponse {
+    id: String!
+    options: WebAtuhnCredentialCreationOptions
+}
+type InitPasskeyLoginResponse {
+    id: String!
+    options: WebAtuhnCredentialRequestOptions
 }
 
 scalar WebAtuhnCredentialCreationOptions
