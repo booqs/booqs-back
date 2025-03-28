@@ -1,4 +1,5 @@
 type Query {
+    ping: String
     me: User
     booq(id: ID!): Booq
     author(name: String!): Author

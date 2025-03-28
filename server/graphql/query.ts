@@ -19,6 +19,9 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
         },
     },
     Query: {
+        ping() {
+            return 'pong'
+        },
         async booq(_, { id }): Promise<BooqParent | undefined> {
             return forId(id)
         },
