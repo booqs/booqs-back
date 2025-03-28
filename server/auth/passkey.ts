@@ -94,7 +94,7 @@ export async function verifyPasskeyRegistration({
 
     return {
         success: true as const,
-        userId: user._id,
+        user,
         credential: registrationInfo.credential,
     }
 }
@@ -142,7 +142,13 @@ export async function verifyPasskeyLogin({
             success: false as const,
         }
     }
-    const userId = record.userId
+    const user = await users.forId(record.userId)
+    if (!user) {
+        return {
+            error: 'User not found',
+            success: false as const,
+        }
+    }
 
     // Retrieve expected challenge
     const expectedChallenge = await getChallengeForId({
@@ -193,7 +199,7 @@ export async function verifyPasskeyLogin({
     const { newCounter } = authenticationInfo
     if (typeof newCounter === 'number') {
         await saveUserCredential({
-            userId,
+            userId: user._id,
             credential: {
                 ...matchingCredential,
                 counter: newCounter,
@@ -206,7 +212,7 @@ export async function verifyPasskeyLogin({
 
     return {
         success: true as const,
-        userId,
+        user,
     }
 }
 

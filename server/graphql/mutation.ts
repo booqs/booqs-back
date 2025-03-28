@@ -5,9 +5,9 @@ import { highlights } from '../highlights'
 import { ResolverContext } from './context'
 import {
     getAuthResultForSocialAuth,
-    getAuthResultForUserId,
     initiatePasskeyLogin, initiatePasskeyRegistration,
     verifyPasskeyLogin, verifyPasskeyRegistration,
+    generateToken,
 } from '../auth'
 
 export const mutationResolver: IResolvers<any, ResolverContext> = {
@@ -22,7 +22,6 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
             if (result) {
                 setAuthToken(result.token)
                 return {
-                    token: result.token,
                     user: result.user,
                 }
             } else {
@@ -157,7 +156,7 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return undefined
             }
         },
-        async verifyPasskeyRegistration(_, { id, response }, { requestOrigin }) {
+        async verifyPasskeyRegistration(_, { id, response }, { setAuthToken, requestOrigin }) {
             if (!id || !response) {
                 return undefined
             }
@@ -167,10 +166,12 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 requestOrigin,
             })
             if (result.success) {
-                return true
-            } else {
-                return false
+                const user = result.user
+                const token = generateToken(user._id)
+                setAuthToken(token)
+                return { user }
             }
+            return undefined
         },
         async initPasskeyLogin(_, __, { requestOrigin }) {
             const result = await initiatePasskeyLogin({
@@ -191,14 +192,10 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                     id, response, requestOrigin,
                 })
                 if (result.success) {
-                    const authResult = await getAuthResultForUserId(result.userId)
-                    if (authResult) {
-                        setAuthToken(authResult.token)
-                        return {
-                            token: authResult.token,
-                            user: authResult.user,
-                        }
-                    }
+                    const user = result.user
+                    const token = generateToken(user._id)
+                    setAuthToken(token)
+                    return { user }
                 }
             }
 

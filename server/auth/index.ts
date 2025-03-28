@@ -7,6 +7,7 @@ export {
     initiatePasskeyRegistration, verifyPasskeyRegistration,
     initiatePasskeyLogin, verifyPasskeyLogin,
 } from './passkey'
+export { generateToken } from './token'
 
 export type SocialAuthData = {
     provider: string,
