@@ -31,9 +31,9 @@ export function ApolloServerPluginLogging(): ApolloServerPlugin {
     return {
         async requestDidStart() {
             return {
-                async didResolveOperation({ request }) {
-                    console.log('Request:', request.query)
-                },
+                // async didResolveOperation({ request }) {
+                //     console.log('Request:', request.query)
+                // },
                 async didEncounterErrors({ errors }) {
                     console.error('Errors:', errors)
                 },
