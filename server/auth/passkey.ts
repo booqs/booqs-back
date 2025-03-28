@@ -177,13 +177,17 @@ export async function verifyPasskeyLogin({
         ? 'localhost'
         : config().domain
 
+    const credential = {
+        ...matchingCredential,
+        publicKey: Buffer.from(matchingCredential.publicKey.buffer),
+    }
     // Verify the authentication response
     const verification = await verifyAuthenticationResponse({
         response,
         expectedChallenge: `${expectedChallenge}`,
         expectedOrigin,
         expectedRPID: rpID,
-        credential: matchingCredential,
+        credential,
         requireUserVerification: true,
     })
 
