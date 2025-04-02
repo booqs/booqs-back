@@ -1,4 +1,5 @@
 type Query {
+    ping: String
     me: User
     booq(id: ID!): Booq
     author(name: String!): Author
@@ -9,6 +10,7 @@ type Query {
     copilot(context: CopilotContext!): Copilot
 }
 type Mutation {
+    # TODO: rename to `socialAuth`
     auth(token: String!, provider: String!, name: String): AuthResult
     signout: Boolean
     deleteAccount: Boolean
@@ -21,7 +23,33 @@ type Mutation {
     removeBooqHistory(booqId: ID!): Boolean
     addToCollection(name: String!, booqId: ID!): Boolean
     removeFromCollection(name: String!, booqId: ID!): Boolean
+
+    initPasskeyRegistration: InitPasskeyRegistrationResponse
+    verifyPasskeyRegistration(
+        id: String!
+        response: WebAuthnRegistrationResponseJSON!
+    ): AuthResult
+    initPasskeyLogin: InitPasskeyLoginResponse
+    verifyPasskeyLogin(
+        id: String!
+        response: WebAuthnAuthenticationResponseJSON!
+    ): AuthResult
 }
+
+type InitPasskeyRegistrationResponse {
+    id: String!
+    options: WebAtuhnCredentialCreationOptions
+}
+type InitPasskeyLoginResponse {
+    id: String!
+    options: WebAtuhnCredentialRequestOptions
+}
+
+scalar WebAtuhnCredentialCreationOptions
+scalar WebAtuhnCredentialRequestOptions
+scalar WebAtuhnCredential
+scalar WebAuthnRegistrationResponseJSON
+scalar WebAuthnAuthenticationResponseJSON
 
 type Booq {
     id: ID!
@@ -48,7 +76,7 @@ type User {
     id: ID!
     username: ID!
     joined: String!
-    name: String!
+    name: String
     pictureUrl: String
 }
 
@@ -99,7 +127,6 @@ type Tag {
     value: String
 }
 type AuthResult {
-    token: String!
     user: User
 }
 type Bookmark {

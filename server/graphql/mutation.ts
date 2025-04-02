@@ -3,7 +3,12 @@ import { uniqueId } from '../../core'
 import { users } from '../users'
 import { highlights } from '../highlights'
 import { ResolverContext } from './context'
-import { authWithToken } from '../auth'
+import {
+    getAuthResultForSocialAuth,
+    initiatePasskeyLogin, initiatePasskeyRegistration,
+    verifyPasskeyLogin, verifyPasskeyRegistration,
+    generateToken,
+} from '../auth'
 
 export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
@@ -11,13 +16,12 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
             if (!token || !provider) {
                 return undefined
             }
-            const result = await authWithToken({
+            const result = await getAuthResultForSocialAuth({
                 provider, token, name,
             })
             if (result) {
                 setAuthToken(result.token)
                 return {
-                    token: result.token,
                     user: result.user,
                 }
             } else {
@@ -140,6 +144,62 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
             } else {
                 return false
             }
+        },
+        async initPasskeyRegistration(_, __, { requestOrigin }) {
+            const result = await initiatePasskeyRegistration({ requestOrigin })
+            if (result.success) {
+                return {
+                    id: result.id,
+                    options: result.options,
+                }
+            } else {
+                return undefined
+            }
+        },
+        async verifyPasskeyRegistration(_, { id, response }, { setAuthToken, requestOrigin }) {
+            if (!id || !response) {
+                return undefined
+            }
+            const result = await verifyPasskeyRegistration({
+                id,
+                response,
+                requestOrigin,
+            })
+            if (result.success) {
+                const user = result.user
+                const token = generateToken(user._id)
+                setAuthToken(token)
+                return { user }
+            }
+            return undefined
+        },
+        async initPasskeyLogin(_, __, { requestOrigin }) {
+            const result = await initiatePasskeyLogin({
+                requestOrigin,
+            })
+            if (result.success) {
+                return {
+                    id: result.id,
+                    options: result.options,
+                }
+            } else {
+                return undefined
+            }
+        },
+        async verifyPasskeyLogin(_, { id, response }, { requestOrigin, setAuthToken }) {
+            if (response) {
+                const result = await verifyPasskeyLogin({
+                    id, response, requestOrigin,
+                })
+                if (result.success) {
+                    const user = result.user
+                    const token = generateToken(user._id)
+                    setAuthToken(token)
+                    return { user }
+                }
+            }
+
+            return undefined
         },
     },
 }

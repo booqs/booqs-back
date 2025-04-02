@@ -23,4 +23,9 @@ export const resolvers: IResolvers = {
     ...userResolver,
     ...copilotResolver,
     BooqNode: GraphQLJSON,
+    WebAtuhnCredentialCreationOptions: GraphQLJSON,
+    WebAtuhnCredentialRequestOptions: GraphQLJSON,
+    WebAtuhnCredential: GraphQLJSON,
+    WebAuthnRegistrationResponseJSON: GraphQLJSON,
+    WebAuthnAuthenticationResponseJSON: GraphQLJSON,
 }

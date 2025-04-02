@@ -5,29 +5,19 @@ import { booqsWorker } from './books'
 import { mongoDbConnection } from './mongoose'
 import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
+import { config } from './config'
 
 export async function startup() {
     let mongoPromise = mongoDbConnection()
-    // Required logic for integrating with Express
+
     const app = express()
-    // Our httpServer handles incoming requests to our Express app.
-    // Below, we tell Apollo Server to "drain" this httpServer,
-    // enabling our servers to shut down gracefully.
+
     const httpServer = http.createServer(app)
     const apolloServer = await createApolloServer(httpServer)
     await apolloServer.start()
-    app.use(cors<cors.CorsRequest>({
-        origin(origin, callback) {
-            console.log('CORS origin:', origin)
-            // TODO: disallow undefined origin?
-            if (!origin || origin?.endsWith('booqs.app') || origin?.endsWith('localhost:3000')) {
-                callback(null, true)
-            } else {
-                callback(new Error(`${origin} is not allowed by CORS'`))
-            }
-        },
-        credentials: true,
-    }))
+
+    addLoggingHandler(app)
+    addCorsHandler(app, Object.values(config().origins))
     addApolloHandler(app, '/graphql', apolloServer)
     addUploadHandler(app, '/upload')
 
@@ -40,6 +30,44 @@ export async function startup() {
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()
+}
+
+function addLoggingHandler(app: express.Express) {
+    // app.use((req, res, next) => {
+    //     console.log(`${req.method} ${req.url}`)
+    //     next()
+    // })
+    app.use((req, res, next) => {
+        res.on('finish', () => {
+            if (res.statusCode >= 400) {
+                console.log(`Error on ${req.method} ${req.url}`)
+                console.error('Body', req.body)
+                console.error(`Response: ${res.statusCode} ${res.statusMessage}`)
+            }
+        })
+        next()
+    })
+    app.use((req, res, next) => {
+        res.on('error', (err) => {
+            console.error(`Response error: ${err}`)
+        })
+        next()
+    })
+}
+
+function addCorsHandler(app: express.Express, allowedOrigins: Array<string | undefined>) {
+    app.use(cors<cors.CorsRequest>({
+        origin(origin, callback) {
+            for (let allowed of allowedOrigins) {
+                if (origin === allowed) {
+                    callback(null, true)
+                    return
+                }
+            }
+            callback(new Error(`${origin} is not allowed by CORS'`))
+        },
+        credentials: true,
+    }))
 }
 
 async function runWorkers() {

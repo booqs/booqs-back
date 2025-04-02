@@ -30,6 +30,7 @@ async function connectToMongoDb() {
     }
 }
 
+// TODO: remove this extra inderection layer
 export async function typedModel<T extends SchemaDefinition>(name: string, schema: T): Promise<Model<DocumentType<T>>> {
     await mongoDbConnection()
     const key = `mongodb_${name}`;
@@ -46,10 +47,15 @@ export type ObjectId = Schema.Types.ObjectId;
 type ObjectIdConstructor = typeof ObjectId;
 
 export type DocumentType<T extends SchemaDefinition> =
-    & TypeFromSchema<T>
+    & GetSchemaType<T>
     & Document<string>
     ;
+
 export type TypeFromSchema<T extends SchemaDefinition> =
+    & GetSchemaType<T>
+    & { _id: string }
+
+type GetSchemaType<T extends SchemaDefinition> =
     & { [P in Extract<keyof T, RequiredProperties<T>>]: FieldType<T[P]>; }
     & { [P in Exclude<keyof T, RequiredProperties<T>>]?: FieldType<T[P]>; }
     ;

@@ -12,7 +12,7 @@ export async function forBooqId(booqId: string): Promise<DbHighlight[]> {
         .exec()
 }
 
-export async function add(highlight: DbHighlight) {
+export async function add(highlight: Omit<DbHighlight, '_id'>) {
     const result = await (await collection).insertMany([highlight])
 
     return result?.length ? true : false
