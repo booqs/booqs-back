@@ -39,6 +39,19 @@ export function firstLeaf(iter: BooqNodeIterator): BooqNodeIterator {
     }
 }
 
+export function lastLeaf(iter: BooqNodeIterator): BooqNodeIterator {
+    const node = iteratorsNode(iter)
+    if (node.kind === 'element' && node.children?.length) {
+        return lastLeaf({
+            parent: iter,
+            nodes: node.children,
+            index: node.children.length - 1,
+        })
+    } else {
+        return iter
+    }
+}
+
 export function findPath(iter: BooqNodeIterator, path: BooqPath): BooqNodeIterator | undefined {
     const [head, ...tail] = path
     if (head === undefined || head >= iter.nodes.length) {
@@ -49,6 +62,10 @@ export function findPath(iter: BooqNodeIterator, path: BooqPath): BooqNodeIterat
         return curr
     } else {
         const node = iteratorsNode(curr)
+        // If path is within text node, return current iterator
+        if (node.kind === 'text' && tail.length === 1) {
+            return curr
+        }
         if (node.kind !== 'element' || !node?.children?.length) {
             return undefined
         }
@@ -98,4 +115,9 @@ export function prevNode(iter: BooqNodeIterator): BooqNodeIterator | undefined {
 export function nextLeaf(iter: BooqNodeIterator): BooqNodeIterator | undefined {
     const node = nextNode(iter)
     return node && firstLeaf(node)
+}
+
+export function prevLeaf(iter: BooqNodeIterator): BooqNodeIterator | undefined {
+    const node = prevNode(iter)
+    return node && lastLeaf(node)
 }
