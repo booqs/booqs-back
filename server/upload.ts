@@ -1,10 +1,17 @@
 import multer from 'multer'
 import { Express } from 'express'
-import { fromCookie } from './auth'
-import { uploadToSource } from './books'
-import { addToCollection } from './users/collections'
 import { parseCookies } from './cookie'
-import { booqImageUrl } from './images'
+import { userIdFromToken } from '@/backend/token'
+import { addToCollection, userForId } from '@/backend/users'
+import { uploadToSource } from '@/backend/library'
+import { booqImageUrl } from '@/backend/images'
+
+async function fromCookie(cookie: string) {
+    const userId = userIdFromToken(cookie)
+    return userId
+        ? userForId(userId)
+        : null
+}
 
 export const UPLOADS_COLLECTION = 'uploads'
 export function addUploadHandler(app: Express, route: string) {

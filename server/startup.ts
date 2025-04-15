@@ -1,11 +1,12 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { booqsWorker } from './books'
-import { mongoDbConnection } from './mongoose'
 import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
-import { config } from './config'
+import { mongoDbConnection } from '@/backend/mongoose'
+import { config } from '@/backend/config'
+import { pgSyncWorker } from '@/backend/sync'
+
 
 export async function startup() {
     const mongoPromise = mongoDbConnection()
@@ -72,6 +73,6 @@ function addCorsHandler(app: express.Express, allowedOrigins: Array<string | und
 
 async function runWorkers() {
     if (process.env.RUN_WORKERS) {
-        booqsWorker()
+        pgSyncWorker()
     }
 }

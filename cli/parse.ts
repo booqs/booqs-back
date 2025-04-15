@@ -1,8 +1,8 @@
 import { promisify } from 'util'
 import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
-import { extractMetadata, parseEpub } from '../parser'
-import { pretty } from '../server/utils'
+import { extractMetadata, parseEpub } from '@/parser'
+import { pretty } from '@/backend/utils'
 
 export async function parseEpubs(path: string, options: {
     verbose?: boolean,

@@ -14,6 +14,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.772.0
         version: 3.787.0
+      '@graphql-tools/utils':
+        specifier: ^10.8.6
+        version: 10.8.6(graphql@16.10.0)
       '@simplewebauthn/server':
         specifier: ^13.1.1
         version: 13.1.1
@@ -77,6 +80,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      module-alias:
+        specifier: ^2.2.3
+        version: 2.2.3
       mongoose:
         specifier: ^8.12.2
         version: 8.13.2
@@ -2387,6 +2393,9 @@ packages:
   mkdirp@0.5.6:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
     hasBin: true
+
+  module-alias@2.2.3:
+    resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
 
   mongodb-connection-string-url@3.0.2:
     resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
@@ -6042,6 +6051,8 @@ snapshots:
   mkdirp@0.5.6:
     dependencies:
       minimist: 1.2.8
+
+  module-alias@2.2.3: {}
 
   mongodb-connection-string-url@3.0.2:
     dependencies:
