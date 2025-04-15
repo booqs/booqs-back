@@ -1,5 +1,10 @@
 {
     "compilerOptions": {
+        "paths": {
+            "@/*": [
+                "*"
+            ]
+        },
         "esModuleInterop": true,
         "declaration": true,
         "incremental": true,

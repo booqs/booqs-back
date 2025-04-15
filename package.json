@@ -11,6 +11,9 @@
   "bin": {
     "booqs": "dist/cli/index.js"
   },
+  "_moduleAliases": {
+    "@/*": "./*"
+  },
   "scripts": {
     "cli": "ts-node cli/index.ts",
     "prepare": "npm run build",
@@ -81,6 +84,7 @@
     "jszip": "^3.10.1",
     "jwks-rsa": "^3.2.0",
     "lodash": "^4.17.21",
+    "module-alias": "^2.2.3",
     "mongoose": "^8.12.2",
     "multer": "^1.4.5-lts.2",
     "openai": "^4.89.0",
