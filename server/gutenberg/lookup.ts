@@ -3,7 +3,7 @@ import { downloadAsset } from '../s3'
 import { LibraryCard } from '../sources'
 
 export async function cards(ids: string[]): Promise<LibraryCard[]> {
-    let docs = await (await pgCards)
+    const docs = await (await pgCards)
         .find({ index: { $in: ids } })
         .exec()
     return mapDocs(docs)
@@ -31,7 +31,7 @@ export async function forAuthor(name: string, limit?: number, offset?: number) {
     if (limit) {
         query = query.limit(limit)
     }
-    let docs = await query.exec()
+    const docs = await query.exec()
     return mapDocs(docs)
 }
 

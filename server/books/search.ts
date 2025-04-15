@@ -21,7 +21,7 @@ export async function search(query: string, limit: number, scope: SearchScope[])
 }
 
 function processSearchResult(prefix: string) {
-    let cardProcessor = processCard(prefix)
+    const cardProcessor = processCard(prefix)
     return function (result: SearchResult): SearchResult {
         if (result.kind === 'book') {
             return {

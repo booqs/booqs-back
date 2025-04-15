@@ -11,7 +11,7 @@ export async function parseEpub({ fileData, title }: {
     value: Booq | undefined,
     diags: Diagnostic[],
 }> {
-    let diags = diagnoser(title ?? 'parseEpub')
+    const diags = diagnoser(title ?? 'parseEpub')
     try {
         const file = await openFirstEpubPackage({ fileData, diagnoser: diags })
         if (!file) {
@@ -31,7 +31,7 @@ export async function parseEpub({ fileData, title }: {
 export type ExtractedMetadata = {
     metadata: BooqMeta,
     cover?: string,
-};
+}
 export async function extractMetadata({ fileData, extractCover }: {
     fileData: Buffer,
     extractCover?: boolean,
@@ -39,7 +39,7 @@ export async function extractMetadata({ fileData, extractCover }: {
     value: ExtractedMetadata | undefined,
     diags: Diagnostic[],
 }> {
-    let diags = diagnoser('extract metadata')
+    const diags = diagnoser('extract metadata')
     const epub = await openFirstEpubPackage({ fileData, diagnoser: diags })
     if (!epub) {
         return { value: undefined, diags: diags.all() }

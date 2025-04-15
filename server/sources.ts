@@ -9,11 +9,11 @@ export type LibraryCard = {
     description?: string,
     subjects?: string[],
     cover?: string,
-};
+}
 export type BookFile = {
     kind: 'epub',
     file: Buffer,
-};
+}
 export type SearchScope = 'title' | 'author' | 'subject'
 export type SearchResult = {
     kind: 'author',
@@ -34,4 +34,4 @@ export type LibrarySource = {
         booq?: Booq,
     } | undefined>,
     deleteAllBooksForUserId?(userId: string): Promise<boolean>,
-};
+}

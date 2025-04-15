@@ -5,7 +5,7 @@ import { forId, booqForId } from '../books'
 import { BooqParent } from './booq'
 import { DbUser, users } from '../users'
 
-export type HighlightParent = DbHighlight;
+export type HighlightParent = DbHighlight
 export const highlightResolver: IResolvers<HighlightParent> = {
     Highlight: {
         async author(parent): Promise<DbUser | null> {

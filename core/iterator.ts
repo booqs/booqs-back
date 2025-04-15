@@ -4,7 +4,7 @@ export type BooqNodeIterator = {
     parent: BooqNodeIterator | undefined,
     nodes: BooqNode[],
     index: number,
-};
+}
 
 export function iteratorsNode(iter: BooqNodeIterator): BooqNode {
     return iter.nodes[iter.index]

@@ -15,6 +15,7 @@ const compat = new FlatCompat({
 // TODO: use new config style?
 const eslintConfig = [
     ...compat.extends('next/typescript'),
+    { ignores: ['dist/**'] },
     {
         plugins: {
             '@stylistic/ts': stylisticTs,

@@ -13,7 +13,7 @@ export async function forEmail(email: string) {
 }
 
 export async function createUser(user: Omit<DbUser, '_id' | 'username' | 'joined'>) {
-    let username = await proposeUsername(user)
+    const username = await proposeUsername(user)
     const toAdd: Omit<DbUser, '_id'> = {
         ...user,
         username,
@@ -34,7 +34,7 @@ export async function updateOrCreateForFacebookUser(facebookUser: FbUser) {
         await result.save()
         return result
     } else {
-        let username = await proposeUsername(facebookUser)
+        const username = await proposeUsername(facebookUser)
         const toAdd: Omit<DbUser, '_id'> = {
             username,
             facebookId: facebookUser.id,
@@ -63,7 +63,7 @@ export async function updateOrCreateForAppleUser({ id, name }: {
         await result.save()
         return result
     } else {
-        let username = await proposeUsername({ name })
+        const username = await proposeUsername({ name })
         const toAdd: Omit<DbUser, '_id'> = {
             username,
             appleId: id,
@@ -76,12 +76,12 @@ export async function updateOrCreateForAppleUser({ id, name }: {
 }
 
 export async function deleteForId(id: string): Promise<boolean> {
-    let deleteUserPromise = (await collection).deleteOne({ _id: id }).exec()
-    let deleteHighlightsPromise = highlights.removeAllForUserId(id)
-    let deleteBooksPromise = uuSource.deleteAllBooksForUserId
+    const deleteUserPromise = (await collection).deleteOne({ _id: id }).exec()
+    const deleteHighlightsPromise = highlights.removeAllForUserId(id)
+    const deleteBooksPromise = uuSource.deleteAllBooksForUserId
         ? uuSource.deleteAllBooksForUserId(id) : Promise.resolve(true)
 
-    let [deleteUserResult, deleteHighlightsResult, deleteBooksResult] = await Promise.all([
+    const [deleteUserResult, deleteHighlightsResult, deleteBooksResult] = await Promise.all([
         deleteUserPromise, deleteHighlightsPromise, deleteBooksPromise,
     ])
     return deleteUserResult.deletedCount > 0 && deleteHighlightsResult && deleteBooksResult
@@ -92,7 +92,7 @@ type UserDataForNameGeneration = {
     email?: string,
 }
 export async function proposeUsername(user: UserDataForNameGeneration) {
-    let base = generateUsername(user)
+    const base = generateUsername(user)
     let current = base
     let next = current
     let idx = await (await collection).estimatedDocumentCount()
@@ -108,8 +108,8 @@ export async function proposeUsername(user: UserDataForNameGeneration) {
 }
 
 function generateUsername({ name, email }: UserDataForNameGeneration) {
-    let base = name ?? email ?? 'user'
-    let username = slugify(base, {
+    const base = name ?? email ?? 'user'
+    const username = slugify(base, {
         replacement: '.',
         lower: true,
         strict: true,

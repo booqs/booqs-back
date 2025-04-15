@@ -19,15 +19,15 @@ function service() {
     }
 }
 
-type AssetBody = Exclude<GetObjectCommandOutput['Body'], undefined>;
+type AssetBody = Exclude<GetObjectCommandOutput['Body'], undefined>
 async function bodyToBuffer(body: AssetBody): Promise<Buffer> {
     const array = await body.transformToByteArray()
     const buffer = Buffer.from(array)
     return buffer
 }
 
-export type Asset = AWS_S3._Object;
-export type AssetContent = Buffer;
+export type Asset = AWS_S3._Object
+export type AssetContent = Buffer
 export async function downloadAsset(bucket: string, assetId: string): Promise<AssetContent | undefined> {
     try {
         const command = new GetObjectCommand({
@@ -40,7 +40,7 @@ export async function downloadAsset(bucket: string, assetId: string): Promise<As
         } else {
             return undefined
         }
-    } catch (e) {
+    } catch {
         return undefined
     }
 }
@@ -68,7 +68,7 @@ export async function* listObjects(bucket: string) {
     }
 }
 
-type ContinuationToken = string;
+type ContinuationToken = string
 async function* listObjectBatches(bucket: string) {
     let objects: AWS_S3.ListObjectsV2CommandOutput
     let token: ContinuationToken | undefined = undefined

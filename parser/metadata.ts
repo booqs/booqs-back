@@ -3,8 +3,8 @@ import { BooqMeta } from '../core'
 import { Diagnoser } from 'booqs-epub'
 
 export function buildMeta(epub: EpubPackage, diags?: Diagnoser): BooqMeta {
-    let pkgMeta = epub.metadata
-    let result: BooqMeta = {
+    const pkgMeta = epub.metadata
+    const result: BooqMeta = {
         title: undefined,
         authors: [],
         languages: [],
@@ -14,13 +14,13 @@ export function buildMeta(epub: EpubPackage, diags?: Diagnoser): BooqMeta {
         rights: undefined,
         tags: [],
     }
-    let cover = pkgMeta.items.find(i => i.name === 'cover')
+    const cover = pkgMeta.items.find(i => i.name === 'cover')
     if (cover) {
         result.cover = {
             href: cover.href,
         }
     }
-    let titles: string[] = []
+    const titles: string[] = []
     for (let [key, value] of Object.entries(pkgMeta.fields)) {
         if (key.startsWith('@')) {
             continue
@@ -38,7 +38,7 @@ export function buildMeta(epub: EpubPackage, diags?: Diagnoser): BooqMeta {
         if (key.startsWith('dc:')) {
             key = key.substring('dc:'.length)
         }
-        let texts = value
+        const texts = value
             .map(v => v['#text'])
             .filter((v): v is string => v !== undefined)
         switch (key) {
@@ -72,9 +72,9 @@ export function buildMeta(epub: EpubPackage, diags?: Diagnoser): BooqMeta {
                     : texts.join(' ')
                 break
             case 'date': {
-                let vals = value
+                const vals = value
                     .map(v => {
-                        let event = v['@opf:event']
+                        const event = v['@opf:event']
                         if (event) {
                             return {
                                 name: event,

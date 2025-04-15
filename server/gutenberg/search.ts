@@ -3,7 +3,7 @@ import { SearchResult, SearchScope } from '../sources'
 import { uniqBy } from 'lodash'
 
 export async function search(query: string, limit: number, scope: SearchScope[]): Promise<ScoredSearch[]> {
-    let promises: Promise<ScoredSearch[]>[] = []
+    const promises: Promise<ScoredSearch[]>[] = []
     for (const s of scope) {
         switch (s) {
             case 'title':
@@ -20,8 +20,8 @@ export async function search(query: string, limit: number, scope: SearchScope[])
                 break
         }
     }
-    let allResults = (await Promise.all(promises)).flat()
-    let sorted = allResults.sort((a, b) => b.score - a.score).slice(0, limit)
+    const allResults = (await Promise.all(promises)).flat()
+    const sorted = allResults.sort((a, b) => b.score - a.score).slice(0, limit)
     return sorted
 }
 
@@ -41,7 +41,7 @@ async function searchBooks({
     boost?: number,
     limit?: number,
 }): Promise<ScoredSearch[]> {
-    let cursor = (await pgCards).aggregate([
+    const cursor = (await pgCards).aggregate([
         {
             $search: {
                 compound: {
@@ -68,7 +68,7 @@ async function searchBooks({
             },
         },
     ])
-    let docs = await cursor.exec()
+    const docs = await cursor.exec()
     return docs.map(({ score, ...rest }) => ({
         kind: 'book',
         score,
@@ -87,7 +87,7 @@ async function searchAuthors({
     boost?: number,
     limit?: number,
 }): Promise<ScoredSearch[]> {
-    let cursor = (await pgCards).aggregate([
+    const cursor = (await pgCards).aggregate([
         {
             $search: {
                 compound: {
@@ -114,14 +114,14 @@ async function searchAuthors({
             },
         },
     ])
-    let docs = await cursor.exec()
-    let mapped = docs.map(d => ({
+    const docs = await cursor.exec()
+    const mapped = docs.map(d => ({
         kind: 'author' as const,
         score: d.score,
         author: {
             name: d.name,
         },
     }))
-    let unique = uniqBy(mapped, a => a.author.name)
+    const unique = uniqBy(mapped, a => a.author.name)
     return unique
 }

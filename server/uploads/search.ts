@@ -2,7 +2,7 @@ import { uuCards } from './schema'
 import { SearchResult } from '../sources'
 
 export async function search(query: string, limit: number): Promise<SearchResult[]> {
-    let docs = await (await uuCards).aggregate([{
+    const docs = await (await uuCards).aggregate([{
         $search: {
             compound: {
                 should: [

@@ -11,7 +11,7 @@ import { highlights } from '../highlights'
 
 export type BooqParent = LibraryCard & {
     kind?: undefined,
-};
+}
 export const booqResolver: IResolvers<BooqParent> = {
     Booq: {
         cover(parent, { size }) {
@@ -69,7 +69,7 @@ export const booqResolver: IResolvers<BooqParent> = {
 type Tag = {
     tag: string,
     value?: string,
-};
+}
 function buildTags(card: BooqParent): Tag[] {
     return filterUndefined([
         {

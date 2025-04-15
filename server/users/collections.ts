@@ -3,7 +3,7 @@ import { filterUndefined } from '../../core'
 import { collection, DbUser } from './schema'
 import { afterPrefix } from '../utils'
 
-export type DbCollection = string[];
+export type DbCollection = string[]
 export function userCollection(user: DbUser, name: string): DbCollection {
     switch (name) {
         case 'my-books':

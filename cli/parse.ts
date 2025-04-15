@@ -34,7 +34,7 @@ async function processFile(filePath: string, verbose?: boolean) {
             fileData: file,
             extractCover: true,
         })
-        let diags = [...parseDiags, ...metaDiags]
+        const diags = [...parseDiags, ...metaDiags]
         if (!meta?.cover) {
             diags.push({
                 message: 'No cover image found',

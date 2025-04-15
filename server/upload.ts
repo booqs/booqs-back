@@ -29,7 +29,7 @@ export function addUploadHandler(app: Express, route: string) {
         }
         let { id, title, cover } = await uploadToSource('uu', req.file.buffer, user._id) ?? {}
         if (id) {
-            let added = addToCollection(user._id, UPLOADS_COLLECTION, id)
+            const added = addToCollection(user._id, UPLOADS_COLLECTION, id)
             if (!added) {
                 console.error('Failed to add upload to collection')
             }

@@ -21,22 +21,22 @@ const schema = {
 } as const
 export const collection = typedModel('users', schema)
 
-export type DbUser = TypeFromSchema<typeof schema>;
+export type DbUser = TypeFromSchema<typeof schema>
 
 type StringMap<T> = {
     [k: string]: T,
-};
+}
 export type BookmarkData = {
     booqId: string,
     path: BooqPath,
-};
+}
 export type HighlightData = {
     booqId: string,
     start: BooqPath,
     end: BooqPath,
     group: string,
-};
+}
 export type BooqHistoryData = {
     path: BooqPath,
     date: Date,
-};
+}

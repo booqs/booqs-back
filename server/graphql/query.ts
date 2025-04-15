@@ -33,7 +33,7 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
             limit?: number,
             scope?: string[],
         }): Promise<SearchResultParent[]> {
-            let actualScope = (scope ?? ['title', 'author', 'subject'])
+            const actualScope = (scope ?? ['title', 'author', 'subject'])
                 .filter((s): s is SearchScope => ['title', 'author', 'subject'].includes(s))
             const results = await search(query, limit ?? 100, actualScope)
             return results.map(

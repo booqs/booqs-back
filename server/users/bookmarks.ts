@@ -1,6 +1,6 @@
 import { collection, DbUser, BookmarkData } from './schema'
 
-export type DbBookmark = BookmarkData & { id: string };
+export type DbBookmark = BookmarkData & { id: string }
 
 export function userBookmarks(user: DbUser, booqId: string): DbBookmark[] {
     return Object.entries(user.bookmarks ?? {}).map(([id, data]) => ({

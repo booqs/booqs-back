@@ -2,7 +2,7 @@ import { deleteAsset } from '../s3'
 import { userUploadedEpubsBucket, uuCards } from './schema'
 
 export async function deleteAllBooksForUserId(userId: string) {
-    let result = await (await uuCards).updateMany(
+    const result = await (await uuCards).updateMany(
         {},
         { $pull: { users: userId } },
     ).exec()
@@ -13,8 +13,8 @@ export async function deleteAllBooksForUserId(userId: string) {
 }
 
 async function deleteAllBooksWithoutUsers() {
-    let cards = await (await uuCards).find({ users: { $size: 0 } }).exec()
-    let results = await Promise.all(cards.map(card => deleteBook(card)))
+    const cards = await (await uuCards).find({ users: { $size: 0 } }).exec()
+    const results = await Promise.all(cards.map(card => deleteBook(card)))
     return results.every(result => result)
 }
 
@@ -22,8 +22,8 @@ async function deleteBook({ _id, assetId }: {
     _id: string,
     assetId: string,
 }) {
-    let s3promies = deleteAsset(userUploadedEpubsBucket, assetId)
-    let dbPromise = (await uuCards).deleteOne({ _id }).exec()
-    let [s3Result, dbResult] = await Promise.all([s3promies, dbPromise])
+    const s3promies = deleteAsset(userUploadedEpubsBucket, assetId)
+    const dbPromise = (await uuCards).deleteOne({ _id }).exec()
+    const [s3Result, dbResult] = await Promise.all([s3promies, dbPromise])
     return s3Result && dbResult.deletedCount === 1
 }

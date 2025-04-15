@@ -35,7 +35,7 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
         async deleteAccount(_, __, { user, setAuthToken }) {
             if (user?._id) {
                 setAuthToken(undefined)
-                let result = await users.deleteForId(user._id)
+                const result = await users.deleteForId(user._id)
                 return result
             } else {
                 return false

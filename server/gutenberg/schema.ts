@@ -28,5 +28,5 @@ const schema = {
     meta: taggedObject<object>(),
 } as const
 
-export type DbPgCard = TypeFromSchema<typeof schema>;
+export type DbPgCard = TypeFromSchema<typeof schema>
 export const pgCards = typedModel('pg-cards', schema)

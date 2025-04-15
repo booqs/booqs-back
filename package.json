@@ -14,7 +14,7 @@
   "scripts": {
     "cli": "ts-node cli/index.ts",
     "prepare": "npm run build",
-    "lint": "eslint server/**/*.ts",
+    "lint": "eslint . --ext .ts",
     "build": "tsc && npm run lint",
     "start": "node dist/server/index.js",
     "dev": "npm run https",

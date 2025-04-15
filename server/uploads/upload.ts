@@ -69,7 +69,7 @@ async function insertRecord(booq: Booq, assetId: string, fileHash: string) {
 }
 
 async function addToRegistry(cardId: string, userId: string) {
-    let result = await (await uuCards).updateOne({ _id: cardId }, {
+    const result = await (await uuCards).updateOne({ _id: cardId }, {
         $addToSet: { users: userId },
     }).exec()
     if (result.modifiedCount === 0) {
@@ -82,7 +82,7 @@ async function addToRegistry(cardId: string, userId: string) {
 type File = {
     buffer: Buffer,
     hash: string,
-};
+}
 export async function buildFileFromBuffer(buffer: Buffer) {
     const hash = createHash('md5')
     hash.update(buffer)

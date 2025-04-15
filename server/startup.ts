@@ -8,7 +8,7 @@ import { addApolloHandler, createApolloServer } from './apollo'
 import { config } from './config'
 
 export async function startup() {
-    let mongoPromise = mongoDbConnection()
+    const mongoPromise = mongoDbConnection()
 
     const app = express()
 
@@ -25,7 +25,7 @@ export async function startup() {
     const port = process.env.PORT
         ? parseInt(process.env.PORT)
         : 4000
-    let listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+    const listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
     await Promise.all([mongoPromise, listenPromise])
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
@@ -58,7 +58,7 @@ function addLoggingHandler(app: express.Express) {
 function addCorsHandler(app: express.Express, allowedOrigins: Array<string | undefined>) {
     app.use(cors<cors.CorsRequest>({
         origin(origin, callback) {
-            for (let allowed of allowedOrigins) {
+            for (const allowed of allowedOrigins) {
                 if (origin === allowed) {
                     callback(null, true)
                     return

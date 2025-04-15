@@ -14,18 +14,18 @@ export type Selector = {
     selector: string,
     compiled: CompiledQuery,
     specificity: Specificity,
-};
+}
 export type StyleDeclaration = {
     property: string,
     value: string | undefined,
-};
+}
 export type StyleRule = {
     selectors: Selector[],
     content: StyleDeclaration[],
 }
 export type Stylesheet = {
     rules: StyleRule[],
-};
+}
 export function parseCss(css: string, fileName: string, diags: Diagnoser): Stylesheet | undefined {
     const parsed = parse(css, {
         silent: true,

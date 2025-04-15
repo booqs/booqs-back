@@ -8,8 +8,8 @@ export type ReadingContext = {
     language?: string,
 }
 export async function generateSuggestions(context: ReadingContext) {
-    let prompt = buildPromptForSuggestions(context)
-    let result = await getChatCompletions(prompt)
+    const prompt = buildPromptForSuggestions(context)
+    const result = await getChatCompletions(prompt)
     if (!result) {
         return []
     }
@@ -17,8 +17,8 @@ export async function generateSuggestions(context: ReadingContext) {
 }
 
 export async function generateAnswer(context: ReadingContext, question: string) {
-    let prompt = buildPromptForAnswer(context, question)
-    let result = await getChatCompletions(prompt)
+    const prompt = buildPromptForAnswer(context, question)
+    const result = await getChatCompletions(prompt)
     if (!result) {
         return undefined
     }
@@ -28,7 +28,7 @@ export async function generateAnswer(context: ReadingContext, question: string) 
 function parseSuggestion(suggestion: string): string[] {
     return suggestion.split('?')
         .map(s => {
-            let trimmed = trimNumberPrefix(s)
+            const trimmed = trimNumberPrefix(s)
             if (trimmed === '') {
                 return undefined
             } else {
@@ -88,13 +88,13 @@ async function getChatCompletions(messages: OpenAI.ChatCompletionMessageParam[],
         apiKey: process.env.OPENAI_API_KEY,
     })
     try {
-        let response = await openai.chat.completions.create({
+        const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
             messages,
             n,
         })
         if (response) {
-            let completions = response.choices
+            const completions = response.choices
                 .map(choice => choice.message?.content)
                 .filter((m): m is string => m !== undefined)
             return completions

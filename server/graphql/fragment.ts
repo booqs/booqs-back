@@ -83,9 +83,9 @@ type BooqFragment = {
     next?: BooqAnchor,
     position: number,
     nodes: BooqNode[],
-};
+}
 type BooqAnchor = {
     path: BooqPath,
     title: string | undefined,
     position: number,
-};
+}

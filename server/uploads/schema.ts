@@ -31,7 +31,7 @@ const cardsSchema = {
     meta: taggedObject<object>(),
 } as const
 
-export type DbUuCard = TypeFromSchema<typeof cardsSchema>;
+export type DbUuCard = TypeFromSchema<typeof cardsSchema>
 export const uuCards = typedModel('uu-cards', cardsSchema)
 
 export function toLibraryCard(doc: DocumentType<typeof cardsSchema>): LibraryCard {

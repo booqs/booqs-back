@@ -4,7 +4,7 @@ import { BooqHistoryData, collection, DbUser } from './schema'
 export type DbBooqHistory = BooqHistoryData & {
     booqId: string,
     source: string,
-};
+}
 export function userBooqHistory(user: DbUser): DbBooqHistory[] {
     const results = Object.entries(user.history ?? {}).map(
         ([booqId, sourceData]) => Object.entries(sourceData).map(([source, data]) => ({

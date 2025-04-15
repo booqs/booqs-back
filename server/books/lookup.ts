@@ -39,8 +39,8 @@ export async function forIds(ids: string[]): Promise<Array<LibraryCard | undefin
 }
 
 export async function forAuthor(author: string, limit?: number, offset?: number) {
-    let supported: Array<keyof typeof sources> = ['pg']
-    let results = await Promise.all(
+    const supported: Array<keyof typeof sources> = ['pg']
+    const results = await Promise.all(
         supported.map(
             source => sources[source]!.forAuthor(author, limit, offset)
                 .then(cards => cards.map(processCard(source))),
@@ -49,7 +49,7 @@ export async function forAuthor(author: string, limit?: number, offset?: number)
     return results.flat()
 }
 
-export async function featuredIds(limit: number) {
+export async function featuredIds(_limit: number) {
     return [
         'pg/55201',
         'pg/1635',

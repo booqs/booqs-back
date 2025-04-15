@@ -28,4 +28,4 @@ const schema = {
 } as const
 export const collection = typedModel('highlights', schema)
 
-export type DbHighlight = TypeFromSchema<typeof schema>;
+export type DbHighlight = TypeFromSchema<typeof schema>

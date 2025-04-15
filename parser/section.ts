@@ -16,7 +16,7 @@ export async function parseSection(section: EpubSection, file: EpubPackage, diag
         stylesheet: { rules: [] },
         diags,
         resolveTextFile: async href => {
-            let resolved = resolveRelativePath(href, section.fileName)
+            const resolved = resolveRelativePath(href, section.fileName)
             return file.textResolver(resolved)
         },
     })
@@ -28,7 +28,7 @@ type Env = {
     stylesheet: Stylesheet,
     diags: Diagnoser,
     resolveTextFile: (href: string) => Promise<string | undefined>,
-};
+}
 
 async function processSectionContent(content: string, env: Env): Promise<BooqNode | undefined> {
     const elements = xmlStringParser(content)
@@ -247,7 +247,7 @@ function translatePropertyName(property: string): string {
     return result
 }
 
-function processAttributes(attrs: XmlAttributes, env: Env) {
+function processAttributes(attrs: XmlAttributes, _env: Env) {
     const entries = Object
         .entries(attrs)
         .map(([key, value]): [string, string | undefined] => {

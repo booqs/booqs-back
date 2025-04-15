@@ -13,7 +13,7 @@ const schema = {
     data: Object,
 } as const
 
-export type DbLog = TypeFromSchema<typeof schema>;
+export type DbLog = TypeFromSchema<typeof schema>
 const logModel = typedModel('log', schema)
 
 export async function logItem(item: Omit<DbLog, '_id'>) {
