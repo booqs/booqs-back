@@ -1,11 +1,7 @@
-import { promisify, inspect } from 'util'
+import { promisify } from 'util'
 import { writeFile, exists, mkdir } from 'fs'
 import { join } from 'path'
 import { uniqueId } from '../core'
-
-export function pretty(obj: any, depth?: number) {
-    return inspect(obj, false, depth ?? 8, true)
-}
 
 export async function logTime<T>(f: () => Promise<T>, label?: string) {
     console.info(`Start: ${label}`)

@@ -1,8 +1,7 @@
-import { promisify } from 'util'
+import { promisify, inspect } from 'util'
 import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
 import { extractMetadata, parseEpub } from '@/parser'
-import { pretty } from '@/backend/utils'
 
 export async function parseEpubs(path: string, options: {
     verbose?: boolean,
@@ -62,4 +61,8 @@ export async function* listEpubs(paths: string[]): AsyncGenerator<string> {
             }
         }
     }
+}
+
+function pretty(obj: any, depth?: number) {
+    return inspect(obj, false, depth ?? 8, true)
 }
