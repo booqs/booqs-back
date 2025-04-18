@@ -17,7 +17,7 @@
         "forceConsistentCasingInFileNames": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "strict": true,
         "suppressImplicitAnyIndexErrors": false,
         "allowSyntheticDefaultImports": true,
