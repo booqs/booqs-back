@@ -1,10 +1,10 @@
 import { IResolvers } from '@graphql-tools/utils'
 import { BooqParent } from './booq'
-import { DbBooqHistory } from '@/backend/users'
 import { booqForId, libraryCardForId } from '@/backend/library'
 import { positionForPath, previewForPath } from '@/core'
+import { DbReadingHistoryEvent } from '@/backend/history'
 
-export type BooqHistoryParent = DbBooqHistory
+export type BooqHistoryParent = DbReadingHistoryEvent
 export const booqHistoryResolver: IResolvers<BooqHistoryParent> = {
     BooqHistory: {
         async booq(parent): Promise<BooqParent | undefined> {

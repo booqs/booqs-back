@@ -3,14 +3,11 @@ import express from 'express'
 import cors from 'cors'
 import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
-import { mongoDbConnection } from '@/backend/mongoose'
 import { config } from '@/backend/config'
 import { pgSyncWorker } from '@/backend/sync'
 
 
 export async function startup() {
-    const mongoPromise = mongoDbConnection()
-
     const app = express()
 
     const httpServer = http.createServer(app)
@@ -27,7 +24,7 @@ export async function startup() {
         ? parseInt(process.env.PORT)
         : 4000
     const listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
-    await Promise.all([mongoPromise, listenPromise])
+    await Promise.all([listenPromise])
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()

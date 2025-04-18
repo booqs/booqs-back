@@ -1,132 +1,123 @@
 import { IResolvers } from '@graphql-tools/utils'
 import { ResolverContext } from './context'
-import { addBookmark, addBooqHistory, addToCollection, deleteBookmark, deleteBooqHistory, deleteUserForId, removeFromCollection } from '@/backend/users'
-import { uniqueId } from '@/core'
+import { deleteUserForId } from '@/backend/users'
 import { addHighlight, removeHighlight, updateHighlight } from '@/backend/highlights'
 import { initiatePasskeyLogin, initiatePasskeyRegistration, verifyPasskeyLogin, verifyPasskeyRegistration } from '@/backend/passkey'
-import { generateToken } from '@/backend/token'
+import { addToCollection, removeFromCollection } from '@/backend/collections'
+import { addBooqHistory } from '@/backend/history'
+import { addBookmark, deleteBookmark } from '@/backend/bookmarks'
 
 export const mutationResolver: IResolvers<any, ResolverContext> = {
     Mutation: {
-        signout(_, __, { setAuthToken }) {
-            setAuthToken(undefined)
+        signout(_, __, { clearAuth }) {
+            clearAuth()
             return true
         },
-        async deleteAccount(_, __, { user, setAuthToken }) {
-            if (user?._id) {
-                setAuthToken(undefined)
-                const result = await deleteUserForId(user._id)
+        async deleteAccount(_, __, { userId, clearAuth }) {
+            if (userId) {
+                clearAuth()
+                const result = await deleteUserForId(userId)
                 return result
             } else {
                 return false
             }
         },
-        async addBookmark(_, { bookmark }, { user }) {
-            if (user?._id) {
-                return addBookmark(
-                    user._id,
-                    {
-                        id: bookmark.id ?? uniqueId(),
-                        booqId: bookmark.booqId,
-                        path: bookmark.path,
-                    })
+        async addBookmark(_, { bookmark }, { userId }) {
+            if (userId) {
+                await addBookmark({
+                    userId,
+                    booqId: bookmark.booqId,
+                    path: bookmark.path,
+                })
+                return true
             } else {
                 return false
             }
         },
-        async removeBookmark(_, { id }, { user }) {
-            if (user?._id) {
-                return deleteBookmark(
-                    user._id,
-                    { id },
-                )
+        async removeBookmark(_, { id }, { userId }) {
+            if (userId) {
+                await deleteBookmark(id)
+                return true
             } else {
                 return false
             }
         },
-        async addHighlight(_, { highlight }, { user }) {
-            if (user?._id) {
-                return addHighlight({
-                    userId: user._id,
-                    id: highlight.id,
+        async addHighlight(_, { highlight }, { userId }) {
+            if (userId) {
+                await addHighlight({
+                    userId: userId,
                     booqId: highlight.booqId,
-                    start: highlight.start,
-                    end: highlight.end,
-                    group: highlight.group,
+                    range: {
+                        start: highlight.start,
+                        end: highlight.end,
+                    },
+                    color: highlight.color,
                 })
+                return true
             } else {
                 return false
             }
         },
-        async removeHighlight(_, { id }, { user }) {
-            if (user?._id) {
-                return removeHighlight({
-                    userId: user._id,
+        async removeHighlight(_, { id }, { userId }) {
+            if (userId) {
+                await removeHighlight({
+                    userId,
                     id: id,
                 })
+                return true
             } else {
                 return false
             }
         },
-        async updateHighlight(_, { id, group }, { user }) {
-            if (user?._id) {
-                return updateHighlight({
-                    userId: user._id,
+        async updateHighlight(_, { id, color }, { userId }) {
+            if (userId) {
+                await updateHighlight({
+                    userId,
                     id: id,
-                    group,
+                    color,
                 })
+                return true
             } else {
                 return false
             }
         },
-        async addBooqHistory(_, { event }, { user }) {
-            if (user?._id) {
-                return addBooqHistory(
-                    user._id,
-                    {
-                        booqId: event.booqId,
-                        path: event.path,
-                        source: event.source,
-                        date: new Date(Date.now()),
-                    })
+        async addBooqHistory(_, { event }, { userId }) {
+            if (userId) {
+                await addBooqHistory(userId, {
+                    booqId: event.booqId,
+                    path: event.path,
+                    source: event.source,
+                    date: Date.now(),
+                })
+                return true
             } else {
                 return false
             }
         },
-        async removeBooqHistory(_, { booqId }, { user }) {
-            if (user?._id) {
-                return deleteBooqHistory(
-                    user._id,
-                    { booqId },
-                )
+        async addToCollection(_, { booqId, name }, { userId }) {
+            if (userId) {
+                await addToCollection({
+                    userId,
+                    name, booqId,
+                })
+                return true
             } else {
                 return false
             }
         },
-        async addToCollection(_, { booqId, name }, { user }) {
-            if (user?._id) {
-                return addToCollection(
-                    user._id,
-                    name,
-                    booqId,
-                )
+        async removeFromCollection(_, { booqId, name }, { userId }) {
+            if (userId) {
+                await removeFromCollection({
+                    userId,
+                    name, booqId,
+                })
+                return true
             } else {
                 return false
             }
         },
-        async removeFromCollection(_, { booqId, name }, { user }) {
-            if (user?._id) {
-                return removeFromCollection(
-                    user._id,
-                    name,
-                    booqId,
-                )
-            } else {
-                return false
-            }
-        },
-        async initPasskeyRegistration(_, __, { requestOrigin }) {
-            const result = await initiatePasskeyRegistration({ requestOrigin })
+        async initPasskeyRegistration(_, __, { origin }) {
+            const result = await initiatePasskeyRegistration({ origin })
             if (result.success) {
                 return {
                     id: result.id,
@@ -136,26 +127,25 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return undefined
             }
         },
-        async verifyPasskeyRegistration(_, { id, response }, { setAuthToken, requestOrigin }) {
+        async verifyPasskeyRegistration(_, { id, response }, { setAuthForUserId, origin }) {
             if (!id || !response) {
                 return undefined
             }
             const result = await verifyPasskeyRegistration({
                 id,
                 response,
-                requestOrigin,
+                origin,
             })
             if (result.success) {
                 const user = result.user
-                const token = generateToken(user._id)
-                setAuthToken(token)
+                setAuthForUserId(user.id)
                 return { user }
             }
             return undefined
         },
-        async initPasskeyLogin(_, __, { requestOrigin }) {
+        async initPasskeyLogin(_, __, { origin }) {
             const result = await initiatePasskeyLogin({
-                requestOrigin,
+                origin,
             })
             if (result.success) {
                 return {
@@ -166,15 +156,14 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return undefined
             }
         },
-        async verifyPasskeyLogin(_, { id, response }, { requestOrigin, setAuthToken }) {
+        async verifyPasskeyLogin(_, { id, response }, { origin, setAuthForUserId }) {
             if (response) {
                 const result = await verifyPasskeyLogin({
-                    id, response, requestOrigin,
+                    id, response, origin,
                 })
                 if (result.success) {
                     const user = result.user
-                    const token = generateToken(user._id)
-                    setAuthToken(token)
+                    setAuthForUserId(user.id)
                     return { user }
                 }
             }

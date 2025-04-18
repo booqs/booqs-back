@@ -1,37 +1,31 @@
 import { inspect } from 'util'
-import { typedModel, TypeFromSchema } from './mongoose'
 import { makeBatches } from './utils'
 import { Booq, filterUndefined, nodesLength } from '@/core'
 import { Asset, downloadAsset, listObjects } from './s3'
-import { DbPgCard, pgCards, pgEpubsBucket } from './pg'
+import {
+    existingAssetIds, pgEpubsBucket, insertCard,
+} from './pg'
 import { parseEpub } from '@/parser'
 import { uploadBooqImages } from './images'
+import { redis } from './db'
 
-const schema = {
-    id: {
-        type: String,
-        required: true,
-    },
-    kind: {
-        type: String,
-        required: true,
-    },
-    message: String,
-    data: Object,
-} as const
-
-type DbLog = TypeFromSchema<typeof schema>
-const logModel = typedModel('log', schema)
-
-async function logItem(item: Omit<DbLog, '_id'>) {
-    return (await logModel).insertMany([item])
+type Log = {
+    kind: string,
+    message: string,
+    id: string,
+    data?: object,
+}
+async function logItem(item: Log) {
+    return redis.hset('logs', {
+        [`${item.kind}:${item.id}`]: JSON.stringify(item),
+    })
 }
 
 async function logExists({ kind, id }: {
     kind: string,
     id: string,
 }) {
-    return (await logModel).exists({ kind, id })
+    return redis.hexists('logs', `${kind}:${id}`)
 }
 
 export async function pgSyncWorker() {
@@ -85,14 +79,6 @@ async function processAsset(asset: Asset) {
     }
 }
 
-async function existingAssetIds() {
-    const all = await (await pgCards)
-        .find()
-        .select('assetId')
-        .exec()
-    return all.map(d => d.assetId)
-}
-
 async function hasProblems(assetId: string) {
     return logExists({
         kind: 'pg-sync',
@@ -131,7 +117,7 @@ async function downloadAndInsert(assetId: string) {
     const document = await insertRecord(booq, assetId)
     if (document) {
         return {
-            id: document.index,
+            id: document.id,
             booq,
         }
     } else {
@@ -152,23 +138,22 @@ async function insertRecord(booq: Booq, assetId: string) {
         tags,
     } = booq.meta
     const length = nodesLength(booq.nodes)
-    const doc: Omit<DbPgCard, '_id'> = {
-        assetId,
-        index,
+    return insertCard({
+        asset_id: assetId,
+        id: index,
         length,
         subjects,
-        title,
-        author: authors.join(', '),
+        title: title ?? 'Untitled',
+        authors: authors,
         language: languages[0],
         description: descriptions[0],
-        cover: cover?.href,
-        rights,
-        contributors,
-        meta: tags,
-    }
-    const [inserted] = await (await pgCards).insertMany([doc])
-    report('inserted', inserted)
-    return inserted
+        cover: cover?.href ?? null,
+        metadata: {
+            rights,
+            contributors,
+            tags,
+        },
+    })
 }
 
 function indexFromAssetId(assetId: string) {
@@ -183,8 +168,8 @@ function indexFromAssetId(assetId: string) {
 }
 
 function report(label: string, data?: any) {
-    console.log('PG: \x1b[32m%s\x1b[0m', label)
+    console.warn('PG: \x1b[32m%s\x1b[0m', label)
     if (data) {
-        console.log(inspect(data, false, 3, true))
+        console.warn(inspect(data, false, 3, true))
     }
 }

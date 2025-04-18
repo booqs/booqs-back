@@ -4,8 +4,10 @@ import { BooqParent } from './booq'
 import { BooqHistoryParent } from './history'
 import { CopilotInput, CopilotParent } from './copilot'
 import { AuthorParent } from './author'
-import { featuredBooqIds, libraryCardForId, libraryCardsForIds, searchBooqs, SearchScope } from '@/backend/library'
-import { userBooqHistory, userCollection } from '@/backend/users'
+import { featuredBooqIds, libraryCardForId, libraryCardsForIds, searchBooqs } from '@/backend/library'
+import { booqHistoryForUser } from '@/backend/history'
+import { booqIdsInCollections } from '@/backend/collections'
+import { userForId } from '@/backend/users'
 
 type SearchResultParent = BooqParent | AuthorParent
 
@@ -27,32 +29,34 @@ export const queryResolver: IResolvers<unknown, ResolverContext> = {
         author(_, { name }): AuthorParent {
             return { name, kind: 'author' }
         },
-        async search(_, { query, limit, scope }: {
+        async search(_, { query, limit }: {
             query: string,
             limit?: number,
-            scope?: string[],
         }): Promise<SearchResultParent[]> {
-            const actualScope = (scope ?? ['title', 'author', 'subject'])
-                .filter((s): s is SearchScope => ['title', 'author', 'subject'].includes(s))
-            const results = await searchBooqs(query, limit ?? 100, actualScope)
+            const results = await searchBooqs(query, limit ?? 100)
             return results.map(
                 r => r.kind === 'book'
                     ? r.card
                     : { ...r.author, kind: 'author' },
             )
         },
-        async me(_, __, { user }) {
-            return user
+        async me(_, __, { userId }) {
+            if (userId) {
+                const user = await userForId(userId)
+                return user ?? undefined
+            } else {
+                return undefined
+            }
         },
-        history(_, __, { user }): BooqHistoryParent[] {
-            const result = user
-                ? userBooqHistory(user)
+        async history(_, __, { userId }): Promise<BooqHistoryParent[]> {
+            const result = userId
+                ? await booqHistoryForUser(userId)
                 : []
             return result
         },
-        async collection(_, { name }, { user }) {
-            return user
-                ? userCollection(user, name)
+        async collection(_, { name }, { userId }) {
+            return userId
+                ? booqIdsInCollections(userId, name)
                 : []
         },
         async featured(_, { limit }): Promise<Array<BooqParent | undefined>> {

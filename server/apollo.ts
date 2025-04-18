@@ -7,7 +7,8 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
 import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
 import { readFile } from 'fs'
-import { context, resolvers } from '@/graphql'
+import { resolvers } from '@/graphql/resolvers'
+import { context } from '@/graphql/context'
 import { parseCookies } from './cookie'
 
 export async function createApolloServer(httpServer: http.Server) {

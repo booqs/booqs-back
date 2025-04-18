@@ -10,6 +10,7 @@ import { highlightResolver } from './highlight'
 import { userResolver } from './user'
 import { copilotResolver } from './copilot'
 import { authorResolver } from './author'
+import { GraphQLScalarType } from 'graphql'
 
 export const resolvers: IResolvers = {
     ...queryResolver,
@@ -22,10 +23,17 @@ export const resolvers: IResolvers = {
     ...highlightResolver,
     ...userResolver,
     ...copilotResolver,
-    BooqNode: GraphQLJSON,
-    WebAtuhnCredentialCreationOptions: GraphQLJSON,
-    WebAtuhnCredentialRequestOptions: GraphQLJSON,
-    WebAtuhnCredential: GraphQLJSON,
-    WebAuthnRegistrationResponseJSON: GraphQLJSON,
-    WebAuthnAuthenticationResponseJSON: GraphQLJSON,
+    BooqNode: namedJsonScalar('BooqNode'),
+    WebAtuhnCredentialCreationOptions: namedJsonScalar('WebAtuhnCredentialCreationOptions'),
+    WebAtuhnCredentialRequestOptions: namedJsonScalar('WebAtuhnCredentialRequestOptions'),
+    WebAtuhnCredential: namedJsonScalar('WebAtuhnCredential'),
+    WebAuthnRegistrationResponseJSON: namedJsonScalar('WebAuthnRegistrationResponseJSON'),
+    WebAuthnAuthenticationResponseJSON: namedJsonScalar('WebAuthnAuthenticationResponseJSON'),
+}
+
+function namedJsonScalar(name: string,) {
+    return new GraphQLScalarType({
+        ...GraphQLJSON.toConfig(),
+        name,
+    })
 }

@@ -1,14 +1,14 @@
-import { DbUser } from '../backend/users'
+import { DbUser } from '@/backend/users'
 import { IResolvers } from '@graphql-tools/utils'
 
-export type UserParent = DbUser & { _id: string }
+export type UserParent = DbUser
 export const userResolver: IResolvers<UserParent> = {
     User: {
-        id(parent) {
-            return parent._id
-        },
         joined(parent) {
-            return parent.joined.toISOString()
+            return parent.joined_at
+        },
+        pictureUrl(parent) {
+            return parent.profile_picture_url
         },
     },
 }

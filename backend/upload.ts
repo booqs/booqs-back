@@ -1,9 +1,9 @@
+import { addUpload } from './collections'
 import { booqImageUrl } from './images'
-import { uploadToSource } from './library'
-import { addUpload } from './users'
+import { uploadToLibrary } from './library'
 
 export async function uploadEpubBook(fileBuffer: Buffer, userId: string) {
-    let { id, title, cover } = await uploadToSource('uu', fileBuffer, userId) ?? {}
+    let { id, title, cover } = await uploadToLibrary('uu', fileBuffer, userId) ?? { title: null, cover: null }
     if (id) {
         const added = addUpload(userId, id)
         if (!added) {

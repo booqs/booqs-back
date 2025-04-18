@@ -9,29 +9,35 @@ export type HighlightParent = DbHighlight
 export const highlightResolver: IResolvers<HighlightParent> = {
     Highlight: {
         async author(parent): Promise<DbUser | null> {
-            return userForId(parent.userId)
+            return userForId(parent.user_id)
         },
         async booq(parent): Promise<BooqParent | undefined> {
-            return libraryCardForId(parent.booqId)
+            return libraryCardForId(parent.booq_id)
         },
         async text(parent) {
-            const booq = await booqForId(parent.booqId)
+            const booq = await booqForId(parent.booq_id)
             if (booq) {
                 const text = textForRange(booq.nodes, {
-                    start: parent.start,
-                    end: parent.end,
+                    start: parent.start_path,
+                    end: parent.end_path,
                 })
                 return text ?? '<no-text>'
             }
             return '<no-booq>'
         },
         async position(parent) {
-            const booq = await booqForId(parent.booqId)
+            const booq = await booqForId(parent.booq_id)
             if (!booq) {
                 return undefined
             }
-            const position = positionForPath(booq.nodes, parent.start)
+            const position = positionForPath(booq.nodes, parent.start_path)
             return position
+        },
+        start(parent) {
+            return parent.start_path
+        },
+        end(parent) {
+            return parent.end_path
         },
     },
 }
