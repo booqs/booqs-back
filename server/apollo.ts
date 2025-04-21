@@ -6,7 +6,9 @@ import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { ApolloServerPluginSchemaReporting } from '@apollo/server/plugin/schemaReporting'
 import { ApolloServerPluginUsageReporting } from '@apollo/server/plugin/usageReporting'
-import { readTypeDefs, resolvers, context } from './graphql'
+import { readFile } from 'fs'
+import { resolvers } from '@/graphql/resolvers'
+import { context } from '@/graphql/context'
 import { parseCookies } from './cookie'
 
 export async function createApolloServer(httpServer: http.Server) {
@@ -81,4 +83,17 @@ export function addApolloHandler(app: Express, route: string, server: ApolloServ
             },
         }),
     )
+}
+
+async function readTypeDefs() {
+    return new Promise<string>((resolve, reject) => {
+        readFile('./graphql/schema.graphql', {
+            encoding: 'utf-8',
+        }, (err, data) => {
+            if (err) {
+                reject(err)
+            }
+            resolve(data)
+        })
+    })
 }

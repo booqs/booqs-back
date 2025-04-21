@@ -15,17 +15,17 @@ async function exec() {
     const path = args[2]
     const verbosity = args[3] ? parseInt(args[3], 10) : 1
     if (!path) {
-        console.log('You need to pass epub path as an arg')
+        console.info('You need to pass epub path as an arg')
         return
     }
     if (!existsSync(path)) {
-        console.log(`Couldn't find file or directory: ${path}`)
+        console.info(`Couldn't find file or directory: ${path}`)
         return
     }
 
     const files = await listFiles(path)
     const epubs = files.filter(isEpub)
-    console.log(epubs)
+    console.info(epubs)
     logTimeAsync('parsing', async () => {
         for (const epubPath of epubs) {
             await processEpubFile(epubPath, verbosity)
@@ -39,8 +39,8 @@ async function processEpubFile(filePath: string, verbosity: number = 0) {
         fileData,
     })
     if (verbosity > -1) {
-        console.log('Diagnostics:')
-        console.log(inspect(diags, { depth: 10 }))
+        console.info('Diagnostics:')
+        console.info(inspect(diags, { depth: 10 }))
     }
     if (!booq) {
         if (verbosity > -1) {
@@ -49,13 +49,13 @@ async function processEpubFile(filePath: string, verbosity: number = 0) {
         return
     }
     if (verbosity > -1) {
-        console.log(`---- ${filePath}:`)
+        console.info(`---- ${filePath}:`)
     }
     // const pathToSave = join(dirname(filePath), `${basename(filePath, '.epub')}.booq`);
     // await saveBook(pathToSave, booq);
     if (verbosity > 1) {
-        console.log('Metadata:')
-        console.log(booq.meta)
+        console.info('Metadata:')
+        console.info(booq.meta)
     }
 
     return
@@ -80,15 +80,15 @@ function isEpub(path: string): boolean {
 }
 
 function logRed(message: string) {
-    console.log(`\x1b[31m${message}\x1b[0m`)
+    console.info(`\x1b[31m${message}\x1b[0m`)
 }
 
 async function logTimeAsync(marker: string, f: () => Promise<void>) {
-    console.log(`Start: ${marker}`)
+    console.info(`Start: ${marker}`)
     const start = new Date()
     await f()
     const finish = new Date()
-    console.log(`Finish: ${marker}, ${finish.valueOf() - start.valueOf()}ms`)
+    console.info(`Finish: ${marker}, ${finish.valueOf() - start.valueOf()}ms`)
 }
 
 async function saveString(path: string, content: string) {

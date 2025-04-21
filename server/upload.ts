@@ -1,10 +1,18 @@
 import multer from 'multer'
 import { Express } from 'express'
-import { fromCookie } from './auth'
-import { uploadToSource } from './books'
-import { addToCollection } from './users/collections'
 import { parseCookies } from './cookie'
-import { booqImageUrl } from './images'
+import { userIdFromToken } from '@/backend/token'
+import { userForId } from '@/backend/users'
+import { uploadToLibrary } from '@/backend/library'
+import { booqImageUrl } from '@/backend/images'
+import { addToCollection } from '../backend/collections'
+
+async function fromCookie(cookie: string) {
+    const userId = userIdFromToken(cookie)
+    return userId
+        ? userForId(userId)
+        : null
+}
 
 export const UPLOADS_COLLECTION = 'uploads'
 export function addUploadHandler(app: Express, route: string) {
@@ -27,9 +35,13 @@ export function addUploadHandler(app: Express, route: string) {
         if (!req.file) {
             return res.status(400).send('No file uploaded')
         }
-        let { id, title, cover } = await uploadToSource('uu', req.file.buffer, user._id) ?? {}
+        let { id, title, cover } = await uploadToLibrary('uu', req.file.buffer, user.id) ?? {}
         if (id) {
-            let added = addToCollection(user._id, UPLOADS_COLLECTION, id)
+            const added = addToCollection({
+                userId: user.id,
+                name: UPLOADS_COLLECTION,
+                booqId: id,
+            })
             if (!added) {
                 console.error('Failed to add upload to collection')
             }

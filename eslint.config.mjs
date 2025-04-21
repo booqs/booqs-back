@@ -1,81 +1,56 @@
-import { defineConfig } from "eslint/config";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import stylistic from '@stylistic/eslint-plugin'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { FlatCompat } from '@eslint/eslintrc'
+import stylisticTs from '@stylistic/eslint-plugin-ts'
+import parserTs from '@typescript-eslint/parser'
 
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
 const compat = new FlatCompat({
     baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
+})
 
-export default defineConfig([{
-    extends: compat.extends(
-        "eslint:recommended",
-        "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
-    ),
-
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
-        '@stylistic': stylistic,
-    },
-
-    languageOptions: {
-        globals: {
-            ...globals.browser,
-            Atomics: "readonly",
-            SharedArrayBuffer: "readonly",
+// TODO: use new config style?
+const eslintConfig = [
+    ...compat.extends('next/typescript'),
+    { ignores: ['dist/**'] },
+    {
+        plugins: {
+            '@stylistic/ts': stylisticTs,
         },
-
-        parser: tsParser,
-        ecmaVersion: 2018,
-        sourceType: "module",
+        languageOptions: {
+            parser: parserTs,
+        },
+        rules: {
+            '@stylistic/ts/semi': ['error', 'never'],
+            'prefer-const': ['error', {
+                destructuring: 'all',
+            }],
+            'no-iterator': 'off',
+            'react/no-children-prop': 'off',
+            'quotes': [
+                'error',
+                'single',
+                {
+                    'avoidEscape': true,
+                    'allowTemplateLiterals': true,
+                },
+            ],
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    argsIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
+                    ignoreRestSiblings: true,
+                    args: 'after-used',
+                },
+            ],
+        },
     },
+]
 
-    rules: {
-        "prefer-const": "off",
+export default eslintConfig
 
-        "@stylistic/member-delimiter-style": ["error", {
-            multiline: {
-                delimiter: "comma",
-                requireLast: true,
-            },
-
-            singleline: {
-                delimiter: "comma",
-                requireLast: false,
-            },
-        }],
-
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/no-non-null-assertion": "off",
-
-        "@typescript-eslint/no-unused-vars": ["error", {
-            args: "none",
-            ignoreRestSiblings: true,
-            varsIgnorePattern: "^_+$",
-        }],
-
-        "no-unused-vars": "off",
-        "@typescript-eslint/no-inferrable-types": "off",
-        "no-inner-declarations": "off",
-        "space-before-function-paren": "off",
-        indent: "off",
-        semi: ["error", "never"],
-        quotes: ["error", "single"],
-        "generator-star-spacing": ["error", "after"],
-        "comma-dangle": ["error", "always-multiline"],
-        "no-unneeded-ternary": "off",
-    },
-}]);

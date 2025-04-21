@@ -1,15 +1,13 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { booqsWorker } from './books'
-import { mongoDbConnection } from './mongoose'
 import { addUploadHandler } from './upload'
 import { addApolloHandler, createApolloServer } from './apollo'
-import { config } from './config'
+import { config } from '@/backend/config'
+import { pgSyncWorker } from '@/backend/sync'
+
 
 export async function startup() {
-    let mongoPromise = mongoDbConnection()
-
     const app = express()
 
     const httpServer = http.createServer(app)
@@ -25,8 +23,8 @@ export async function startup() {
     const port = process.env.PORT
         ? parseInt(process.env.PORT)
         : 4000
-    let listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
-    await Promise.all([mongoPromise, listenPromise])
+    const listenPromise = new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+    await Promise.all([listenPromise])
     console.log(`🚀 Server ready at http://localhost:${port}/`)
 
     runWorkers()
@@ -58,7 +56,7 @@ function addLoggingHandler(app: express.Express) {
 function addCorsHandler(app: express.Express, allowedOrigins: Array<string | undefined>) {
     app.use(cors<cors.CorsRequest>({
         origin(origin, callback) {
-            for (let allowed of allowedOrigins) {
+            for (const allowed of allowedOrigins) {
                 if (origin === allowed) {
                     callback(null, true)
                     return
@@ -72,6 +70,6 @@ function addCorsHandler(app: express.Express, allowedOrigins: Array<string | und
 
 async function runWorkers() {
     if (process.env.RUN_WORKERS) {
-        booqsWorker()
+        pgSyncWorker()
     }
 }

@@ -5,7 +5,7 @@ export type EpubSection = {
     fileName: string,
     id: string,
     content: string,
-};
+}
 export type EpubMetadata = {
     fields: Record<string, Array<Record<string, string | undefined>> | undefined>,
     items: Array<{
@@ -13,19 +13,19 @@ export type EpubMetadata = {
         href: string,
         id: string,
     }>,
-};
+}
 export type EpubTocItem = {
     level: number,
     label: string,
     href: string,
-};
+}
 export type EpubPackage = {
     metadata: EpubMetadata,
     bufferResolver(href: string): Promise<Buffer | undefined>,
     textResolver(href: string): Promise<string | undefined>,
     sections(): AsyncGenerator<EpubSection>,
     toc(): Generator<EpubTocItem>,
-};
+}
 
 export async function openFirstEpubPackage({ fileData, diagnoser }: {
     fileData: Buffer,
@@ -106,8 +106,8 @@ export async function openFirstEpubPackage({ fileData, diagnoser }: {
 }
 
 function getMetadata(document: Unvalidated<PackageDocument>, diagnoser?: Diagnoser): EpubMetadata {
-    let metadata = document.package?.[0]?.metadata?.[0]
-    let manifest = document.package?.[0]?.manifest?.[0]?.item
+    const metadata = document.package?.[0]?.metadata?.[0]
+    const manifest = document.package?.[0]?.manifest?.[0]?.item
     if (!metadata || !manifest) {
         diagnoser?.push({
             message: 'bad package: no metadata or manifest',
@@ -117,26 +117,26 @@ function getMetadata(document: Unvalidated<PackageDocument>, diagnoser?: Diagnos
             items: [],
         }
     }
-    let { meta, ...rest } = metadata
-    let fields: EpubMetadata['fields'] = rest
-    let items: EpubMetadata['items'] = []
-    for (let m of meta ?? []) {
-        let record = m as Record<string, string>
-        let name = record['@name']
+    const { meta, ...rest } = metadata
+    const fields: EpubMetadata['fields'] = rest
+    const items: EpubMetadata['items'] = []
+    for (const m of meta ?? []) {
+        const record = m as Record<string, string>
+        const name = record['@name']
         if (name) {
-            let contentId = record['@content']
+            const contentId = record['@content']
             if (!contentId) {
                 diagnoser?.push({
                     message: 'bad package: meta without content',
                 })
                 continue
             }
-            let manifestItem = manifest.find(i => i['@id'] === contentId)
+            const manifestItem = manifest.find(i => i['@id'] === contentId)
             if (!manifestItem) {
                 fields[name] = [{ '#text': contentId }]
                 continue
             }
-            let { '@id': id, '@href': href } = manifestItem
+            const { '@id': id, '@href': href } = manifestItem
             if (!id || !href) {
                 diagnoser?.push({
                     message: 'bad package: meta with bad content',

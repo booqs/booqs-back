@@ -1,6 +1,6 @@
 import { BooqNode, BooqRange, BooqPath } from './model'
 import {
-    findPath, rootIterator, firstLeaf, iteratorsNode, nextLeaf,
+    findPath, rootIterator, firstLeaf, iteratorsNode, nextLeaf, prevLeaf, BooqNodeIterator,
 } from './iterator'
 import { assertNever } from './misc'
 
@@ -41,6 +41,39 @@ export function previewForPath(nodes: BooqNode[], path: BooqPath, length: number
     }
     return preview.trim()
 }
+
+export function contextForRange(nodes: BooqNode[], { start }: BooqRange, length: number) {
+    // TODO: implement version that takes end into account
+    return contextForPath(nodes, start, length)
+}
+
+export function contextForPath(nodes: BooqNode[], path: BooqPath, length: number) {
+    const iter = findPath(rootIterator(nodes), path)
+    if (!iter) {
+        return undefined
+    }
+    let result = ''
+    let forwardIter: BooqNodeIterator | undefined = firstLeaf(iter)
+    let backwardIter: BooqNodeIterator | undefined = prevLeaf(iter)
+    while (forwardIter || backwardIter) {
+        if (forwardIter) {
+            result += nodeText(iteratorsNode(forwardIter))
+            if (result.length >= length) {
+                return result.substring(0, length)
+            }
+            forwardIter = nextLeaf(forwardIter)
+        }
+        if (backwardIter) {
+            result = nodeText(iteratorsNode(backwardIter)) + result
+            if (result.length >= length) {
+                return result.substring(result.length - length)
+            }
+            backwardIter = prevLeaf(backwardIter)
+        }
+    }
+    return result
+}
+
 
 export function textForRange(nodes: BooqNode[], { start, end }: BooqRange): string | undefined {
     const [startHead, ...startTail] = start

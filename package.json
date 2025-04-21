@@ -11,10 +11,13 @@
   "bin": {
     "booqs": "dist/cli/index.js"
   },
+  "_moduleAliases": {
+    "@": "."
+  },
   "scripts": {
     "cli": "ts-node cli/index.ts",
     "prepare": "npm run build",
-    "lint": "eslint server/**/*.ts",
+    "lint": "eslint . --ext .ts",
     "build": "tsc && npm run lint",
     "start": "node dist/server/index.js",
     "dev": "npm run https",
@@ -36,6 +39,7 @@
   "homepage": "https://github.com/booqs/booqs-back",
   "devDependencies": {
     "@stylistic/eslint-plugin": "^4.2.0",
+    "@stylistic/eslint-plugin-ts": "^4.2.0",
     "@types/cors": "^2.8.17",
     "@types/css": "0.0.38",
     "@types/graphql-type-json": "^0.3.5",
@@ -48,6 +52,7 @@
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "eslint": "^9.23.0",
+    "eslint-config-next": "^15.3.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^7.2.1",
@@ -58,8 +63,11 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "@aws-sdk/client-s3": "^3.772.0",
+    "@graphql-tools/schema": "^10.0.23",
+    "@neondatabase/serverless": "^1.0.0",
     "@simplewebauthn/server": "^13.1.1",
     "@simplewebauthn/types": "^12.0.0",
+    "@upstash/redis": "^1.34.8",
     "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "booqs-epub": "^0.2.0",
@@ -74,12 +82,14 @@
     "graphql": "^16.10.0",
     "graphql-tools": "^9.0.18",
     "graphql-type-json": "^0.3.2",
+    "graphql-yoga": "^5.13.4",
     "htmlparser2": "^10.0.0",
     "jsonwebtoken": "^9.0.2",
     "jszip": "^3.10.1",
     "jwks-rsa": "^3.2.0",
     "lodash": "^4.17.21",
-    "mongoose": "^8.12.2",
+    "module-alias": "^2.2.3",
+    "mongodb": "^6.15.0",
     "multer": "^1.4.5-lts.2",
     "openai": "^4.89.0",
     "sharp": "^0.33.5",

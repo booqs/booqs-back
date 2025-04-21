@@ -17,7 +17,7 @@ export async function processEpub(epub: EpubPackage, diags: Diagnoser): Promise<
         nodes.push(value)
     }
 
-    let meta = buildMeta(epub, diags)
+    const meta = buildMeta(epub, diags)
     const images = await buildImages(nodes, meta, epub, diags)
     const toc = await buildToc(nodes, epub, diags)
 

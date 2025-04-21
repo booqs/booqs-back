@@ -1,8 +1,7 @@
-import { promisify } from 'util'
+import { promisify, inspect } from 'util'
 import { exists, lstat, readdir, readFile } from 'fs'
 import { join } from 'path'
-import { extractMetadata, parseEpub } from '../parser'
-import { pretty } from '../server/utils'
+import { extractMetadata, parseEpub } from '@/parser'
 
 export async function parseEpubs(path: string, options: {
     verbose?: boolean,
@@ -34,7 +33,7 @@ async function processFile(filePath: string, verbose?: boolean) {
             fileData: file,
             extractCover: true,
         })
-        let diags = [...parseDiags, ...metaDiags]
+        const diags = [...parseDiags, ...metaDiags]
         if (!meta?.cover) {
             diags.push({
                 message: 'No cover image found',
@@ -62,4 +61,8 @@ export async function* listEpubs(paths: string[]): AsyncGenerator<string> {
             }
         }
     }
+}
+
+function pretty(obj: any, depth?: number) {
+    return inspect(obj, false, depth ?? 8, true)
 }

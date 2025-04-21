@@ -26,8 +26,8 @@ export async function buildToc(nodes: BooqNode[], file: EpubPackage, diags: Diag
             }
         }
     }
-    let titles = file.metadata.fields['title'] ?? file.metadata.fields['dc:title'] ?? []
-    let title = titles.map(t => t['#text']).join(', ')
+    const titles = file.metadata.fields['title'] ?? file.metadata.fields['dc:title'] ?? []
+    const title = titles.map(t => t['#text']).join(', ')
 
     return {
         title,
