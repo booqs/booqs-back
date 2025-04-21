@@ -1,6 +1,6 @@
 export type BooqId = {
     id: string,
-    source: string,
+    library: string,
 }
 
 export type BooqPath = number[]

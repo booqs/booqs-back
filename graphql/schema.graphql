@@ -81,6 +81,7 @@ type User {
 union SearchResult = Booq | Author
 
 input BookmarkInput {
+    id: ID!
     booqId: ID!
     path: [Int!]!
 }
@@ -149,6 +150,7 @@ type BooqHistory {
     position: Int!
 }
 type Collection {
+    name: String!
     booqs: [Booq!]
 }
 

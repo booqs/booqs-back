@@ -22,10 +22,11 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return false
             }
         },
-        async addBookmark(_, { bookmark }, { userId }) {
+        async addBookmark(_, { bookmark }, { userId }): Promise<boolean> {
             if (userId) {
                 await addBookmark({
                     userId,
+                    id: bookmark.id,
                     booqId: bookmark.booqId,
                     path: bookmark.path,
                 })
@@ -36,15 +37,15 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
         },
         async removeBookmark(_, { id }, { userId }) {
             if (userId) {
-                await deleteBookmark(id)
-                return true
+                return deleteBookmark(id)
             } else {
                 return false
             }
         },
-        async addHighlight(_, { highlight }, { userId }) {
+        async addHighlight(_, { highlight }, { userId }): Promise<boolean> {
             if (userId) {
                 await addHighlight({
+                    id: highlight.id,
                     userId: userId,
                     booqId: highlight.booqId,
                     range: {
@@ -60,16 +61,15 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
         },
         async removeHighlight(_, { id }, { userId }) {
             if (userId) {
-                await removeHighlight({
+                return removeHighlight({
                     userId,
                     id: id,
                 })
-                return true
             } else {
                 return false
             }
         },
-        async updateHighlight(_, { id, color }, { userId }) {
+        async updateHighlight(_, { id, color }, { userId }): Promise<boolean> {
             if (userId) {
                 await updateHighlight({
                     userId,
@@ -81,7 +81,7 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return false
             }
         },
-        async addBooqHistory(_, { event }, { userId }) {
+        async addBooqHistory(_, { event }, { userId }): Promise<boolean> {
             if (userId) {
                 await addBooqHistory(userId, {
                     booqId: event.booqId,
@@ -94,24 +94,22 @@ export const mutationResolver: IResolvers<any, ResolverContext> = {
                 return false
             }
         },
-        async addToCollection(_, { booqId, name }, { userId }) {
+        async addToCollection(_, { booqId, name }, { userId }): Promise<boolean> {
             if (userId) {
-                await addToCollection({
+                return addToCollection({
                     userId,
                     name, booqId,
                 })
-                return true
             } else {
                 return false
             }
         },
-        async removeFromCollection(_, { booqId, name }, { userId }) {
+        async removeFromCollection(_, { booqId, name }, { userId }): Promise<boolean> {
             if (userId) {
-                await removeFromCollection({
+                return removeFromCollection({
                     userId,
                     name, booqId,
                 })
-                return true
             } else {
                 return false
             }

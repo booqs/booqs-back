@@ -87,7 +87,7 @@ CREATE INDEX IF NOT EXISTS bookmarks_user_id_idx ON bookmarks(user_id);
 
 -- Highlights
 CREATE TABLE IF NOT EXISTS highlights (
-  highlight_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   booq_id TEXT NOT NULL,
   start_path INTEGER[] NOT NULL,

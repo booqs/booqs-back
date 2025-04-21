@@ -32,7 +32,12 @@ export async function addBooqHistory(
     userId: string,
     { booqId, source, ...data }: DbReadingHistoryEvent,
 ) {
-    return redis.hset(`user:${userId}:history`, {
+    const result = await redis.hset(`user:${userId}:history`, {
         [`${booqId}:${source}`]: JSON.stringify(data),
     })
+    return result > 0 ? {
+        booqId,
+        source,
+        ...data,
+    } : null
 }
